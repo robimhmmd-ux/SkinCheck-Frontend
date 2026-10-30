@@ -320,6 +320,8 @@ export default function ScanPage() {
           {scanId && (
             <p style={{ marginTop: 16 }}>
               <Link href={`/history/${scanId}`}>Lihat detail scan #{scanId}</Link>
+              {" · "}
+              <Link href="/output?from=scan">Lihat di halaman Output</Link>
             </p>
           )}
         </div>

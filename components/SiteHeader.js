@@ -12,7 +12,9 @@ export default function SiteHeader() {
         <nav className="nav">
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/scan">Scan</Link>
+          <Link href="/output">Output</Link>
           <Link href="/history">Riwayat</Link>
+          <Link href="/marketplace">Marketplace</Link>
           <Link href="/assistant">Asisten</Link>
           <Link href="/profile">Profil</Link>
           <button type="button" className="btn-login-transparent" onClick={() => setLoginOpen(true)}>Masuk</button>
