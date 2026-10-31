@@ -25,11 +25,16 @@ export default function VerifyOtpPage() {
 
   // Prefill nomor dari pendaftaran: /verify-otp?phone=0812... (dibaca
   // lewat window.location.search, tanpa useSearchParams supaya tidak
-  // perlu Suspense boundary).
+  // perlu Suspense boundary). Kalau pendaftaran sudah berhasil
+  // mengirim OTP (&sent=1), kolom kode langsung ditampilkan.
   useEffect(() => {
     try {
-      const p = new URLSearchParams(window.location.search).get("phone");
-      if (p) setPhone(p);
+      const q = new URLSearchParams(window.location.search);
+      const p = q.get("phone");
+      if (p) {
+        setPhone(p);
+        if (q.get("sent") === "1") setSentTo(p);
+      }
     } catch {}
   }, []);
 
