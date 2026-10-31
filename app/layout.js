@@ -1,5 +1,6 @@
 import { Playfair_Display } from "next/font/google";
 import SiteHeader from "../components/SiteHeader";
+import { ToastProvider } from "../components/Toast";
 import "./globals.css";
 
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-display" });
@@ -13,11 +14,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="id" className={playfair.variable}>
       <body>
-        <SiteHeader />
-        <main className="container">{children}</main>
-        <footer className="footer">
-          SkinCheck — frontend Next.js. Backend Python (FastAPI) dikonfigurasi lewat NEXT_PUBLIC_API_URL.
-        </footer>
+        <ToastProvider>
+          <SiteHeader />
+          <main className="container">{children}</main>
+          <footer className="footer">
+            SkinCheck — frontend Next.js. Backend Python (FastAPI) dikonfigurasi lewat NEXT_PUBLIC_API_URL.
+          </footer>
+        </ToastProvider>
       </body>
     </html>
   );

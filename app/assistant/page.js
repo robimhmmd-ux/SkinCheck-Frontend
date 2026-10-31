@@ -9,6 +9,7 @@ import {
   pickArray,
 } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
+import { ConfirmDialog, useToast } from "../../components/Toast";
 
 export default function AssistantPage() {
   const [messages, setMessages] = useState([]);
@@ -17,6 +18,8 @@ export default function AssistantPage() {
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState(null);
   const [authNeeded, setAuthNeeded] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const toast = useToast();
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -137,7 +140,7 @@ export default function AssistantPage() {
   }
 
   async function onClear() {
-    if (!window.confirm("Hapus seluruh riwayat percakapan dengan asisten?")) return;
+    setConfirmClear(false);
     try {
       await clearAssistantHistory();
       setMessages([
@@ -147,6 +150,7 @@ export default function AssistantPage() {
             "Riwayat percakapan telah dibersihkan. Ada yang ingin kamu tanyakan seputar kulit wajahmu?",
         },
       ]);
+      toast.success("Riwayat percakapan telah dibersihkan.");
     } catch (err) {
       setError(err);
     }
@@ -177,7 +181,7 @@ export default function AssistantPage() {
         {messages.length > 1 && (
           <button
             type="button"
-            onClick={onClear}
+            onClick={() => setConfirmClear(true)}
             className="btn secondary"
             style={{ fontSize: 12, padding: "6px 12px" }}
           >
@@ -187,6 +191,14 @@ export default function AssistantPage() {
       </div>
 
       <ErrorBox error={error} />
+      <ConfirmDialog
+        open={confirmClear}
+        title="Bersihkan riwayat?"
+        message="Seluruh riwayat percakapan dengan asisten akan dihapus dan tidak bisa dikembalikan."
+        confirmLabel="Ya, hapus riwayat"
+        onConfirm={onClear}
+        onCancel={() => setConfirmClear(false)}
+      />
 
       {authNeeded && (
         <div className="notice" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

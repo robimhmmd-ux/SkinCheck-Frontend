@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getMe, logout, pickUser } from "../../lib/api";
 import { ErrorBox, Loading } from "../../components/Notice";
+import { useToast } from "../../components/Toast";
 
 // Setting akun customer.
 // Jujur soal batasan: /api/v2 belum punya endpoint ubah profil /
@@ -14,7 +15,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [msg, setMsg] = useState("");
+  const toast = useToast();
   const [reminder, setReminder] = useState(false);
   const [showPercent, setShowPercent] = useState(true);
 
@@ -34,17 +35,17 @@ export default function ProfilePage() {
   function toggleReminder(v) {
     setReminder(v);
     try { localStorage.setItem("skincheck-reminder", v ? "1" : "0"); } catch {}
-    setMsg("Preferensi tersimpan di browser ini.");
+    toast.success("Preferensi tersimpan di browser ini.");
   }
 
   function togglePercent(v) {
     setShowPercent(v);
     try { localStorage.setItem("skincheck-percent", v ? "1" : "0"); } catch {}
-    setMsg("Preferensi tersimpan di browser ini.");
+    toast.success("Preferensi tersimpan di browser ini.");
   }
 
   async function onLogout() {
-    try { await logout(); setMsg("Berhasil keluar."); setUser(null); }
+    try { await logout(); toast.success("Berhasil keluar."); setUser(null); }
     catch (e) { setError(e); }
   }
 
@@ -54,7 +55,6 @@ export default function ProfilePage() {
       <p className="muted">Kelola akun dan preferensimu. Data akun di bawah berasal dari akun yang sedang login.</p>
       {loading && <Loading />}
       <ErrorBox error={error} />
-      {msg && <div className="ok">{msg}</div>}
 
       <div className="me-panels">
         <div className="me-panel">
