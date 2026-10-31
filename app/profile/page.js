@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getMe, logout, pickUser } from "../../lib/api";
 import { ErrorBox, Loading } from "../../components/Notice";
 import { useToast } from "../../components/Toast";
@@ -16,6 +17,7 @@ export default function ProfilePage() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
+  const router = useRouter();
   const [reminder, setReminder] = useState(false);
   const [showPercent, setShowPercent] = useState(true);
 
@@ -45,7 +47,7 @@ export default function ProfilePage() {
   }
 
   async function onLogout() {
-    try { await logout(); toast.success("Berhasil keluar."); setUser(null); }
+    try { await logout(); toast.success("Berhasil keluar."); setUser(null); router.push("/login"); }
     catch (e) { setError(e); }
   }
 

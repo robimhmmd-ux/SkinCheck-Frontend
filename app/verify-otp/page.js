@@ -23,6 +23,16 @@ export default function VerifyOtpPage() {
   const [busy, setBusy] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
+  // Prefill nomor dari pendaftaran: /verify-otp?phone=0812... (dibaca
+  // lewat window.location.search, tanpa useSearchParams supaya tidak
+  // perlu Suspense boundary).
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(window.location.search).get("phone");
+      if (p) setPhone(p);
+    } catch {}
+  }, []);
+
   useEffect(() => {
     if (cooldown <= 0) return;
     const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
