@@ -50,6 +50,19 @@ export default function ScanPage() {
     };
   }, []);
 
+  // BUGFIX: elemen <video> hanya di-render saat webcamActive === true,
+  // jadi di dalam startCamera() videoRef.current masih null pada saat
+  // stream didapat — srcObject tidak pernah terpasang ke <video> yang
+  // baru muncul setelah setWebcamActive(true). Akibatnya kamera
+  // sebenarnya jalan (lampu indikator bisa nyala) tapi pratinjaunya
+  // hitam. Effect ini memasang stream ke <video> begitu ia ter-mount.
+  useEffect(() => {
+    if (webcamActive && streamRef.current && videoRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [webcamActive]);
+
   async function startCamera() {
     setError(null);
     try {
@@ -59,11 +72,19 @@ export default function ScanPage() {
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        videoRef.current.play().catch(() => {});
       }
       setWebcamActive(true);
     } catch (err) {
-      setError(new Error("Tidak dapat mengakses kamera webcam. Pastikan izin kamera aktif."));
+      // Bedakan penyebabnya supaya tidak lagi sekadar "tidak bisa":
+      // izin ditolak, kamera tidak ada, kamera dipakai aplikasi lain,
+      // atau halaman dibuka lewat konteks tidak aman (bukan https).
+      let msg = "Tidak dapat mengakses kamera webcam. Pastikan izin kamera aktif.";
+      if (err && err.name === "NotAllowedError") msg = "Izin kamera ditolak browser. Klik ikon kamera di address bar, izinkan kamera untuk situs ini, lalu klik Buka Kamera lagi.";
+      else if (err && err.name === "NotFoundError") msg = "Tidak ada kamera yang ditemukan di perangkat ini.";
+      else if (err && err.name === "NotReadableError") msg = "Kamera sedang dipakai aplikasi lain (mis. Zoom/Meet). Tutup aplikasi itu dulu, lalu klik Buka Kamera lagi.";
+      else if (err && err.name === "SecurityError") msg = "Kamera hanya bisa dipakai lewat https atau localhost. Buka situs lewat alamat https-nya, bukan http biasa.";
+      setError(new Error(msg));
     }
   }
 
