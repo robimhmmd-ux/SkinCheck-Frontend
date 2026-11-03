@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { uploadScan, uploadMultiScan, pickObject } from "../../lib/api";
+import { uploadScan, uploadMultiScan, pickObject, getMe } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
 
 const SCORES = [
@@ -17,13 +17,54 @@ const SCORES = [
 ];
 
 const POSES = [
-  { label: "Hadap Depan (Center)", sec: 10 },
-  { label: "Tengok Kiri Sedikit (Pipi Kiri)", sec: 20 },
-  { label: "Tengok Kanan Sedikit (Pipi Kanan)", sec: 30 },
-  { label: "Dongak Sedikit (Area Dagu)", sec: 40 },
-  { label: "Nunduk Sedikit (Area Dahi)", sec: 50 },
-  { label: "Maju & Mundur Sedikit", sec: 60 },
+  { label: "Hadap Depan (Center)", sec: 4 },
+  { label: "Tengok Kiri Sedikit (Pipi Kiri)", sec: 8 },
+  { label: "Tengok Kanan Sedikit (Pipi Kanan)", sec: 12 },
+  { label: "Dongak Sedikit (Area Dagu)", sec: 16 },
+  { label: "Nunduk Sedikit (Area Dahi)", sec: 20 },
+  { label: "Maju Sedikit (Detail Tekstur)", sec: 24 },
 ];
+
+// Helper: Kompres foto dari HP sebelum di-upload agar tidak melebihi batas 4.5MB Vercel / server
+async function compressImageForMobile(file, maxDimension = 1280, quality = 0.85) {
+  if (!file || !file.type.startsWith("image/")) return file;
+  if (file.size < 600 * 1024) return file; // File sudah cukup ringan
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width;
+      let h = img.height;
+      if (w > maxDimension || h > maxDimension) {
+        if (w > h) {
+          h = Math.round((h * maxDimension) / w);
+          w = maxDimension;
+        } else {
+          w = Math.round((w * maxDimension) / h);
+          h = maxDimension;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(
+        (blob) => {
+          if (blob && blob.size < file.size) {
+            resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+          } else {
+            resolve(file);
+          }
+        },
+        "image/jpeg",
+        quality
+      );
+    };
+    img.onerror = () => resolve(file);
+    img.src = URL.createObjectURL(file);
+  });
+}
 
 export default function ScanPage() {
   const [mode, setMode] = useState("single"); // "single" | "multi"
@@ -32,16 +73,11 @@ export default function ScanPage() {
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Webcam multi-pose capture state
   const [webcamActive, setWebcamActive] = useState(false);
-  // Pratinjau kamera depan di banyak perangkat tampil terbalik
-  // kiri-kanan (efek cermin). transform scaleX(-1) membaliknya kembali
-  // ke orientasi asli. Capture canvas TIDAK ikut dibalik: drawImage
-  // mengabaikan transform CSS, jadi frame yang dikirim ke backend
-  // tetap orientasi asli — sama dengan pratinjau setelah dibalik.
-  // Tombol "Balik pratinjau" ada untuk perangkat yang pratinjaunya
-  // ternyata sudah benar tanpa dibalik.
+  const [facingMode, setFacingMode] = useState("user"); // "user" (depan) | "environment" (belakang)
   const [flipPreview, setFlipPreview] = useState(true);
   const [recording, setRecording] = useState(false);
   const [timer, setTimer] = useState(0);
@@ -53,17 +89,17 @@ export default function ScanPage() {
   const intervalRef = useRef(null);
 
   useEffect(() => {
+    // Cek status sesi login (opsional)
+    getMe()
+      .then((user) => setCurrentUser(user))
+      .catch(() => setCurrentUser(null));
+
     return () => {
       stopCamera();
     };
   }, []);
 
-  // BUGFIX: elemen <video> hanya di-render saat webcamActive === true,
-  // jadi di dalam startCamera() videoRef.current masih null pada saat
-  // stream didapat — srcObject tidak pernah terpasang ke <video> yang
-  // baru muncul setelah setWebcamActive(true). Akibatnya kamera
-  // sebenarnya jalan (lampu indikator bisa nyala) tapi pratinjaunya
-  // hitam. Effect ini memasang stream ke <video> begitu ia ter-mount.
+  // Pasang stream ke elemen <video> saat webcam aktif
   useEffect(() => {
     if (webcamActive && streamRef.current && videoRef.current) {
       videoRef.current.srcObject = streamRef.current;
@@ -71,29 +107,53 @@ export default function ScanPage() {
     }
   }, [webcamActive]);
 
-  async function startCamera() {
+  async function startCamera(desiredFacing = facingMode) {
     setError(null);
+    stopCamera();
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: "user" },
-      });
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: desiredFacing,
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+          },
+        });
+      } catch {
+        // Fallback jika orientasi / resolusi spesifik ditolak perangkat HP
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: desiredFacing },
+        });
+      }
+
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play().catch(() => {});
       }
+      setFacingMode(desiredFacing);
+      setFlipPreview(desiredFacing === "user");
       setWebcamActive(true);
     } catch (err) {
-      // Bedakan penyebabnya supaya tidak lagi sekadar "tidak bisa":
-      // izin ditolak, kamera tidak ada, kamera dipakai aplikasi lain,
-      // atau halaman dibuka lewat konteks tidak aman (bukan https).
-      let msg = "Tidak dapat mengakses kamera webcam. Pastikan izin kamera aktif.";
-      if (err && err.name === "NotAllowedError") msg = "Izin kamera ditolak browser. Klik ikon kamera di address bar, izinkan kamera untuk situs ini, lalu klik Buka Kamera lagi.";
-      else if (err && err.name === "NotFoundError") msg = "Tidak ada kamera yang ditemukan di perangkat ini.";
-      else if (err && err.name === "NotReadableError") msg = "Kamera sedang dipakai aplikasi lain (mis. Zoom/Meet). Tutup aplikasi itu dulu, lalu klik Buka Kamera lagi.";
-      else if (err && err.name === "SecurityError") msg = "Kamera hanya bisa dipakai lewat https atau localhost. Buka situs lewat alamat https-nya, bukan http biasa.";
+      let msg = "Tidak dapat mengakses kamera. Pastikan izin kamera aktif di browser HP/laptop kamu.";
+      if (err && err.name === "NotAllowedError") {
+        msg = "Izin kamera ditolak browser. Izinkan akses kamera di pengaturan browser/HP, lalu coba lagi.";
+      } else if (err && err.name === "NotFoundError") {
+        msg = "Tidak ada kamera yang ditemukan pada perangkat ini.";
+      } else if (err && err.name === "NotReadableError") {
+        msg = "Kamera sedang dipakai oleh aplikasi lain. Tutup aplikasi tersebut lalu coba lagi.";
+      } else if (err && err.name === "SecurityError") {
+        msg = "Kamera hanya dapat diakses melalui koneksi aman (HTTPS) atau localhost.";
+      }
       setError(new Error(msg));
     }
+  }
+
+  function toggleCamera() {
+    const nextFacing = facingMode === "user" ? "environment" : "user";
+    startCamera(nextFacing);
   }
 
   function stopCamera() {
@@ -104,9 +164,12 @@ export default function ScanPage() {
     }
     setWebcamActive(false);
     setRecording(false);
+    setTimer(0);
   }
 
+  // Mulai perekaman frame pose (1 frame per 1.5 detik, ramah memori HP & kuota)
   function startMultiCapture() {
+    if (!videoRef.current) return;
     setRecordedFrames([]);
     setResult(null);
     setError(null);
@@ -116,43 +179,47 @@ export default function ScanPage() {
 
     const frames = [];
     const startTime = Date.now();
+    let lastCaptureSec = -1;
 
     intervalRef.current = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
       setTimer(elapsed);
 
-      // Determine current pose prompt
+      // Tentukan panduan pose aktif
       const p = POSES.find((pos) => elapsed <= pos.sec) || POSES[POSES.length - 1];
       setCurrentPose(p.label);
 
-      // Capture frame onto hidden canvas
-      if (videoRef.current && canvasRef.current) {
+      // Ambil 1 frame setiap 1.5 - 2 detik untuk efisiensi transfer data HP
+      if (videoRef.current && canvasRef.current && elapsed > lastCaptureSec + 1) {
+        lastCaptureSec = elapsed;
         const vid = videoRef.current;
         const cvs = canvasRef.current;
-        cvs.width = vid.videoWidth || 640;
-        cvs.height = vid.videoHeight || 480;
+        const maxW = 640;
+        const maxH = 480;
+        cvs.width = Math.min(vid.videoWidth || maxW, maxW);
+        cvs.height = Math.min(vid.videoHeight || maxH, maxH);
         const ctx = cvs.getContext("2d");
         ctx.drawImage(vid, 0, 0, cvs.width, cvs.height);
 
         cvs.toBlob(
           (blob) => {
             if (blob) {
-              const frameFile = new File([blob], `frame_${Date.now()}.png`, { type: "image/png" });
+              const frameFile = new File([blob], `frame_${Date.now()}.jpg`, { type: "image/jpeg" });
               frames.push(frameFile);
               setRecordedFrames([...frames]);
             }
           },
-          "image/png",
-          0.85
+          "image/jpeg",
+          0.80
         );
       }
 
-      // Finish at 60 seconds (or early stop if user clicks)
-      if (elapsed >= 60) {
+      // Selesai otomatis di detik ke-24 (atau dihentikan manual oleh user)
+      if (elapsed >= 24) {
         clearInterval(intervalRef.current);
         finishRecording(frames);
       }
-    }, 250); // capture 4-5 fps to keep memory safe in browser
+    }, 500);
   }
 
   async function finishRecording(framesToUpload) {
@@ -160,7 +227,7 @@ export default function ScanPage() {
     if (intervalRef.current) clearInterval(intervalRef.current);
     const validFrames = framesToUpload && framesToUpload.length > 0 ? framesToUpload : recordedFrames;
     if (validFrames.length === 0) {
-      setError(new Error("Tidak ada frame yang berhasil direkam."));
+      setError(new Error("Tidak ada frame yang berhasil direkam. Silakan ulangi."));
       return;
     }
 
@@ -187,13 +254,15 @@ export default function ScanPage() {
   async function onSubmitSingle(e) {
     e.preventDefault();
     if (!file) {
-      setError(new Error("Pilih foto wajah dulu."));
+      setError(new Error("Pilih foto wajah terlebih dahulu."));
       return;
     }
     setError(null);
     setBusy(true);
     try {
-      const res = await uploadScan(file);
+      // Kompres otomatis gambar HP sebelum kirim
+      const readyFile = await compressImageForMobile(file);
+      const res = await uploadScan(readyFile);
       setResult(pickObject(res));
     } catch (err) {
       setError(err);
@@ -207,27 +276,45 @@ export default function ScanPage() {
   const status = result && result.status;
 
   return (
-    <div className="card" style={{ maxWidth: 800, margin: "20px auto" }}>
+    <div className="card" style={{ maxWidth: 800, margin: "20px auto", padding: "20px 16px" }}>
       <h1>Scan Wajah & Analisis Kulit</h1>
-      <p className="muted">
+      <p className="muted" style={{ marginBottom: 14 }}>
         Analisis kondisi kulit wajah (jerawat, minyak, kekeringan, noda hitam, dan kerutan) menggunakan deteksi wajah YuNet dan model VGG16.
       </p>
 
+      {/* Info status akun / tamu */}
+      {!currentUser && (
+        <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "10px 14px", borderRadius: 8, fontSize: 13, color: "#166534", marginBottom: 16 }}>
+          💡 <b>Mode Pengujian Aktif:</b> Anda dapat langsung memindai wajah tanpa login. Hasil analisis AI akan langsung muncul di halaman ini. (
+          <Link href="/login" style={{ textDecoration: "underline", fontWeight: 600 }}>
+            Login
+          </Link>{" "}
+          jika ingin menyimpan riwayat ke akun).
+        </div>
+      )}
+
       {/* Mode Selector */}
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
         <button
           type="button"
-          onClick={() => { setMode("single"); stopCamera(); }}
+          onClick={() => {
+            setMode("single");
+            stopCamera();
+          }}
           className={`btn ${mode === "single" ? "" : "secondary"}`}
+          style={{ flex: "1 1 180px", minHeight: 44 }}
         >
-          Foto Tunggal (Upload)
+          Foto Tunggal (Upload/Kamera)
         </button>
         <button
           type="button"
-          onClick={() => { setMode("multi"); }}
+          onClick={() => {
+            setMode("multi");
+          }}
           className={`btn ${mode === "multi" ? "" : "secondary"}`}
+          style={{ flex: "1 1 180px", minHeight: 44 }}
         >
-          Webcam Multi-Pose (Realtime)
+          Kamera Multi-Pose (Realtime)
         </button>
       </div>
 
@@ -235,46 +322,86 @@ export default function ScanPage() {
 
       {mode === "single" ? (
         <form onSubmit={onSubmitSingle}>
-          <label>
-            Foto wajah
-            <input type="file" accept="image/*" onChange={onFile} />
+          <label style={{ display: "block", marginBottom: 12 }}>
+            <span style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>Pilih atau Ambil Foto Wajah</span>
+            <input
+              type="file"
+              accept="image/*"
+              capture="user"
+              onChange={onFile}
+              style={{ width: "100%", padding: "10px 8px", fontSize: 15 }}
+            />
           </label>
-          {preview && <img className="preview" src={preview} alt="Pratinjau foto wajah" style={{ maxHeight: 320, objectFit: "contain" }} />}
-          <button className="btn" disabled={busy} style={{ marginTop: 10 }}>
-            {busy ? "Menganalisis Foto..." : "Analisis Foto"}
+          {preview && (
+            <div style={{ textAlign: "center", margin: "14px 0" }}>
+              <img
+                className="preview"
+                src={preview}
+                alt="Pratinjau foto wajah"
+                style={{ maxHeight: 320, maxWidth: "100%", borderRadius: 10, objectFit: "contain" }}
+              />
+            </div>
+          )}
+          <button className="btn" disabled={busy} style={{ width: "100%", minHeight: 46, fontSize: 16, marginTop: 8 }}>
+            {busy ? "Menganalisis Foto..." : "Mulai Analisis Foto"}
           </button>
         </form>
       ) : (
         <div>
           {!webcamActive ? (
-            <div style={{ textAlign: "center", padding: "30px 20px", background: "var(--cream)", borderRadius: 12 }}>
-              <p>Aktifkan webcam untuk memulai panduan pemindaian multi-sudut wajah (60 detik).</p>
-              <button type="button" onClick={startCamera} className="btn">
+            <div style={{ textAlign: "center", padding: "26px 16px", background: "var(--cream)", borderRadius: 12 }}>
+              <p style={{ margin: "0 0 14px 0", fontSize: 15 }}>
+                Aktifkan kamera untuk panduan pemindaian multi-sudut wajah interaktif.
+              </p>
+              <button type="button" onClick={() => startCamera(facingMode)} className="btn" style={{ minHeight: 46, minWidth: 160 }}>
                 Buka Kamera
               </button>
             </div>
           ) : (
             <div>
-              <div style={{ position: "relative", width: "100%", maxWidth: 540, margin: "0 auto", borderRadius: 14, overflow: "hidden", background: "#000" }}>
-                <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", display: "block", transform: flipPreview ? "scaleX(-1)" : "none" }} />
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  maxWidth: 540,
+                  margin: "0 auto",
+                  borderRadius: 14,
+                  overflow: "hidden",
+                  background: "#000",
+                }}
+              >
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  webkit-playsinline="true"
+                  muted
+                  style={{
+                    width: "100%",
+                    display: "block",
+                    aspectRatio: "4 / 3",
+                    objectFit: "cover",
+                    transform: flipPreview ? "scaleX(-1)" : "none",
+                  }}
+                />
                 <canvas ref={canvasRef} style={{ display: "none" }} />
 
                 {recording && (
                   <div
                     style={{
                       position: "absolute",
-                      top: 14,
-                      left: 14,
-                      right: 14,
-                      background: "rgba(0,0,0,0.65)",
+                      top: 10,
+                      left: 10,
+                      right: 10,
+                      background: "rgba(0,0,0,0.72)",
                       color: "#fff",
-                      padding: "8px 14px",
+                      padding: "8px 12px",
                       borderRadius: 10,
                       backdropFilter: "blur(6px)",
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700 }}>
-                      <span style={{ color: "#ff5252" }}>● Merekam: {timer}s / 60s</span>
+                      <span style={{ color: "#ff5252" }}>● Merekam: {timer}s / 24s</span>
                       <span>{recordedFrames.length} Frame</span>
                     </div>
                     <div style={{ fontSize: 15, marginTop: 4, color: "#a7f3d0", fontWeight: 600 }}>
@@ -284,21 +411,29 @@ export default function ScanPage() {
                 )}
               </div>
 
-              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 14 }}>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginTop: 14 }}>
                 {!recording ? (
-                  <button type="button" onClick={startMultiCapture} className="btn" disabled={busy}>
-                    Mulai Scan Multi-Pose (60 Detik)
+                  <button type="button" onClick={startMultiCapture} className="btn" disabled={busy} style={{ minHeight: 44, flex: "1 1 160px" }}>
+                    Mulai Scan Multi-Pose (24 Detik)
                   </button>
                 ) : (
-                  <button type="button" onClick={() => finishRecording()} className="btn" style={{ background: "var(--danger)" }}>
-                    Selesai & Analisis Sekarang ({recordedFrames.length} frame)
+                  <button
+                    type="button"
+                    onClick={() => finishRecording()}
+                    className="btn"
+                    style={{ background: "var(--danger)", minHeight: 44, flex: "1 1 160px" }}
+                  >
+                    Selesai & Analisis ({recordedFrames.length} frame)
                   </button>
                 )}
-                <button type="button" onClick={() => setFlipPreview((f) => !f)} className="btn secondary" disabled={recording}>
-                  Balik pratinjau
+                <button type="button" onClick={toggleCamera} className="btn secondary" disabled={recording} style={{ minHeight: 44 }}>
+                  Ganti Kamera (Depan/Belakang)
                 </button>
-                <button type="button" onClick={stopCamera} className="btn secondary" disabled={recording}>
-                  Tutup Kamera
+                <button type="button" onClick={() => setFlipPreview((f) => !f)} className="btn secondary" disabled={recording} style={{ minHeight: 44 }}>
+                  Balik Pratinjau
+                </button>
+                <button type="button" onClick={stopCamera} className="btn secondary" disabled={recording} style={{ minHeight: 44 }}>
+                  Tutup
                 </button>
               </div>
             </div>
@@ -307,31 +442,48 @@ export default function ScanPage() {
       )}
 
       {busy && (
-        <div className="notice" style={{ marginTop: 20, textAlign: "center" }}>
-          Memproses analisis YuNet & VGG16 di backend... Harap tunggu sebentar.
+        <div className="notice" style={{ marginTop: 20, textAlign: "center", padding: "14px", fontWeight: 600 }}>
+          ⏳ Sedang memproses analisis wajah & 5 kondisi kulit di backend... Mohon tunggu.
         </div>
       )}
 
       {result && (
-        <div className="card" style={{ marginTop: 24 }}>
+        <div className="card" style={{ marginTop: 24, padding: "16px" }}>
           <h2>Hasil Analisis Wajah</h2>
           <p>
             Status: <b>{status || result.message || "terkirim"}</b>
           </p>
           {result.message && <p className="muted">{result.message}</p>}
 
-          {/* Multi-pose stats */}
+          {/* Statistik multi-pose */}
           {(result.frames_captured || result.frames_passed_yunet) && (
-            <div style={{ display: "flex", gap: 14, padding: "10px 14px", background: "var(--cream)", borderRadius: 10, margin: "14px 0", fontSize: 13 }}>
-              <span>Total Frame: <b>{result.frames_captured}</b></span>
-              <span>Lolos YuNet: <b>{result.frames_passed_yunet}</b></span>
-              <span>Diproses VGG16: <b>{result.frames_used_vgg}</b></span>
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                flexWrap: "wrap",
+                padding: "10px 14px",
+                background: "var(--cream)",
+                borderRadius: 10,
+                margin: "14px 0",
+                fontSize: 13,
+              }}
+            >
+              <span>
+                Total Frame: <b>{result.frames_captured}</b>
+              </span>
+              <span>
+                Lolos Deteksi Wajah: <b>{result.frames_passed_yunet}</b>
+              </span>
+              <span>
+                Dianalisis AI VGG16: <b>{result.frames_used_vgg}</b>
+              </span>
             </div>
           )}
 
           {status === "failed" && (
-            <p className="muted" style={{ color: "var(--danger)" }}>
-              Analisis gagal di backend. Wajah tidak terdeteksi atau gambar tidak memenuhi syarat.
+            <p className="muted" style={{ color: "var(--danger)", fontWeight: 500 }}>
+              Analisis gagal di backend. Wajah tidak terdeteksi atau pencahayaan kurang. Pastikan wajah tegak dan terlihat jelas.
             </p>
           )}
 
