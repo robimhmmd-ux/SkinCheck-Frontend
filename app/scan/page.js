@@ -35,6 +35,14 @@ export default function ScanPage() {
 
   // Webcam multi-pose capture state
   const [webcamActive, setWebcamActive] = useState(false);
+  // Pratinjau kamera depan di banyak perangkat tampil terbalik
+  // kiri-kanan (efek cermin). transform scaleX(-1) membaliknya kembali
+  // ke orientasi asli. Capture canvas TIDAK ikut dibalik: drawImage
+  // mengabaikan transform CSS, jadi frame yang dikirim ke backend
+  // tetap orientasi asli — sama dengan pratinjau setelah dibalik.
+  // Tombol "Balik pratinjau" ada untuk perangkat yang pratinjaunya
+  // ternyata sudah benar tanpa dibalik.
+  const [flipPreview, setFlipPreview] = useState(true);
   const [recording, setRecording] = useState(false);
   const [timer, setTimer] = useState(0);
   const [currentPose, setCurrentPose] = useState("");
@@ -248,7 +256,7 @@ export default function ScanPage() {
           ) : (
             <div>
               <div style={{ position: "relative", width: "100%", maxWidth: 540, margin: "0 auto", borderRadius: 14, overflow: "hidden", background: "#000" }}>
-                <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", display: "block" }} />
+                <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", display: "block", transform: flipPreview ? "scaleX(-1)" : "none" }} />
                 <canvas ref={canvasRef} style={{ display: "none" }} />
 
                 {recording && (
@@ -286,6 +294,9 @@ export default function ScanPage() {
                     Selesai & Analisis Sekarang ({recordedFrames.length} frame)
                   </button>
                 )}
+                <button type="button" onClick={() => setFlipPreview((f) => !f)} className="btn secondary" disabled={recording}>
+                  Balik pratinjau
+                </button>
                 <button type="button" onClick={stopCamera} className="btn secondary" disabled={recording}>
                   Tutup Kamera
                 </button>
