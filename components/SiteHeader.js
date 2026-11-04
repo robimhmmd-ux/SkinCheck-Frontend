@@ -6,14 +6,12 @@ import LoginModal from "./LoginModal";
 import { getMe, logout, pickUser } from "../lib/api";
 import { useToast } from "./Toast";
 
-// Header sadar sesi — ini yang selama ini bikin logout "tidak ada":
-// sebelumnya header selalu menampilkan tombol Masuk, bahkan saat user
-// sudah login, dan satu-satunya tombol Keluar tersembunyi di panel
-// Setting Akun. Sekarang header mengecek /api/v2/me setiap pindah
-// halaman: kalau ada sesi, tampilkan Keluar; kalau tidak, Masuk.
-// Keluar memanggil POST /api/v2/auth/logout (backend menghapus sesi),
-// lalu mengarahkan ke halaman login.
-export default function SiteHeader() {
+// Header sadar sesi: mengecek /api/v2/me setiap pindah halaman; kalau ada
+// sesi tampilkan Keluar, kalau tidak tampilkan Masuk. Keluar memanggil
+// POST /api/v2/auth/logout lalu mengarahkan ke halaman login.
+// Dua wujud: "top" (pill lama, hanya dipakai landing agar landing tidak
+// bergeser) dan "side" (sidebar navigasi untuk semua halaman aplikasi).
+export default function SiteHeader({ variant = "side" }) {
   const [loginOpen, setLoginOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -58,23 +56,47 @@ export default function SiteHeader() {
     ["/assistant", "Asisten"],
     ["/profile", "Profil"],
   ];
+
+  const authButton = loggedIn ? (
+    <button type="button" className="btn secondary" onClick={onLogout} disabled={busy}>
+      {busy ? "Keluar…" : "Keluar"}
+    </button>
+  ) : (
+    <button type="button" className="btn secondary" onClick={() => setLoginOpen(true)}>Masuk</button>
+  );
+
   return (
     <>
-      <header className="topbar">
-        <Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">S</span>SkinCheck</Link>
-        <nav className="nav">
-          {navItems.map(([href, label]) => (
-            <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link>
-          ))}
-          {loggedIn ? (
-            <button type="button" className="btn ghost sm" onClick={onLogout} disabled={busy}>
-              {busy ? "Keluar…" : "Keluar"}
-            </button>
-          ) : (
-            <button type="button" className="btn ghost sm" onClick={() => setLoginOpen(true)}>Masuk</button>
-          )}
-        </nav>
-      </header>
+      {variant === "top" ? (
+        <header className="topbar">
+          <Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">S</span>SkinCheck</Link>
+          <nav className="nav">
+            {navItems.map(([href, label]) => (
+              <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link>
+            ))}
+            {loggedIn ? (
+              <button type="button" className="btn ghost sm" onClick={onLogout} disabled={busy}>
+                {busy ? "Keluar…" : "Keluar"}
+              </button>
+            ) : (
+              <button type="button" className="btn ghost sm" onClick={() => setLoginOpen(true)}>Masuk</button>
+            )}
+          </nav>
+        </header>
+      ) : (
+        <aside className="side">
+          <Link className="side-brand" href="/">
+            <span className="side-mark" aria-hidden="true">S</span>
+            <span><strong>SkinCheck</strong><small>Perawatan kulit wajah</small></span>
+          </Link>
+          <nav className="side-nav" aria-label="Navigasi utama">
+            {navItems.map(([href, label]) => (
+              <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link>
+            ))}
+          </nav>
+          <div className="side-foot">{authButton}</div>
+        </aside>
+      )}
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>
   );

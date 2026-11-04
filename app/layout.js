@@ -1,9 +1,14 @@
-import { Playfair_Display } from "next/font/google";
-import SiteHeader from "../components/SiteHeader";
+import { Playfair_Display, Fraunces, Instrument_Sans } from "next/font/google";
+import Shell from "../components/Shell";
 import { ToastProvider } from "../components/Toast";
 import "./globals.css";
 
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-display" });
+// Playfair dipertahankan HANYA untuk landing (via --font-playfair dan
+// override pelindung di globals.css). Halaman aplikasi memakai Fraunces
+// sebagai --font-display dan Instrument Sans sebagai --font-sans.
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-playfair" });
+const fraunces = Fraunces({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-display" });
+const instrument = Instrument_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-sans" });
 
 export const metadata = {
   title: "SkinCheck — Deteksi Kesehatan Kulit Wajah",
@@ -12,15 +17,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="id" className={playfair.variable}>
+    <html lang="id" className={`${playfair.variable} ${fraunces.variable} ${instrument.variable}`}>
       <body>
         <ToastProvider>
-          <a className="gx-skip" href="#main">Lewati ke konten</a>
-          <SiteHeader />
-          <main id="main" className="container">{children}</main>
-          <footer className="footer">
-            SkinCheck — deteksi kesehatan kulit wajah.
-          </footer>
+          <Shell>{children}</Shell>
         </ToastProvider>
       </body>
     </html>
