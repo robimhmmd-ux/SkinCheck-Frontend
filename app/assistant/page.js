@@ -157,75 +157,73 @@ export default function AssistantPage() {
   }
 
   return (
-    <div className="card chat-shell">
-      <div className="chat-head">
-        <div>
-          <h1>Asisten SkinCheck (Luvenna)</h1>
-          <p className="muted">
-            Konsultasi kesehatan dan bimbingan perawatan kulit wajah terpercaya.
-          </p>
+    <div className="ed-page">
+      <div className="ed-chat">
+        <div className="ed-chat-head">
+          <div>
+            <h1>Asisten SkinCheck (Luvenna)</h1>
+            <p className="muted">
+              Konsultasi kesehatan dan bimbingan perawatan kulit wajah terpercaya.
+            </p>
+          </div>
+          {messages.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setConfirmClear(true)}
+              className="btn secondary sm"
+            >
+              Bersihkan Riwayat
+            </button>
+          )}
         </div>
-        {messages.length > 1 && (
-          <button
-            type="button"
-            onClick={() => setConfirmClear(true)}
-            className="btn secondary sm"
-          >
-            Bersihkan Riwayat
-          </button>
-        )}
-      </div>
 
-      <ErrorBox error={error} />
-      <ConfirmDialog
-        open={confirmClear}
-        title="Bersihkan riwayat?"
-        message="Seluruh riwayat percakapan dengan asisten akan dihapus dan tidak bisa dikembalikan."
-        confirmLabel="Ya, hapus riwayat"
-        onConfirm={onClear}
-        onCancel={() => setConfirmClear(false)}
-      />
+        <ErrorBox error={error} />
+        <ConfirmDialog
+          open={confirmClear}
+          title="Bersihkan riwayat?"
+          message="Seluruh riwayat percakapan dengan asisten akan dihapus dan tidak bisa dikembalikan."
+          confirmLabel="Ya, hapus riwayat"
+          onConfirm={onClear}
+          onCancel={() => setConfirmClear(false)}
+        />
 
-      {authNeeded && (
-        <div className="notice chat-head" style={{ borderBottom: 0, marginBottom: 0 }}>
-          <span>Kamu perlu masuk akun terlebih dahulu untuk menggunakan asisten.</span>
-          <Link href="/login" className="btn sm">
-            Masuk Akun
-          </Link>
-        </div>
-      )}
-
-      <div className="chat chat-scroll">
-        {initialLoading ? (
-          <p className="muted" style={{ textAlign: "center", padding: 20 }}>
-            Memuat percakapan...
-          </p>
-        ) : (
-          messages.map((m, i) => (
-            <div key={i} className={`msg ${m.role}`}>
-              {m.content}
-            </div>
-          ))
-        )}
-        {loading && (
-          <div className="msg assistant" style={{ fontStyle: "italic", color: "var(--muted)" }}>
-            Ven sedang mengetik...
+        {authNeeded && (
+          <div className="ed-notice">
+            <p>Kamu perlu masuk akun terlebih dahulu untuk menggunakan asisten.</p>
+            <p><Link href="/login" className="btn sm">Masuk Akun</Link></p>
           </div>
         )}
-        <div ref={chatEndRef} />
-      </div>
 
-      <form onSubmit={onSend} className="chat-form">
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Tanya soal kulit wajah, jerawat, atau riwayat scan..."
-          disabled={loading || authNeeded}
-        />
-        <button className="btn" disabled={loading || !input.trim() || authNeeded}>
-          {loading ? "Mengirim..." : "Kirim"}
-        </button>
-      </form>
+        <div className="ed-chat-scroll">
+          {initialLoading ? (
+            <p className="muted">Memuat percakapan...</p>
+          ) : (
+            messages.map((m, i) => (
+              <div key={i} className={`ed-msg ${m.role}`}>
+                {m.content}
+              </div>
+            ))
+          )}
+          {loading && (
+            <div className="ed-msg assistant">
+              <em>Ven sedang mengetik...</em>
+            </div>
+          )}
+          <div ref={chatEndRef} />
+        </div>
+
+        <form onSubmit={onSend} className="ed-chat-form">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Tanya soal kulit wajah, jerawat, atau riwayat scan..."
+            disabled={loading || authNeeded}
+          />
+          <button className="btn" disabled={loading || !input.trim() || authNeeded}>
+            {loading ? "Mengirim..." : "Kirim"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

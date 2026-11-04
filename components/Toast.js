@@ -4,9 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 // Sistem notifikasi SkinCheck — pengganti popup bawaan browser.
 // Prinsipnya: tidak ada lagi window.alert / window.confirm di proyek
 // ini. Umpan balik aksi tampil sebagai toast yang halus (geser + fade,
-// hanya transform dan opacity), panel blur palet landing, ikon SVG
+// hanya transform dan opacity), panel kertas palet landing, ikon SVG
 // (bukan emoji), dan bisa ditutup manual. Konfirmasi destruktif tampil
-// sebagai dialog blur ala modal login, bukan popup browser.
+// sebagai dialog ala modal login, bukan popup browser.
 // Toast hidup di layout (global), jadi semua halaman memakai sistem
 // yang sama. Pesan error kontekstual yang butuh tetap terlihat di
 // tempatnya (misalnya "backend belum dikonfigurasi") tetap ditangani
@@ -62,15 +62,15 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
-      <div className="toast-viewport" aria-live="polite">
+      <div className="ed-toast-viewport" aria-live="polite">
         {toasts.map((t) => (
-          <div key={t.id} className={`toast toast-${t.type}`} role={t.type === "error" ? "alert" : "status"}>
-            <span className="toast-icon"><ToastIcon type={t.type} /></span>
-            <span className="toast-text">
+          <div key={t.id} className={`ed-toast ed-toast-${t.type}`} role={t.type === "error" ? "alert" : "status"}>
+            <span className="ed-toast-icon"><ToastIcon type={t.type} /></span>
+            <span className="ed-toast-text">
               <strong>{t.title}</strong>
               <span>{t.message}</span>
             </span>
-            <button type="button" className="toast-close" onClick={() => dismiss(t.id)} aria-label="Tutup notifikasi">×</button>
+            <button type="button" className="ed-toast-close" onClick={() => dismiss(t.id)} aria-label="Tutup notifikasi">×</button>
           </div>
         ))}
       </div>
@@ -89,11 +89,11 @@ export function ConfirmDialog({ open, title, message, confirmLabel = "Ya, lanjut
 
   if (!open) return null;
   return (
-    <div className="modal-overlay" onClick={onCancel} role="presentation">
-      <div className="confirm-dialog" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
+    <div className="ed-modal-overlay" onClick={onCancel} role="presentation">
+      <div className="ed-confirm" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <h2>{title}</h2>
         <p>{message}</p>
-        <div className="confirm-actions">
+        <div className="ed-confirm-actions">
           <button type="button" className="btn secondary" onClick={onCancel} autoFocus>{cancelLabel}</button>
           <button type="button" className="btn danger" onClick={onConfirm}>{confirmLabel}</button>
         </div>

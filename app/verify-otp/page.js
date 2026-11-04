@@ -66,37 +66,40 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <div className="card auth">
-      <h1>Verifikasi OTP WhatsApp</h1>
-      <p className="muted">
-        Kode 6 digit dikirim lewat WhatsApp (Fonnte) ke nomor kamu. Kode berlaku 10 menit
-        dan hanya bisa dipakai sekali. Jangan bagikan kode itu ke siapa pun.
-      </p>
-      <ErrorBox error={error} />
-      {verified ? (
-        <div className="ok">
-          Nomor {sentTo || phone} terverifikasi. Silakan <Link href="/login">masuk</Link>
-          {` atau `}<Link href="/register">daftar</Link> untuk melanjutkan.
-        </div>
-      ) : (
-        <>
-          <form onSubmit={onRequest}>
-            <label>Nama (opsional)<input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama kamu" /></label>
-            <label>Nomor WhatsApp<input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="081234567890" inputMode="tel" /></label>
-            <button className="btn" disabled={busy || cooldown > 0}>
-              {busy ? "Mengirim…" : cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : "Kirim kode via WhatsApp"}
-            </button>
-          </form>
-          {sentTo && (
-            <form onSubmit={onVerify} style={{ marginTop: 20 }}>
-              <p className="muted">Kode dikirim ke {sentTo}. Masukkan 6 digit dari WhatsApp di bawah ini.</p>
-              <label>Kode OTP<input required value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="123456" inputMode="numeric" /></label>
-              <button className="btn" disabled={busy || code.length !== 6}>{busy ? "Memeriksa…" : "Verifikasi kode"}</button>
+    <div className="ed-page">
+      <div className="ed-auth">
+        <span className="brand-mark" aria-hidden="true">S</span>
+        <h1>Verifikasi OTP WhatsApp</h1>
+        <p className="muted">
+          Kode 6 digit dikirim lewat WhatsApp (Fonnte) ke nomor kamu. Kode berlaku 10 menit
+          dan hanya bisa dipakai sekali. Jangan bagikan kode itu ke siapa pun.
+        </p>
+        <ErrorBox error={error} />
+        {verified ? (
+          <div className="ok">
+            Nomor {sentTo || phone} terverifikasi. Silakan <Link href="/login">masuk</Link>
+            {` atau `}<Link href="/register">daftar</Link> untuk melanjutkan.
+          </div>
+        ) : (
+          <>
+            <form onSubmit={onRequest}>
+              <label>Nama (opsional)<input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama kamu" /></label>
+              <label>Nomor WhatsApp<input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="081234567890" inputMode="tel" /></label>
+              <button className="btn" disabled={busy || cooldown > 0}>
+                {busy ? "Mengirim…" : cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : "Kirim kode via WhatsApp"}
+              </button>
             </form>
-          )}
-        </>
-      )}
-      <p><Link href="/login">Kembali ke login</Link></p>
+            {sentTo && (
+              <form onSubmit={onVerify}>
+                <p className="muted">Kode dikirim ke {sentTo}. Masukkan 6 digit dari WhatsApp di bawah ini.</p>
+                <label>Kode OTP<input required value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="123456" inputMode="numeric" /></label>
+                <button className="btn" disabled={busy || code.length !== 6}>{busy ? "Memeriksa…" : "Verifikasi kode"}</button>
+              </form>
+            )}
+          </>
+        )}
+        <p className="ed-auth-foot"><Link href="/login">Kembali ke login</Link></p>
+      </div>
     </div>
   );
 }

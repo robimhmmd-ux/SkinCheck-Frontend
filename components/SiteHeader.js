@@ -61,7 +61,7 @@ export default function SiteHeader() {
   return (
     <>
       <header className="topbar">
-        <Link className="brand" href="/">SkinCheck</Link>
+        <Link className="brand" href="/"><span className="brand-mark" aria-hidden="true">S</span>SkinCheck</Link>
         <nav className="nav">
           {navItems.map(([href, label]) => (
             <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link>

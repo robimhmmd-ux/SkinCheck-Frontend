@@ -20,14 +20,14 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="dash" aria-busy="true" aria-label="Memuat ringkasan admin">
-        <div className="dash-skeleton-title" />
-        <div className="dash-skeleton-line" />
-        <div className="dash-kpis">
-          <div className="dash-skeleton-kpi" />
-          <div className="dash-skeleton-kpi" />
-          <div className="dash-skeleton-kpi" />
-          <div className="dash-skeleton-kpi" />
+      <div className="ed-page" aria-busy="true" aria-label="Memuat ringkasan admin">
+        <div className="ed-skeleton-title" />
+        <div className="ed-skeleton-line" />
+        <div className="ed-kpis">
+          <div className="ed-skeleton-kpi" />
+          <div className="ed-skeleton-kpi" />
+          <div className="ed-skeleton-kpi" />
+          <div className="ed-skeleton-kpi" />
         </div>
       </div>
     );
@@ -35,21 +35,25 @@ export default function AdminPage() {
 
   if (error && (error.status === 401 || error.status === 403)) {
     return (
-      <div className="dash">
-        <h1 className="dash-title">Admin</h1>
-        <p className="dash-lead">Halaman ini hanya untuk admin.</p>
-        <p className="dash-note">Jika kamu bukan admin, backend akan menolak akses. <Link href="/login">Masuk sebagai admin</Link> atau kembali ke <Link href="/dashboard">dashboard</Link>.</p>
+      <div className="ed-page">
+        <div className="ed-mast">
+          <h1>Admin</h1>
+          <p className="ed-lead">Halaman ini hanya untuk admin.</p>
+        </div>
+        <p className="muted">Jika kamu bukan admin, backend akan menolak akses. <Link href="/login">Masuk sebagai admin</Link> atau kembali ke <Link href="/dashboard">dashboard</Link>.</p>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="dash">
-        <h1 className="dash-title">Admin</h1>
-        <p className="dash-lead">Ringkasan admin tidak bisa dimuat saat ini.</p>
+      <div className="ed-page">
+        <div className="ed-mast">
+          <h1>Admin</h1>
+          <p className="ed-lead">Ringkasan admin tidak bisa dimuat saat ini.</p>
+        </div>
         <ErrorBox error={error} />
-        <p><button type="button" className="dash-cta" onClick={() => window.location.reload()}>Coba lagi</button></p>
+        <p><button type="button" className="btn" onClick={() => window.location.reload()}>Coba lagi</button></p>
       </div>
     );
   }
@@ -64,11 +68,13 @@ export default function AdminPage() {
   const activeProducts = data.active_products ?? "—";
 
   return (
-    <div className="dash">
-      <h1 className="dash-title">Admin</h1>
-      <p className="dash-lead">Ringkasan akun, scan, dan katalog dari backend.</p>
+    <div className="ed-page">
+      <div className="ed-mast">
+        <h1>Admin</h1>
+        <p className="ed-lead">Ringkasan akun, scan, dan katalog dari backend.</p>
+      </div>
 
-      <dl className="dash-kpis">
+      <dl className="ed-kpis">
         <div>
           <dt>Total pengguna</dt>
           <dd>{users}</dd>
@@ -87,7 +93,7 @@ export default function AdminPage() {
         </div>
       </dl>
 
-      <p className="dash-note">
+      <p className="muted">
         Endpoint admin saat ini hanya menyediakan angka ringkasan di atas — belum ada daftar
         pengguna atau scan, jadi belum ada yang bisa dikelola dari halaman ini.
         Katalog produk bisa dilihat di <Link href="/marketplace">marketplace</Link>.

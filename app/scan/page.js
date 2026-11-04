@@ -285,25 +285,21 @@ export default function ScanPage() {
   const status = result && result.status;
 
   return (
-    <div className="card" style={{ maxWidth: 800, margin: "20px auto", padding: "20px 16px" }}>
-      <h1>Scan Wajah & Analisis Kulit</h1>
-      <p className="muted" style={{ marginBottom: 14 }}>
-        Analisis kondisi kulit wajah (jerawat, minyak, kekeringan, noda hitam, dan kerutan) menggunakan deteksi wajah YuNet dan model VGG16.
-      </p>
+    <div className="ed-page narrow">
+      <div className="ed-mast">
+        <h1>Scan wajah</h1>
+        <p className="ed-lead">
+          Analisis kondisi kulit wajah (jerawat, minyak, kekeringan, noda hitam, dan kerutan) menggunakan deteksi wajah YuNet dan model VGG16.
+        </p>
+      </div>
 
-      {/* Info status akun / tamu */}
       {!currentUser && (
-        <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "10px 14px", borderRadius: 8, fontSize: 13, color: "#166534", marginBottom: 16 }}>
-          💡 <b>Mode Pengujian Aktif:</b> Anda dapat langsung memindai wajah tanpa login. Hasil analisis AI akan langsung muncul di halaman ini. (
-          <Link href="/login" style={{ textDecoration: "underline", fontWeight: 600 }}>
-            Login
-          </Link>{" "}
-          jika ingin menyimpan riwayat ke akun).
+        <div className="ed-guest">
+          <p><strong>Mode pengujian aktif.</strong> Kamu bisa langsung memindai wajah tanpa login. Hasil analisis AI akan langsung muncul di halaman ini. <Link href="/login">Login</Link> jika ingin menyimpan riwayat ke akun.</p>
         </div>
       )}
 
-      {/* Mode Selector */}
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
+      <div className="ed-mode">
         <button
           type="button"
           onClick={() => {
@@ -311,7 +307,6 @@ export default function ScanPage() {
             stopCamera();
           }}
           className={`btn ${mode === "single" ? "" : "secondary"}`}
-          style={{ flex: "1 1 180px", minHeight: 44 }}
         >
           Foto Tunggal (Upload/Kamera)
         </button>
@@ -321,7 +316,6 @@ export default function ScanPage() {
             setMode("multi");
           }}
           className={`btn ${mode === "multi" ? "" : "secondary"}`}
-          style={{ flex: "1 1 180px", minHeight: 44 }}
         >
           Kamera Multi-Pose (Realtime)
         </button>
@@ -330,85 +324,83 @@ export default function ScanPage() {
       <ErrorBox error={error} />
 
       {mode === "single" ? (
-        <form onSubmit={onSubmitSingle}>
-          <label style={{ display: "block", marginBottom: 12 }}>
-            <span style={{ fontWeight: 600, display: "block", marginBottom: 6 }}>Pilih atau Ambil Foto Wajah</span>
-            <input
-              type="file"
-              accept="image/*"
-              capture="user"
-              onChange={onFile}
-              style={{ width: "100%", padding: "10px 8px", fontSize: 15 }}
-            />
-          </label>
-          {preview && (
-            <div style={{ textAlign: "center", margin: "14px 0" }}>
-              <img
-                className="preview"
-                src={preview}
-                alt="Pratinjau foto wajah"
-                style={{ maxHeight: 320, maxWidth: "100%", borderRadius: 10, objectFit: "contain" }}
+        <div className="ed-panel">
+          <form onSubmit={onSubmitSingle}>
+            <label>
+              Pilih atau ambil foto wajah
+              <input
+                type="file"
+                accept="image/*"
+                capture="user"
+                onChange={onFile}
               />
-            </div>
-          )}
-          <button className="btn" disabled={busy} style={{ width: "100%", minHeight: 46, fontSize: 16, marginTop: 8 }}>
-            {busy ? "Menganalisis Foto..." : "Mulai Analisis Foto"}
-          </button>
-        </form>
+            </label>
+            {preview && (
+              <div className="ed-preview-arch">
+                <img
+                  className="preview"
+                  src={preview}
+                  alt="Pratinjau foto wajah"
+                />
+              </div>
+            )}
+            <button className="btn" disabled={busy} style={{ width: "100%" }}>
+              {busy ? "Menganalisis Foto..." : "Mulai Analisis Foto"}
+            </button>
+          </form>
+        </div>
       ) : (
-        <div>
+        <div className="ed-panel">
           {!webcamActive ? (
-            <div style={{ textAlign: "center", padding: "26px 16px", background: "var(--cream)", borderRadius: 12 }}>
-              <p style={{ margin: "0 0 14px 0", fontSize: 15 }}>
+            <div className="ed-camera-empty">
+              <p>
                 Aktifkan kamera untuk panduan pemindaian multi-sudut wajah interaktif.
               </p>
-              <button type="button" onClick={() => startCamera(facingMode)} className="btn" style={{ minHeight: 46, minWidth: 160 }}>
+              <button type="button" onClick={() => startCamera(facingMode)} className="btn">
                 Buka Kamera
               </button>
             </div>
           ) : (
             <div>
-              <div
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  maxWidth: 540,
-                  margin: "0 auto",
-                  borderRadius: 14,
-                  overflow: "hidden",
-                  background: "#000",
-                }}
-              >
+              <div className="ed-camera-frame">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
                   webkit-playsinline="true"
                   muted
-                  style={{
-                    width: "100%",
-                    display: "block",
-                    aspectRatio: "4 / 3",
-                    objectFit: "cover",
-                    transform: flipPreview ? "scaleX(-1)" : "none",
-                  }}
+                  className="ed-camera-video"
+                  style={{ transform: flipPreview ? "scaleX(-1)" : "none" }}
                 />
                 <canvas ref={canvasRef} style={{ display: "none" }} />
+                <span className="ed-camera-oval" aria-hidden="true" />
 
                 {recording && (
-                  <div className="scan-rec">
-                    <div className="scan-rec-row">
-                      <span style={{ color: "#ff5252" }}>● Merekam: {timer}s / 24s</span>
+                  <div className="ed-rec">
+                    <div className="ed-rec-row">
+                      <span><span className="ed-rec-live">●</span> Merekam: {timer}s / 24s</span>
                       <span>{recordedFrames.length} Frame</span>
                     </div>
-                    <div className="scan-rec-pose">
+                    <div className="ed-rec-pose">
                       Panduan Pose: {currentPose}
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="scan-btn-row">
+              <div className="ed-pose-steps">
+                {POSES.map((p) => (
+                  <div key={p.key} className={`ed-pose-step ${currentPose === p.label ? "is-current" : ""}`}>
+                    <strong>{p.label}</strong>
+                    detik {p.sec}
+                  </div>
+                ))}
+              </div>
+              <div className="ed-progress" aria-hidden="true">
+                <span style={{ width: `${recording ? Math.min(100, (timer / 24) * 100) : 0}%` }} />
+              </div>
+
+              <div className="ed-btn-row">
                 {!recording ? (
                   <button type="button" onClick={startMultiCapture} className="btn" disabled={busy}>
                     Mulai Scan Multi-Pose (24 Detik)
@@ -419,7 +411,7 @@ export default function ScanPage() {
                     onClick={() => finishRecording()}
                     className="btn danger"
                   >
-                    Selesai & Analisis ({recordedFrames.length} frame)
+                    Selesai dan Analisis ({recordedFrames.length} frame)
                   </button>
                 )}
                 <button type="button" onClick={toggleCamera} className="btn secondary" disabled={recording}>
@@ -438,22 +430,21 @@ export default function ScanPage() {
       )}
 
       {busy && (
-        <div className="notice" style={{ marginTop: 20, textAlign: "center", fontWeight: 600 }}>
-          Sedang memproses analisis wajah & 5 kondisi kulit di backend... Mohon tunggu.
-        </div>
+        <p className="ed-busy">
+          Sedang memproses analisis wajah dan 5 kondisi kulit di backend... Mohon tunggu.
+        </p>
       )}
 
       {result && (
-        <div className="dash-panel" style={{ marginTop: 24 }}>
+        <div className="ed-panel">
           <h2>Hasil Analisis Wajah</h2>
           <p>
             Status: <b>{status || result.message || "terkirim"}</b>
           </p>
           {result.message && status !== "failed" && <p className="muted">{result.message}</p>}
 
-          {/* Statistik multi-pose */}
           {(result.frames_captured || result.frames_passed_yunet) && (
-            <dl className="dash-kpis">
+            <dl className="ed-kpis">
               <div>
                 <dt>Total Frame</dt>
                 <dd>{result.frames_captured}</dd>
@@ -488,10 +479,11 @@ export default function ScanPage() {
           {analysis ? (
             <>
               <h3>Skor Kondisi Kulit</h3>
-              <div className="score-grid">
+              <div className="ed-leaders">
                 {SCORES.map(([key, label]) => (
-                  <div className="score" key={key}>
-                    <span className="muted">{label}</span>
+                  <div key={key} className="ed-leader">
+                    <span>{label}</span>
+                    <span className="ed-dots" aria-hidden="true" />
                     <b>{analysis[key] != null ? `${analysis[key]}%` : "—"}</b>
                   </div>
                 ))}
@@ -506,8 +498,8 @@ export default function ScanPage() {
                 Perbandingan ini berdasarkan pose saat perekaman — sudut wajah yang paling dominan terlihat,
                 bukan pengukuran tiap wilayah wajah secara terpisah.
               </p>
-              <div className="dash-table-wrap">
-                <table className="dash-table">
+              <div className="ed-table-wrap">
+                <table className="ed-table">
                   <thead>
                     <tr>
                       <th>Pose</th>
@@ -557,11 +549,10 @@ export default function ScanPage() {
           )}
 
           {scanId && (
-            <p style={{ marginTop: 16 }}>
-              <Link href={`/history/${scanId}`}>Lihat detail scan #{scanId}</Link>
-              {" · "}
-              <Link href="/output?from=scan">Lihat di halaman Output</Link>
-            </p>
+            <>
+              <p><Link href={`/history/${scanId}`}>Lihat detail scan #{scanId}</Link></p>
+              <p><Link href="/output?from=scan">Lihat di halaman Output</Link></p>
+            </>
           )}
         </div>
       )}

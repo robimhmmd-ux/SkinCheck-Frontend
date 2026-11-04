@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { isBackendNotConfigured } from "../lib/api";
 
-// Banner error inline yang dirapikan: panel blur palet landing, ikon
+// Banner error inline yang dirapikan: panel kertas palet landing, ikon
 // SVG, animasi masuk yang halus, dan bisa ditutup manual. Ini untuk
 // pesan yang memang harus tetap terlihat di tempatnya (misalnya
 // backend belum dikonfigurasi). Umpan balik aksi sesaat (simpan,

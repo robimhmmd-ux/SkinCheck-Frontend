@@ -1,39 +1,39 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getHistory, getDashboard, pickArray, pickObject } from "../../lib/api";
 import { ErrorBox, Loading } from "../../components/Notice";
+import Seal from "../../components/Seal";
 import { SCORE_KEYS, averageScores, latestAnalyzedScan, fmtScore, fmtDate } from "../../lib/scores";
 
-// Halaman Output VGG.
-// Skema buka/tutup card (sesuai permintaan user):
-// - Masuk lewat scan (URL mengandung ?from=scan): card "5 output
-//   scan terakhir" TERBUKA sejak awal, card lain tertutup.
-// - Masuk langsung ke /output (tanpa ?from=scan): SEMUA card
+// Halaman Output VGG — laporan editorial, bukan lagi card tersebar
+// di atas foto fullscreen (arah desain lama itu sudah dibatalkan
+// user pada 2026-11-04: seluruh halaman kecuali landing dirombak
+// total, tanpa hijau, mengikuti palet landing).
+// Skema buka/tutup section (dipertahankan dari sebelumnya):
+// - Masuk lewat scan (URL mengandung ?from=scan): section "5 output
+//   scan terakhir" TERBUKA sejak awal, section lain tertutup.
+// - Masuk langsung ke /output (tanpa ?from=scan): SEMUA section
 //   tertutup, masing-masing hanya terbuka kalau diklik.
-// Card dibuat kecil dan ringkas, bukan panel besar yang memenuhi
-// layar: satu baris header yang bisa diklik + isi skor yang ringkas.
-// Gambar wajah dot dipakai sebagai background besar di tengah
-// halaman (section .output-hero), dengan overlay gelap supaya
-// teks tetap terbaca. File: public/output-face.jpg.
-function MiniCard({ id, title, subtitle, open, onToggle, children, posClass }) {
+function ReportSection({ id, title, subtitle, open, onToggle, children }) {
   return (
-    <div className={`output-card ${posClass || ""} ${open ? "is-open" : ""}`}>
+    <div className="ed-section">
       <button
         type="button"
-        className="output-card-head"
+        className="ed-section-head"
         onClick={onToggle}
         aria-expanded={open}
-        aria-controls={`output-card-${id}`}
+        aria-controls={`output-section-${id}`}
       >
         <span>
           <strong>{title}</strong>
           <span className="muted">{subtitle}</span>
         </span>
-        <span className="output-card-icon" aria-hidden="true">{open ? "−" : "+"}</span>
+        <span className="ed-section-icon" aria-hidden="true">{open ? "−" : "+"}</span>
       </button>
       {open && (
-        <div className="output-card-body" id={`output-card-${id}`}>
+        <div className="ed-section-body" id={`output-section-${id}`}>
           {children}
         </div>
       )}
@@ -41,19 +41,17 @@ function MiniCard({ id, title, subtitle, open, onToggle, children, posClass }) {
   );
 }
 
-function ScoreList({ analysis }) {
+function ScoreLeaders({ analysis }) {
   if (!analysis) return <p className="muted">Belum ada skor untuk ditampilkan.</p>;
   return (
-    <div>
+    <div className="ed-leaders">
       {SCORE_KEYS.map(([key, label]) => {
         const raw = Number(analysis[key]);
-        const hasBar = Number.isFinite(raw) && raw >= 0 && raw <= 100;
         return (
-          <div key={key} className="out-score-row">
-            <div className="out-score-top"><span>{label}</span><b>{fmtScore(analysis[key])}</b></div>
-            {hasBar && (
-              <div className="out-bar" aria-hidden="true"><span style={{ width: `${raw}%` }} /></div>
-            )}
+          <div key={key} className="ed-leader">
+            <span>{label}</span>
+            <span className="ed-dots" aria-hidden="true" />
+            <b>{Number.isFinite(raw) ? `${analysis[key]}%` : "—"}</b>
           </div>
         );
       })}
@@ -66,7 +64,7 @@ export default function OutputPage() {
   const [dash, setDash] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [openCard, setOpenCard] = useState(null); // null | "latest" | "all" | "count"
+  const [openSection, setOpenSection] = useState(null); // null | "latest" | "all" | "count"
 
   useEffect(() => {
     // Baca penanda asal di client saja (tanpa useSearchParams,
@@ -74,7 +72,7 @@ export default function OutputPage() {
     // ?from=scan, berarti user baru saja menyelesaikan scan.
     try {
       const from = new URLSearchParams(window.location.search).get("from");
-      if (from === "scan") setOpenCard("latest");
+      if (from === "scan") setOpenSection("latest");
     } catch {}
     let alive = true;
     (async () => {
@@ -92,10 +90,10 @@ export default function OutputPage() {
   }, []);
 
   function toggle(id) {
-    setOpenCard((cur) => (cur === id ? null : id));
+    setOpenSection((cur) => (cur === id ? null : id));
   }
 
-  if (loading) return <div className="card"><Loading label="Memuat hasil…" /></div>;
+  if (loading) return <div className="ed-page"><Loading label="Memuat hasil…" /></div>;
 
   const scans = history.length ? history : pickArray(dash && (dash.recent_scans || dash.scans || dash));
   const avg = averageScores(scans);
@@ -103,74 +101,79 @@ export default function OutputPage() {
   const latestAnalysis = latest ? (latest.analysis || latest.analysis_result || latest.result) : null;
   const totalScans = scans.length;
   const analyzedCount = avg ? avg.count : 0;
+  const latestStatus = latest ? ({ completed: "Selesai", processing: "Diproses", failed: "Gagal" }[latest.status] || latest.status || "—") : null;
 
   return (
-    <div className="output-full">
-      {/* Gambar manusia jadi background FULLSCREEN halaman ini,
-          bukan lagi card di tengah. Overlay gelap tipis supaya
-          teks dan card tetap terbaca di atas gambar. */}
-      <div className="output-full-top">
-        <div>
-          <h1>Output</h1>
-          <p>Hasil analisis VGG untuk kulit wajahmu. Klik sebuah card untuk membuka atau menutupnya.</p>
-        </div>
-        <div className="output-full-actions">
-          <Link className="me-cta" href="/scan">Scan baru</Link>
-          <Link className="me-cta ghost light" href="/dashboard">Dashboard</Link>
+    <div className="ed-page">
+      <div className="ed-mast">
+        <Seal />
+        <h1>Output</h1>
+        <p className="ed-lead">Hasil analisis VGG untuk kulit wajahmu. Klik sebuah bagian untuk membuka atau menutupnya.</p>
+        <div className="ed-mast-actions">
+          <Link className="btn" href="/scan">Scan baru</Link>
+          <Link className="btn secondary" href="/dashboard">Dashboard</Link>
         </div>
       </div>
       <ErrorBox error={error} />
-      {error && error.status === 401 && <p className="output-full-note">Sepertinya kamu belum masuk. <Link href="/login">Masuk dulu</Link> untuk melihat hasilmu.</p>}
+      {error && error.status === 401 && <p className="muted">Sepertinya kamu belum masuk. <Link href="/login">Masuk dulu</Link> untuk melihat hasilmu.</p>}
 
-      <div className="output-full-headline">
-        <p className="output-brand">SkinCheck untuk analisis wajah</p>
-        <h2>{latest ? `Scan terakhir #${latest.id}` : "Belum ada hasil scan"}</h2>
-        <p>{latest ? `${fmtDate(latest.created_at)}, status ${{ completed: "Selesai", processing: "Diproses", failed: "Gagal" }[latest.status] || latest.status || "—"}` : "Lakukan scan dulu, lalu hasilnya akan tampil di sini."}</p>
+      <div className="ed-report-grid">
+        <div className="ed-arch">
+          <Image src="/output-face.jpg" alt="Ilustrasi wajah" width={560} height={700} priority={false} />
+        </div>
+        <div>
+          <h2>{latest ? `Scan terakhir #${latest.id}` : "Belum ada hasil scan"}</h2>
+          <p className="muted">{latest ? `${fmtDate(latest.created_at)}, status ${latestStatus}` : "Lakukan scan dulu, lalu hasilnya akan tampil di sini."}</p>
+          <div className="ed-overall">
+            <b>{latestAnalysis && latestAnalysis.overall_score != null ? fmtScore(latestAnalysis.overall_score) : "—"}</b>
+            <span>skor keseluruhan</span>
+          </div>
+          <div className="ed-leaders">
+            {SCORE_KEYS.filter(([key]) => key !== "overall_score").map(([key, label]) => (
+              <div key={key} className="ed-leader">
+                <span>{label}</span>
+                <span className="ed-dots" aria-hidden="true" />
+                <b>{latestAnalysis && latestAnalysis[key] != null ? `${latestAnalysis[key]}%` : "—"}</b>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Card kecil, TIDAK dijejer rapi: disebar zigzag di atas
-          background — atas kanan kepala, tengah kiri samping pipi,
-          bawah kanan samping dagu. Di layar kecil, card kembali
-          tersusun vertikal supaya tetap terbaca. */}
-      <div className="output-scatter">
-        <MiniCard
-          id="latest"
-          posClass="pos-latest"
-          title="5 output scan terakhir"
-          subtitle={latest ? `Scan #${latest.id} · ${fmtDate(latest.created_at)}` : "Belum ada scan terakhir"}
-          open={openCard === "latest"}
-          onToggle={() => toggle("latest")}
-        >
-          <ScoreList analysis={latestAnalysis} />
-          {latest && <p className="muted"><Link href={`/history/${latest.id}`}>Lihat detail scan ini</Link></p>}
-        </MiniCard>
+      <ReportSection
+        id="latest"
+        title="5 output scan terakhir"
+        subtitle={latest ? `Scan #${latest.id}, ${fmtDate(latest.created_at)}` : "Belum ada scan terakhir"}
+        open={openSection === "latest"}
+        onToggle={() => toggle("latest")}
+      >
+        <ScoreLeaders analysis={latestAnalysis} />
+        {latest && <p><Link href={`/history/${latest.id}`}>Lihat detail scan ini</Link></p>}
+      </ReportSection>
 
-        <MiniCard
-          id="all"
-          posClass="pos-all"
-          title="Rata-rata 5 output seluruh scan"
-          subtitle={avg ? `Dari ${avg.count} scan yang selesai dianalisis` : "Belum bisa dihitung"}
-          open={openCard === "all"}
-          onToggle={() => toggle("all")}
-        >
-          <ScoreList analysis={avg} />
-        </MiniCard>
+      <ReportSection
+        id="all"
+        title="Rata-rata 5 output seluruh scan"
+        subtitle={avg ? `Dari ${avg.count} scan yang selesai dianalisis` : "Belum bisa dihitung"}
+        open={openSection === "all"}
+        onToggle={() => toggle("all")}
+      >
+        <ScoreLeaders analysis={avg} />
+      </ReportSection>
 
-        <MiniCard
-          id="count"
-          posClass="pos-count"
-          title="Berapa kali scan"
-          subtitle={totalScans ? `${totalScans} kali scan di riwayat` : "Belum ada scan"}
-          open={openCard === "count"}
-          onToggle={() => toggle("count")}
-        >
-          <p><strong>{totalScans || "—"}</strong> kali scan di riwayat.</p>
-          <p><strong>{analyzedCount || "—"}</strong> di antaranya sudah selesai dianalisis dan masuk hitungan rata-rata.</p>
-          <p className="muted">Scan yang masih processing atau gagal tidak punya skor, jadi tidak masuk rata-rata.</p>
-        </MiniCard>
-      </div>
+      <ReportSection
+        id="count"
+        title="Berapa kali scan"
+        subtitle={totalScans ? `${totalScans} kali scan di riwayat` : "Belum ada scan"}
+        open={openSection === "count"}
+        onToggle={() => toggle("count")}
+      >
+        <p><strong>{totalScans || "—"}</strong> kali scan di riwayat.</p>
+        <p><strong>{analyzedCount || "—"}</strong> di antaranya sudah selesai dianalisis dan masuk hitungan rata-rata.</p>
+        <p className="muted">Scan yang masih processing atau gagal tidak punya skor, jadi tidak masuk rata-rata.</p>
+      </ReportSection>
 
-      <p className="output-full-foot">Skor di atas berasal dari backend, bukan angka contoh. Kalau masih strip (—), berarti belum ada scan yang selesai dianalisis. <Link href="/history">Lihat riwayat lengkap</Link></p>
+      <p className="muted">Skor di atas berasal dari backend, bukan angka contoh. Kalau masih strip (—), berarti belum ada scan yang selesai dianalisis. <Link href="/history">Lihat riwayat lengkap</Link></p>
     </div>
   );
 }

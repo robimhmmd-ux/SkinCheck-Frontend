@@ -39,9 +39,9 @@ export default function LoginModal({ open, onClose }) {
   }
 
   return (
-    <div className="modal-overlay" role="presentation" onClick={onClose}>
-      <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="modal-close" aria-label="Tutup login" onClick={onClose}>×</button>
+    <div className="ed-modal-overlay" role="presentation" onClick={onClose}>
+      <div className="ed-modal-card" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="ed-modal-close" aria-label="Tutup login" onClick={onClose}>×</button>
         <h2 id="login-modal-title">Selamat datang kembali</h2>
         <p className="muted">Masuk dengan akun SkinCheck kamu untuk melihat dashboard dan riwayat scan.</p>
         <ErrorBox error={error} />

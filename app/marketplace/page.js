@@ -37,13 +37,15 @@ export default function MarketplacePage() {
   });
 
   return (
-    <div className="dash">
-      <h1 className="dash-title">Marketplace</h1>
-      <p className="dash-lead">Produk perawatan dari katalog SkinCheck. Link pembelian mengarah ke Shopee / Tokopedia yang tercatat di database, bukan link buatan.</p>
+    <div className="ed-page">
+      <div className="ed-mast">
+        <h1>Marketplace</h1>
+        <p className="ed-lead">Produk perawatan dari katalog SkinCheck. Link pembelian mengarah ke Shopee dan Tokopedia yang tercatat di database, bukan link buatan.</p>
+      </div>
       <ErrorBox error={error} />
       {loading ? <Loading /> : (
         <>
-          <div className="filters">
+          <div className="ed-filters">
             <label>Cari produk<input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari brand atau nama produk…" /></label>
             <label>Kategori
               <select value={category} onChange={(e) => setCategory(e.target.value)}>
@@ -56,10 +58,10 @@ export default function MarketplacePage() {
           ) : shown.length === 0 ? (
             <p className="muted">Tidak ada produk yang cocok dengan pencarianmu.</p>
           ) : (
-            <div className="product-grid">
+            <div className="ed-panel">
               {shown.map((p, i) => (
-                <article key={p.id || i} className="product-card">
-                  <p className="product-brand">{p.brand || "—"}</p>
+                <article key={p.id || i} className="ed-product">
+                  <p className="ed-product-brand">{p.brand || "—"}</p>
                   <h2>{p.name}</h2>
                   <p className="muted">{p.category || ""}</p>
                   {p.description && <p>{p.description}</p>}
@@ -67,7 +69,7 @@ export default function MarketplacePage() {
                     <p className="muted">Cocok untuk: {p.skin_concern.join(", ")}</p>
                   )}
                   {p.usage_guidance && <p className="muted">{p.usage_guidance}</p>}
-                  <div className="product-links">
+                  <div className="ed-product-links">
                     {p.shopee_link ? <a className="btn" href={p.shopee_link} target="_blank" rel="noreferrer">Beli di Shopee</a> : null}
                     {p.tokopedia_link ? <a className="btn secondary" href={p.tokopedia_link} target="_blank" rel="noreferrer">Beli di Tokopedia</a> : null}
                     {!p.shopee_link && !p.tokopedia_link && <span className="muted">Belum ada link pembelian untuk produk ini.</span>}
