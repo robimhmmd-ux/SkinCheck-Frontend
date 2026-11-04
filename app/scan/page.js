@@ -17,12 +17,12 @@ const SCORES = [
 ];
 
 const POSES = [
-  { label: "Hadap Depan (Center)", sec: 4 },
-  { label: "Tengok Kiri Sedikit (Pipi Kiri)", sec: 8 },
-  { label: "Tengok Kanan Sedikit (Pipi Kanan)", sec: 12 },
-  { label: "Dongak Sedikit (Area Dagu)", sec: 16 },
-  { label: "Nunduk Sedikit (Area Dahi)", sec: 20 },
-  { label: "Maju Sedikit (Detail Tekstur)", sec: 24 },
+  { key: "center", label: "Hadap Depan (Center)", sec: 4 },
+  { key: "left", label: "Tengok Kiri Sedikit (Pipi Kiri)", sec: 8 },
+  { key: "right", label: "Tengok Kanan Sedikit (Pipi Kanan)", sec: 12 },
+  { key: "up", label: "Dongak Sedikit (Area Dagu)", sec: 16 },
+  { key: "down", label: "Nunduk Sedikit (Area Dahi)", sec: 20 },
+  { key: "close", label: "Maju Sedikit (Detail Tekstur)", sec: 24 },
 ];
 
 // Helper: Kompres foto dari HP sebelum di-upload agar tidak melebihi batas 4.5MB Vercel / server
@@ -83,6 +83,7 @@ export default function ScanPage() {
   const [timer, setTimer] = useState(0);
   const [currentPose, setCurrentPose] = useState("");
   const [recordedFrames, setRecordedFrames] = useState([]);
+  const [recordedPoses, setRecordedPoses] = useState([]);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -171,6 +172,7 @@ export default function ScanPage() {
   function startMultiCapture() {
     if (!videoRef.current) return;
     setRecordedFrames([]);
+    setRecordedPoses([]);
     setResult(null);
     setError(null);
     setRecording(true);
@@ -178,6 +180,10 @@ export default function ScanPage() {
     setCurrentPose(POSES[0].label);
 
     const frames = [];
+    // Label pose sejajar dengan urutan frame — inilah yang membuat backend
+    // bisa mengelompokkan skor per pose (sebelumnya frame dikirim polos
+    // tanpa label, jadi backend tidak tahu frame mana dari pose mana).
+    const framePoses = [];
     const startTime = Date.now();
     let lastCaptureSec = -1;
 
@@ -206,7 +212,9 @@ export default function ScanPage() {
             if (blob) {
               const frameFile = new File([blob], `frame_${Date.now()}.jpg`, { type: "image/jpeg" });
               frames.push(frameFile);
+              framePoses.push(p.key);
               setRecordedFrames([...frames]);
+              setRecordedPoses([...framePoses]);
             }
           },
           "image/jpeg",
@@ -217,15 +225,16 @@ export default function ScanPage() {
       // Selesai otomatis di detik ke-24 (atau dihentikan manual oleh user)
       if (elapsed >= 24) {
         clearInterval(intervalRef.current);
-        finishRecording(frames);
+        finishRecording(frames, framePoses);
       }
     }, 500);
   }
 
-  async function finishRecording(framesToUpload) {
+  async function finishRecording(framesToUpload, posesToUpload) {
     setRecording(false);
     if (intervalRef.current) clearInterval(intervalRef.current);
     const validFrames = framesToUpload && framesToUpload.length > 0 ? framesToUpload : recordedFrames;
+    const validPoses = posesToUpload && posesToUpload.length > 0 ? posesToUpload : recordedPoses;
     if (validFrames.length === 0) {
       setError(new Error("Tidak ada frame yang berhasil direkam. Silakan ulangi."));
       return;
@@ -234,7 +243,7 @@ export default function ScanPage() {
     setBusy(true);
     setError(null);
     try {
-      const res = await uploadMultiScan(validFrames);
+      const res = await uploadMultiScan(validFrames, validPoses);
       setResult(pickObject(res));
     } catch (err) {
       setError(err);
@@ -510,6 +519,63 @@ export default function ScanPage() {
               </div>
             </>
           ) : null}
+
+          {result.per_pose && Object.keys(result.per_pose).length > 0 && (
+            <>
+              <h3>Skor per pose</h3>
+              <p className="muted">
+                Perbandingan ini berdasarkan pose saat perekaman — sudut wajah yang paling dominan terlihat,
+                bukan pengukuran tiap wilayah wajah secara terpisah.
+              </p>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "left", padding: "8px 8px 8px 0" }}>Pose</th>
+                      <th style={{ textAlign: "left", padding: 8 }}>Frame lolos</th>
+                      <th style={{ textAlign: "right", padding: 8 }}>Jerawat</th>
+                      <th style={{ textAlign: "right", padding: 8 }}>Kering</th>
+                      <th style={{ textAlign: "right", padding: 8 }}>Berminyak</th>
+                      <th style={{ textAlign: "right", padding: 8 }}>Dark spots</th>
+                      <th style={{ textAlign: "right", padding: 8 }}>Kerutan</th>
+                      <th style={{ textAlign: "right", padding: 8 }}>Keseluruhan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...POSES.map((p) => p.key), ...Object.keys(result.per_pose).filter((k) => !POSES.some((p) => p.key === k))].map((key) => {
+                      const entry = result.per_pose[key];
+                      if (!entry) return null;
+                      const label = (POSES.find((p) => p.key === key) || {}).label || key;
+                      const fmt = (v) => (v != null ? `${v}%` : "—");
+                      return (
+                        <tr key={key}>
+                          <td style={{ padding: "8px 8px 8px 0" }}>{label}</td>
+                          <td style={{ padding: 8 }}>{entry.frames_passed ?? "—"}/{entry.frames_captured ?? "—"}</td>
+                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.acne_score)}</td>
+                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.dry_skin_score)}</td>
+                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.oily_skin_score)}</td>
+                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.dark_spots_score)}</td>
+                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.wrinkles_score)}</td>
+                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.overall_score)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {result.statements && result.statements.length > 0 && (
+            <>
+              <h3>Yang terlihat dari perbandingan pose</h3>
+              <ul>
+                {result.statements.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </>
+          )}
 
           {scanId && (
             <p style={{ marginTop: 16 }}>
