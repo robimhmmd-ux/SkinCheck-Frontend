@@ -453,7 +453,7 @@ export default function ScanPage() {
           <p>
             Status: <b>{status || result.message || "terkirim"}</b>
           </p>
-          {result.message && <p className="muted">{result.message}</p>}
+          {result.message && status !== "failed" && <p className="muted">{result.message}</p>}
 
           {/* Statistik multi-pose */}
           {(result.frames_captured || result.frames_passed_yunet) && (
@@ -482,9 +482,19 @@ export default function ScanPage() {
           )}
 
           {status === "failed" && (
-            <p className="muted" style={{ color: "var(--danger)", fontWeight: 500 }}>
-              Analisis gagal di backend. Wajah tidak terdeteksi atau pencahayaan kurang. Pastikan wajah tegak dan terlihat jelas.
-            </p>
+            <>
+              {/* Alasan asli dari backend tampil utama — jangan lagi selalu
+                  menuduh wajah/pencahayaan, karena gagal bisa juga dari
+                  error kode atau server AI (dulu: NameError image_path). */}
+              <p style={{ color: "var(--danger)", fontWeight: 500 }}>
+                Analisis gagal: {result.message || "backend tidak mengembalikan alasan."}
+              </p>
+              {(!result.message || /wajah|terdeteksi|deteksi/i.test(result.message)) && (
+                <p className="muted">
+                  Kalau penyebabnya deteksi wajah: pastikan wajah tegak, menghadap kamera, dan terlihat jelas dengan pencahayaan cukup.
+                </p>
+              )}
+            </>
           )}
 
           {analysis ? (
