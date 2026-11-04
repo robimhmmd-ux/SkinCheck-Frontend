@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { getMe, getDashboard, getHistory, getProducts, pickUser, pickObject, pickArray } from "../../lib/api";
@@ -48,6 +48,30 @@ function ScaleRow({ label, value }) {
   );
 }
 
+// Angka naik dari 0 ke nilai akhir saat halaman dibuka (hanya gerak,
+// nilainya tetap angka asli dari backend; reduced motion langsung tampil final).
+function CountUp({ value, suffix }) {
+  const [display, setDisplay] = useState(null);
+  useEffect(() => {
+    const n = Number(value);
+    if (!Number.isFinite(n)) { setDisplay(null); return; }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setDisplay(n); return; }
+    let raf = 0;
+    const start = performance.now();
+    const dur = 900;
+    const tick = (t) => {
+      const p = Math.min(1, (t - start) / dur);
+      const e = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(n * e * 10) / 10);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  if (display == null) return <>—</>;
+  return <>{fmtScore(display)}{suffix}</>;
+}
+
 function Skeleton() {
   return (
     <div className="gx-page" aria-busy="true" aria-label="Memuat dashboard">
@@ -83,6 +107,11 @@ export default function DashboardPage() {
     })();
     return () => { alive = false; };
   }, []);
+
+  const stripRef = useRef(null);
+  const scrollStrip = (dir) => {
+    if (stripRef.current) stripRef.current.scrollBy({ left: dir * 320, behavior: "smooth" });
+  };
 
   if (loading) return <Skeleton />;
 
@@ -126,13 +155,13 @@ export default function DashboardPage() {
 
   return (
     <div className="gx-page">
-      <section className="gx-hero gx-rise">
+      <section className="gx-hero gx-rise gx-card gx-hero-card">
         <div>
           <h1>{user ? `Halo, ${user.name || user.email || "pengguna"}` : "Dashboard"}</h1>
           <p className="gx-hero-sub">Ringkasan dari scan yang sudah selesai dianalisis.</p>
           <div className="gx-hero-num">
-            <b>{latestAnalysis && latestAnalysis.overall_score != null ? (<>{fmtScore(latestAnalysis.overall_score)}<span className="gx-unit">%</span></>) : "—"}</b>
-            <span>skor keseluruhan scan terakhir</span>
+            <b><CountUp value={latestAnalysis ? latestAnalysis.overall_score : null} suffix={<span className="gx-unit">%</span>} /></b>
+            <span>skor keseluruhan scan terakhir{latest ? ` · Scan #${latest.id}, ${fmtDateShort(latest.created_at)}` : ""}</span>
           </div>
           {(() => {
             // Finding: kondisi yang paling menonjol di scan terakhir,
@@ -147,7 +176,7 @@ export default function DashboardPage() {
             if (!top) return null;
             return <p className="gx-hero-finding">Yang paling menonjol: {top.label} {top.value}%.</p>;
           })()}
-          <div className="gx-actions"><Link className="btn" href="/scan">Scan baru</Link></div>
+          <div className="gx-actions"><Link className="btn" href="/scan">Scan baru</Link><Link className="btn secondary" href="/history">Lihat riwayat</Link></div>
         </div>
         <div className="gx-arch-img">
           <Image src="/hero-face.png" alt="Ilustrasi wajah" width={520} height={650} priority />
@@ -159,8 +188,8 @@ export default function DashboardPage() {
         <p className="muted">Sepertinya kamu belum masuk. <Link href="/login">Masuk dulu</Link> untuk melihat datamu.</p>
       )}
 
-      <div className="gx-stats">
-        <div className="gx-stat"><b>{analyzedCount}</b><span>Scan dianalisis</span></div>
+      <div className="gx-card gx-stat-card" style={{ animationDelay: "80ms" }}>
+        <div className="gx-stat"><b><CountUp value={analyzedCount} /></b><span>Scan dianalisis</span></div>
         <div className="gx-stat"><b>{pendingCount}</b><span>Belum ada skor</span></div>
         <div className="gx-stat"><b>{latest ? fmtDateShort(latest.created_at) : "—"}</b><span>Scan terakhir dianalisis</span></div>
       </div>
@@ -171,30 +200,45 @@ export default function DashboardPage() {
         </p>
       )}
 
-      <section className="gx-section" aria-labelledby="latest-heading">
-        <h2 id="latest-heading">Skor scan terakhir</h2>
-        <p className="gx-section-lead">{latest ? `Scan #${latest.id}, ${fmtDate(latest.created_at)}` : "Belum ada scan yang selesai dianalisis."}</p>
-        <div className="gx-ledger">
-          {SCORE_KEYS.map(([key, label]) => (
-            <ScaleRow key={key} label={label} value={latestAnalysis ? latestAnalysis[key] : null} />
-          ))}
-        </div>
-        {latest && <p><Link href={`/history/${latest.id}`}>Lihat detail scan terakhir</Link></p>}
-      </section>
+      <div className="gx-dash-grid">
+        <section className="gx-card" style={{ animationDelay: "160ms" }} aria-labelledby="latest-heading">
+          <div className="gx-card-head">
+            <div>
+              <h2 id="latest-heading">Skor scan terakhir</h2>
+              <p className="gx-section-lead">{latest ? `Scan #${latest.id}, ${fmtDate(latest.created_at)}` : "Belum ada scan yang selesai dianalisis."}</p>
+            </div>
+          </div>
+          <div className="gx-ledger">
+            {SCORE_KEYS.map(([key, label]) => (
+              <ScaleRow key={key} label={label} value={latestAnalysis ? latestAnalysis[key] : null} />
+            ))}
+          </div>
+          {latest && <div className="gx-actions" style={{ marginTop: 16 }}><Link className="btn secondary" href={`/history/${latest.id}`}>Lihat detail scan terakhir</Link></div>}
+        </section>
 
-      <section className="gx-section" aria-labelledby="avg-heading">
-        <h2 id="avg-heading">Rata-rata semua scan</h2>
-        <p className="gx-section-lead">{avg ? `Dihitung dari ${avg.count} scan yang sudah selesai dianalisis.` : "Belum ada scan yang selesai dianalisis, jadi rata-rata belum bisa dihitung."}</p>
-        <div className="gx-ledger">
-          {SCORE_KEYS.map(([key, label]) => (
-            <ScaleRow key={key} label={label} value={avg ? avg[key] : null} />
-          ))}
-        </div>
-      </section>
+        <section className="gx-card" style={{ animationDelay: "240ms" }} aria-labelledby="avg-heading">
+          <div className="gx-card-head">
+            <div>
+              <h2 id="avg-heading">Rata-rata semua scan</h2>
+              <p className="gx-section-lead">{avg ? `Dihitung dari ${avg.count} scan yang sudah selesai dianalisis.` : "Belum ada scan yang selesai dianalisis, jadi rata-rata belum bisa dihitung."}</p>
+            </div>
+          </div>
+          <div className="gx-ledger">
+            {SCORE_KEYS.map(([key, label]) => (
+              <ScaleRow key={key} label={label} value={avg ? avg[key] : null} />
+            ))}
+          </div>
+        </section>
+      </div>
 
-      <section className="gx-section" aria-labelledby="recent-heading">
-        <h2 id="recent-heading">Jejak scan</h2>
-        <p className="gx-section-lead">Lima scan terbaru, dari yang paling baru.</p>
+      <section className="gx-card" style={{ animationDelay: "320ms" }} aria-labelledby="recent-heading">
+        <div className="gx-card-head">
+          <div>
+            <h2 id="recent-heading">Jejak scan</h2>
+            <p className="gx-section-lead">Lima scan terbaru, dari yang paling baru.</p>
+          </div>
+          <div className="gx-actions"><Link className="btn secondary" href="/history">Lihat semua</Link></div>
+        </div>
         {scans.length === 0 ? (
           <p className="muted">Belum ada scan. <Link href="/scan">Mulai scan baru</Link>.</p>
         ) : (
@@ -213,16 +257,23 @@ export default function DashboardPage() {
             })}
           </div>
         )}
-        <p><Link href="/history">Lihat semua riwayat</Link></p>
       </section>
 
-      <section className="gx-section" aria-labelledby="products-heading">
-        <h2 id="products-heading">Pilihan untukmu</h2>
-        <p className="gx-section-lead">Geser ke samping untuk melihat produk lainnya.</p>
+      <section className="gx-card" style={{ animationDelay: "400ms" }} aria-labelledby="products-heading">
+        <div className="gx-card-head">
+          <div>
+            <h2 id="products-heading">Pilihan untukmu</h2>
+            <p className="gx-section-lead">Geser ke samping atau pakai tombol geser untuk melihat produk lainnya.</p>
+          </div>
+          <div className="gx-strip-nav">
+            <button type="button" className="btn secondary" aria-label="Produk sebelumnya" onClick={() => scrollStrip(-1)}>‹</button>
+            <button type="button" className="btn secondary" aria-label="Produk berikutnya" onClick={() => scrollStrip(1)}>›</button>
+          </div>
+        </div>
         {products.length === 0 ? (
           <p className="muted">Belum ada produk di katalog. <Link href="/marketplace">Buka marketplace</Link>.</p>
         ) : (
-          <div className="gx-strip">
+          <div className="gx-strip" ref={stripRef}>
             {products.slice(0, 6).map((p, i) => (
               <article key={p.id || i} className={`gx-strip-card ${i % 2 === 1 ? "alt" : ""}`}>
                 <p className="gx-brand">{p.brand || "—"}</p>
@@ -233,7 +284,7 @@ export default function DashboardPage() {
             ))}
           </div>
         )}
-        <p><Link href="/marketplace">Lihat semua produk</Link></p>
+        <div className="gx-actions" style={{ marginTop: 16 }}><Link className="btn secondary" href="/marketplace">Lihat semua produk</Link></div>
       </section>
 
       <section className="gx-banner" aria-labelledby="assistant-heading">

@@ -404,6 +404,33 @@ img.preview { max-width: 100%; border-radius: 12px; border: 1px solid var(--line
 .gx-setting-panel { background: var(--beige); border-radius: 16px; padding: 20px 22px; }
 .gx-setting-panel > :last-child { margin-bottom: 0; }
 
+/* ---------- Dashboard hidup: kartu, tombol, dan gerak (hanya dashboard) ---------- */
+.gx-card { background: var(--sheet); border: 1px solid var(--line); border-radius: 20px; padding: 26px 28px; margin: 0 0 28px; animation: gxRise 600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.gx-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.gx-card-head h2 { margin: 0; }
+.gx-card-head .gx-section-lead { margin: 4px 0 0; }
+.gx-card-head .gx-actions { flex-shrink: 0; }
+.gx-hero-card { padding: 30px 32px; overflow: hidden; }
+.gx-hero-card .gx-hero { margin: 0; }
+.gx-hero-card .gx-hero-num { flex-wrap: wrap; }
+.gx-hero-card .gx-hero-num > span { flex-basis: 100%; max-width: none; }
+.gx-stat-card { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; padding: 22px 28px; }
+.gx-stat-card .gx-stat { padding: 6px 24px; }
+.gx-stat-card .gx-stat + .gx-stat { border-left: 1px solid var(--line-strong); }
+.gx-dash-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; margin-bottom: 28px; }
+.gx-dash-grid .gx-card { margin-bottom: 0; }
+.gx-dash-grid .gx-card .gx-ledger { margin-top: 8px; }
+.gx-card .gx-scale { transform-origin: left; animation: gxGrow 800ms 200ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes gxGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.gx-card .gx-scale i { animation: gxPop 400ms 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes gxPop { from { transform: translate(-50%, -50%) scale(0); } to { transform: translate(-50%, -50%) scale(1); } }
+.gx-card .gx-tl::before { animation: gxPopDot 400ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes gxPopDot { from { transform: scale(0); } to { transform: scale(1); } }
+.gx-strip-card { transition: transform 200ms ease, box-shadow 200ms ease; }
+.gx-strip-card:hover { box-shadow: 0 12px 24px var(--shadow-ink); }
+.gx-strip-nav { display: flex; gap: 8px; flex-shrink: 0; }
+.gx-strip-nav .btn { min-width: 44px; padding-left: 0; padding-right: 0; justify-content: center; }
+
 /* ---------- Responsif ---------- */
 @media (max-width: 900px) {
   .gx-hero { grid-template-columns: minmax(0, 1fr); }
@@ -412,6 +439,11 @@ img.preview { max-width: 100%; border-radius: 12px; border: 1px solid var(--line
   .gx-cols > :nth-child(2) { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 32px; }
   .gx-auth { grid-template-columns: minmax(0, 1fr); }
   .gx-setting { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .gx-dash-grid { grid-template-columns: minmax(0, 1fr); }
+  .gx-stat-card { grid-template-columns: minmax(0, 1fr); }
+  .gx-stat-card .gx-stat + .gx-stat { border-left: 0; border-top: 1px solid var(--line-strong); }
+  .gx-card { padding: 22px 20px; }
+  .gx-hero-card { padding: 24px 20px; }
   .gx-auth-visual .gx-arch-img { max-width: 220px; }
   .ed-seal { display: none; }
 }
