@@ -15,8 +15,9 @@ export default function RootLayout({ children }) {
     <html lang="id" className={playfair.variable}>
       <body>
         <ToastProvider>
+          <a className="gx-skip" href="#main">Lewati ke konten</a>
           <SiteHeader />
-          <main className="container">{children}</main>
+          <main id="main" className="container">{children}</main>
           <footer className="footer">
             SkinCheck — deteksi kesehatan kulit wajah.
           </footer>

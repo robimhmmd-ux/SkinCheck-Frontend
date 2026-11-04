@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { getMe, getDashboard, getHistory, getProducts, pickUser, pickObject, pickArray } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
-import Seal from "../../components/Seal";
 import { SCORE_KEYS, averageScores, latestAnalyzedScan, fmtScore, fmtDate, pickAnalysis } from "../../lib/scores";
 
 const STATUS_LABEL = {
@@ -39,7 +38,7 @@ function ScaleRow({ label, value }) {
   return (
     <div className="gx-row">
       <span className="gx-label">{label}</span>
-      <b>{finite ? fmtScore(value) : "—"}</b>
+      <b className={finite ? "" : "muted"}>{finite ? `${fmtScore(value)}%` : "—"}</b>
       {finite && (
         <span className="gx-scale" aria-hidden="true">
           <i style={{ left: `${scaleLeft(value)}%` }} />
@@ -129,17 +128,29 @@ export default function DashboardPage() {
     <div className="gx-page">
       <section className="gx-hero gx-rise">
         <div>
-          <Seal />
           <h1>{user ? `Halo, ${user.name || user.email || "pengguna"}` : "Dashboard"}</h1>
           <p className="gx-hero-sub">Ringkasan dari scan yang sudah selesai dianalisis.</p>
           <div className="gx-hero-num">
-            <b>{latestAnalysis && latestAnalysis.overall_score != null ? fmtScore(latestAnalysis.overall_score) : "—"}</b>
+            <b>{latestAnalysis && latestAnalysis.overall_score != null ? (<>{fmtScore(latestAnalysis.overall_score)}<span className="gx-unit">%</span></>) : "—"}</b>
             <span>skor keseluruhan scan terakhir</span>
           </div>
+          {(() => {
+            // Finding: kondisi yang paling menonjol di scan terakhir,
+            // dihitung dari skornya — bukan kalimat karangan.
+            if (!latestAnalysis) return null;
+            let top = null;
+            for (const [key, label] of SCORE_KEYS) {
+              if (key === "overall_score") continue;
+              const v = Number(latestAnalysis[key]);
+              if (Number.isFinite(v) && (top === null || v > top.value)) top = { label, value: v };
+            }
+            if (!top) return null;
+            return <p className="gx-hero-finding">Yang paling menonjol: {top.label} {top.value}%.</p>;
+          })()}
           <div className="gx-actions"><Link className="btn" href="/scan">Scan baru</Link></div>
         </div>
         <div className="gx-arch-img">
-          <Image src="/hero-face.png" alt="Ilustrasi wajah" width={520} height={650} />
+          <Image src="/hero-face.png" alt="Ilustrasi wajah" width={520} height={650} priority />
         </div>
       </section>
 
@@ -230,7 +241,7 @@ export default function DashboardPage() {
           <h2 id="assistant-heading">Tanya Luvenna</h2>
           <p className="muted">Asisten kulit wajah yang menjawab dari skor dan riwayat scanmu.</p>
         </div>
-        <Link className="btn" href="/assistant">Buka halaman Asisten</Link>
+        <Link className="btn secondary" href="/assistant">Buka halaman Asisten</Link>
       </section>
     </div>
   );

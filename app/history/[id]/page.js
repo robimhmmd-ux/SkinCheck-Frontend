@@ -15,7 +15,7 @@ function Ledger({ analysis }) {
         return (
           <div key={key} className="gx-row">
             <span className="gx-label">{label}</span>
-            <b>{finite ? `${v}%` : "—"}</b>
+            <b className={finite ? "" : "muted"}>{finite ? `${v}%` : "—"}</b>
             {finite && (
               <span className="gx-scale" aria-hidden="true">
                 <i style={{ left: `${Math.max(0, Math.min(100, Number(v)))}%` }} />

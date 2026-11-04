@@ -393,7 +393,7 @@ export default function ScanPage() {
                 {recording && (
                   <div className="gx-rec">
                     <div className="gx-rec-row">
-                      <span><span className="gx-rec-live">●</span> Merekam: {timer}s / 24s</span>
+                      <span>Merekam: {timer}s / 24s</span>
                       <span>{recordedFrames.length} Frame</span>
                     </div>
                     <div className="gx-rec-pose">
@@ -457,7 +457,7 @@ export default function ScanPage() {
 
             {analysis && analysis.overall_score != null && (
               <div className="gx-result-num">
-                <b>{analysis.overall_score}</b>
+                <b>{analysis.overall_score}<span className="gx-unit">%</span></b>
                 <span>skor keseluruhan</span>
               </div>
             )}
@@ -496,7 +496,7 @@ export default function ScanPage() {
                     return (
                       <div key={key} className="gx-row">
                         <span className="gx-label">{label}</span>
-                        <b>{finite ? `${v}%` : "—"}</b>
+                        <b className={finite ? "" : "muted"}>{finite ? `${v}%` : "—"}</b>
                         {finite && (
                           <span className="gx-scale" aria-hidden="true">
                             <i style={{ left: `${Math.max(0, Math.min(100, Number(v)))}%` }} />

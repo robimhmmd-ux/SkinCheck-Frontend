@@ -5,7 +5,7 @@ export default function AuthVisual({ title, text }) {
   return (
     <div className="gx-auth-visual">
       <div className="gx-arch-img">
-        <Image src="/hero-face.png" alt="Ilustrasi wajah" width={480} height={600} />
+        <Image src="/hero-face.png" alt="Ilustrasi wajah" width={480} height={600} priority />
       </div>
       <h2>{title}</h2>
       <p>{text}</p>

@@ -52,7 +52,7 @@ function ScaleLedger({ analysis }) {
         return (
           <div key={key} className="gx-row">
             <span className="gx-label">{label}</span>
-            <b>{finite ? `${analysis[key]}%` : "—"}</b>
+            <b className={finite ? "" : "muted"}>{finite ? `${analysis[key]}%` : "—"}</b>
             {finite && (
               <span className="gx-scale" aria-hidden="true">
                 <i style={{ left: `${Math.max(0, Math.min(100, raw))}%` }} />
@@ -131,9 +131,20 @@ export default function OutputPage() {
           <h2>{latest ? `Scan terakhir #${latest.id}` : "Belum ada hasil scan"}</h2>
           <p className="muted" style={{ margin: "0 auto" }}>{latest ? `${fmtDate(latest.created_at)}, status ${latestStatus}` : "Lakukan scan dulu, lalu hasilnya akan tampil di sini."}</p>
           <div className="gx-result-num" style={{ justifyContent: "center" }}>
-            <b>{latestAnalysis && latestAnalysis.overall_score != null ? fmtScore(latestAnalysis.overall_score) : "—"}</b>
+            <b>{latestAnalysis && latestAnalysis.overall_score != null ? (<>{fmtScore(latestAnalysis.overall_score)}<span className="gx-unit">%</span></>) : "—"}</b>
             <span>skor keseluruhan</span>
           </div>
+          {(() => {
+            if (!latestAnalysis) return null;
+            let top = null;
+            for (const [key, label] of SCORE_KEYS) {
+              if (key === "overall_score") continue;
+              const v = Number(latestAnalysis[key]);
+              if (Number.isFinite(v) && (top === null || v > top.value)) top = { label, value: v };
+            }
+            if (!top) return null;
+            return <p className="gx-hero-finding" style={{ textAlign: "center", margin: "0 auto 20px" }}>Yang paling menonjol: {top.label} {top.value}%.</p>;
+          })()}
         </div>
 
         <div className="gx-ledger">
@@ -143,7 +154,7 @@ export default function OutputPage() {
             return (
               <div key={key} className="gx-row">
                 <span className="gx-label">{label}</span>
-                <b>{finite ? `${latestAnalysis[key]}%` : "—"}</b>
+                <b className={finite ? "" : "muted"}>{finite ? `${latestAnalysis[key]}%` : "—"}</b>
                 {finite && (
                   <span className="gx-scale" aria-hidden="true">
                     <i style={{ left: `${Math.max(0, Math.min(100, raw))}%` }} />

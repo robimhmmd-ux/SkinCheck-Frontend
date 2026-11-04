@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getHistory, pickArray } from "../../lib/api";
+import { pickAnalysis } from "../../lib/scores";
 import { ErrorBox, Loading } from "../../components/Notice";
 
 // Status diterjemahkan seperti di dashboard — bukan mentah dari backend.
@@ -33,15 +34,18 @@ export default function HistoryPage() {
         <p className="muted">Belum ada riwayat. <Link href="/scan">Mulai scan baru</Link>.</p>
       ) : (
         <div className="gx-timeline">
-          {items.map((s, i) => (
+          {items.map((s, i) => {
+            const analysis = pickAnalysis(s);
+            return (
             <div key={s.id || i} className="gx-tl">
               <div className="gx-tl-top">
                 <Link href={`/history/${s.id}`}>Scan #{s.id ?? i + 1}</Link>
-                <span className={`ed-status ${STATUS_CLASS[s.status] || ""}`}>{STATUS_LABEL[s.status] || s.status || "—"}</span>
+                {analysis ? <b>{analysis.overall_score}</b> : <span className={`ed-status ${STATUS_CLASS[s.status] || ""}`}>{STATUS_LABEL[s.status] || s.status || "—"}</span>}
               </div>
-              <p className="gx-tl-meta">{s.created_at || s.created || "—"}{s.image_quality_score != null ? `, kualitas gambar ${s.image_quality_score}` : ""}</p>
+              <p className="gx-tl-meta">{s.created_at || s.created || "—"}{analysis ? `, ${STATUS_LABEL[s.status] || s.status || "—"}` : ""}{s.image_quality_score != null ? `, kualitas gambar ${s.image_quality_score}` : ""}</p>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

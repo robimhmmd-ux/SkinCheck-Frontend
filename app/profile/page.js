@@ -60,8 +60,12 @@ export default function ProfilePage() {
       {loading && <Loading />}
       <ErrorBox error={error} />
 
-      <section className="gx-section" aria-labelledby="account-heading">
-        <h2 id="account-heading">Akun saya</h2>
+      <section className="gx-setting" aria-labelledby="account-heading">
+        <div className="gx-setting-label">
+          <h2 id="account-heading">Akun saya</h2>
+          <p className="muted">Data dari akun yang sedang login. Bagian ini masih read-only karena /api/v2 belum punya endpoint ubah profil.</p>
+        </div>
+        <div className="gx-setting-panel">
         {user && !loading ? (
           <>
             <p className="gx-hero-num" style={{ margin: "8px 0" }}><b style={{ fontSize: "clamp(36px, 5vw, 52px)" }}>{user.name || "—"}</b></p>
@@ -70,16 +74,20 @@ export default function ProfilePage() {
               <div><dt>Role</dt><dd>{user.role || "—"}</dd></div>
               <div><dt>Status</dt><dd>{user.status || "—"}</dd></div>
             </dl>
-            <p className="muted">Ubah nama, email, dan ganti password belum tersedia di /api/v2, jadi bagian ini masih read-only. Kalau perlu diubah, hubungi admin.</p>
+            <p className="muted">Ubah nama, email, dan ganti password belum tersedia di /api/v2. Kalau perlu diubah, hubungi admin.</p>
           </>
         ) : !loading && (
           <p>Belum masuk. <Link href="/login">Masuk</Link></p>
         )}
+        </div>
       </section>
 
-      <section className="gx-section" aria-labelledby="prefs-heading">
-        <h2 id="prefs-heading">Preferensi</h2>
-        <p className="gx-section-lead">Preferensi ini hanya tersimpan di browser ini, bukan di server.</p>
+      <section className="gx-setting" aria-labelledby="prefs-heading">
+        <div className="gx-setting-label">
+          <h2 id="prefs-heading">Preferensi</h2>
+          <p className="muted">Hanya tersimpan di browser ini, bukan di server.</p>
+        </div>
+        <div className="gx-setting-panel">
         <div className="ed-switch-row">
           <div>
             <strong>Ingatkan saya untuk scan berkala</strong>
@@ -95,14 +103,19 @@ export default function ProfilePage() {
           <button type="button" className="ed-switch" role="switch" aria-checked={showPercent} aria-label="Tampilkan skor dalam persen" onClick={() => togglePercent(!showPercent)} />
         </div>
         <p className="muted">Bahasa antarmuka: Indonesia.</p>
+        </div>
       </section>
 
-      <section className="gx-section" aria-labelledby="security-heading">
-        <h2 id="security-heading">Keamanan dan keluar</h2>
-        <p className="gx-section-lead">Keluar akan mengakhiri sesi di browser ini.</p>
+      <section className="gx-setting" aria-labelledby="security-heading">
+        <div className="gx-setting-label">
+          <h2 id="security-heading">Keamanan dan keluar</h2>
+          <p className="muted">Keluar akan mengakhiri sesi di browser ini.</p>
+        </div>
+        <div className="gx-setting-panel">
         <button className="btn secondary" onClick={onLogout}>Keluar</button>
         <p><Link href="/dashboard">Kembali ke dashboard</Link></p>
         <p><Link href="/history">Riwayat</Link></p>
+        </div>
       </section>
     </div>
   );

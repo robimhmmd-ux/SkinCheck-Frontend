@@ -165,7 +165,7 @@ export default function AssistantPage() {
       <div className="gx-chat">
         <div className="gx-chat-head">
           <div>
-            <h1>Luvenna</h1>
+            <h2>Luvenna</h2>
             <p className="muted">Asisten kulit wajah SkinCheck.</p>
           </div>
           {messages.length > 1 && (
