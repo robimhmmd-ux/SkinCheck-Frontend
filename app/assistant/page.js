@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   assistantChat,
+  assistantChatStream,
   getAssistantHistory,
   clearAssistantHistory,
   isBackendConfigured,
@@ -102,22 +103,31 @@ export default function AssistantPage() {
 
     setError(null);
     const userMsg = { role: "user", content: text };
-    setMessages((prev) => [...prev, userMsg]);
+    // Gelembung asisten kosong langsung ditampilkan; potongan jawaban
+    // streaming akan mengisinya kata per kata, jadi user tidak lagi
+    // menatap tombol "Mengirim..." tanpa apa-apa.
+    setMessages((prev) => [...prev, userMsg, { role: "assistant", content: "" }]);
     setInput("");
     setLoading(true);
 
-    try {
+    // Fallback sekali ke endpoint lama kalau stream gagal SEBELUM potongan
+    // pertama tiba (mis. backend lama / stream tidak tersedia). Kalau sudah
+    // ada potongan yang tampil, jawaban parsial dipertahankan.
+    const fallbackToClassic = async () => {
       const res = await assistantChat(text);
       const aiReply =
         res && (res.response || res.reply || res.message || res.detail);
-      setMessages((prev) => [
-        ...prev,
-        {
+      setMessages((prev) => {
+        const next = [...prev];
+        next[next.length - 1] = {
           role: "assistant",
           content: aiReply || "Maaf, respon tidak dapat diproses saat ini.",
-        },
-      ]);
-    } catch (err) {
+        };
+        return next;
+      });
+    };
+
+    const showClassicError = (err) => {
       if (err.status === 401) {
         setAuthNeeded(true);
         setError(
@@ -133,6 +143,44 @@ export default function AssistantPage() {
         );
       } else {
         setError(err);
+      }
+    };
+
+    let streamed = false;
+    try {
+      const full = await assistantChatStream(text, (delta) => {
+        streamed = true;
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          next[next.length - 1] = { ...last, content: (last.content || "") + delta };
+          return next;
+        });
+      });
+      if (!full && !streamed) {
+        await fallbackToClassic();
+      }
+    } catch (err) {
+      if (streamed) {
+        // Sebagian jawaban sudah tampil; jangan hapus, cukup beri catatan.
+        setError(
+          new Error("Koneksi streaming terputus, jawaban di atas mungkin belum lengkap. Coba kirim ulang pertanyaanmu.")
+        );
+      } else {
+        try {
+          await fallbackToClassic();
+        } catch (err2) {
+          // Gagal total: ganti gelembung kosong dengan pesan maaf + error.
+          setMessages((prev) => {
+            const next = [...prev];
+            next[next.length - 1] = {
+              role: "assistant",
+              content: "Maaf, respon tidak dapat diproses saat ini.",
+            };
+            return next;
+          });
+          showClassicError(err2);
+        }
       }
     } finally {
       setLoading(false);
@@ -208,7 +256,7 @@ export default function AssistantPage() {
               )
             ))
           )}
-          {loading && (
+          {loading && !(messages.length && messages[messages.length - 1].content) && (
             <div className="gx-msg-asst">
               <span>Luvenna</span>
               <em>Ven sedang mengetik...</em>
