@@ -43,7 +43,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="card">
+    <div className="card auth">
       <h1>Daftar</h1>
       {done ? (
         <>

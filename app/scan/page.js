@@ -396,52 +396,39 @@ export default function ScanPage() {
                 <canvas ref={canvasRef} style={{ display: "none" }} />
 
                 {recording && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 10,
-                      left: 10,
-                      right: 10,
-                      background: "rgba(0,0,0,0.72)",
-                      color: "#fff",
-                      padding: "8px 12px",
-                      borderRadius: 10,
-                      backdropFilter: "blur(6px)",
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 700 }}>
+                  <div className="scan-rec">
+                    <div className="scan-rec-row">
                       <span style={{ color: "#ff5252" }}>● Merekam: {timer}s / 24s</span>
                       <span>{recordedFrames.length} Frame</span>
                     </div>
-                    <div style={{ fontSize: 15, marginTop: 4, color: "#a7f3d0", fontWeight: 600 }}>
+                    <div className="scan-rec-pose">
                       Panduan Pose: {currentPose}
                     </div>
                   </div>
                 )}
               </div>
 
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", marginTop: 14 }}>
+              <div className="scan-btn-row">
                 {!recording ? (
-                  <button type="button" onClick={startMultiCapture} className="btn" disabled={busy} style={{ minHeight: 44, flex: "1 1 160px" }}>
+                  <button type="button" onClick={startMultiCapture} className="btn" disabled={busy}>
                     Mulai Scan Multi-Pose (24 Detik)
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => finishRecording()}
-                    className="btn"
-                    style={{ background: "var(--danger)", minHeight: 44, flex: "1 1 160px" }}
+                    className="btn danger"
                   >
                     Selesai & Analisis ({recordedFrames.length} frame)
                   </button>
                 )}
-                <button type="button" onClick={toggleCamera} className="btn secondary" disabled={recording} style={{ minHeight: 44 }}>
+                <button type="button" onClick={toggleCamera} className="btn secondary" disabled={recording}>
                   Ganti Kamera (Depan/Belakang)
                 </button>
-                <button type="button" onClick={() => setFlipPreview((f) => !f)} className="btn secondary" disabled={recording} style={{ minHeight: 44 }}>
+                <button type="button" onClick={() => setFlipPreview((f) => !f)} className="btn secondary" disabled={recording}>
                   Balik Pratinjau
                 </button>
-                <button type="button" onClick={stopCamera} className="btn secondary" disabled={recording} style={{ minHeight: 44 }}>
+                <button type="button" onClick={stopCamera} className="btn secondary" disabled={recording}>
                   Tutup
                 </button>
               </div>
@@ -451,13 +438,13 @@ export default function ScanPage() {
       )}
 
       {busy && (
-        <div className="notice" style={{ marginTop: 20, textAlign: "center", padding: "14px", fontWeight: 600 }}>
-          ⏳ Sedang memproses analisis wajah & 5 kondisi kulit di backend... Mohon tunggu.
+        <div className="notice" style={{ marginTop: 20, textAlign: "center", fontWeight: 600 }}>
+          Sedang memproses analisis wajah & 5 kondisi kulit di backend... Mohon tunggu.
         </div>
       )}
 
       {result && (
-        <div className="card" style={{ marginTop: 24, padding: "16px" }}>
+        <div className="dash-panel" style={{ marginTop: 24 }}>
           <h2>Hasil Analisis Wajah</h2>
           <p>
             Status: <b>{status || result.message || "terkirim"}</b>
@@ -466,28 +453,20 @@ export default function ScanPage() {
 
           {/* Statistik multi-pose */}
           {(result.frames_captured || result.frames_passed_yunet) && (
-            <div
-              style={{
-                display: "flex",
-                gap: 12,
-                flexWrap: "wrap",
-                padding: "10px 14px",
-                background: "var(--cream)",
-                borderRadius: 10,
-                margin: "14px 0",
-                fontSize: 13,
-              }}
-            >
-              <span>
-                Total Frame: <b>{result.frames_captured}</b>
-              </span>
-              <span>
-                Lolos Deteksi Wajah: <b>{result.frames_passed_yunet}</b>
-              </span>
-              <span>
-                Dianalisis AI VGG16: <b>{result.frames_used_vgg}</b>
-              </span>
-            </div>
+            <dl className="dash-kpis">
+              <div>
+                <dt>Total Frame</dt>
+                <dd>{result.frames_captured}</dd>
+              </div>
+              <div>
+                <dt>Lolos Deteksi Wajah</dt>
+                <dd>{result.frames_passed_yunet}</dd>
+              </div>
+              <div>
+                <dt>Dianalisis AI VGG16</dt>
+                <dd>{result.frames_used_vgg}</dd>
+              </div>
+            </dl>
           )}
 
           {status === "failed" && (
@@ -495,7 +474,7 @@ export default function ScanPage() {
               {/* Alasan asli dari backend tampil utama — jangan lagi selalu
                   menuduh wajah/pencahayaan, karena gagal bisa juga dari
                   error kode atau server AI (dulu: NameError image_path). */}
-              <p style={{ color: "var(--danger)", fontWeight: 500 }}>
+              <p className="error">
                 Analisis gagal: {result.message || "backend tidak mengembalikan alasan."}
               </p>
               {(!result.message || /wajah|terdeteksi|deteksi/i.test(result.message)) && (
@@ -527,18 +506,18 @@ export default function ScanPage() {
                 Perbandingan ini berdasarkan pose saat perekaman — sudut wajah yang paling dominan terlihat,
                 bukan pengukuran tiap wilayah wajah secara terpisah.
               </p>
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+              <div className="dash-table-wrap">
+                <table className="dash-table">
                   <thead>
                     <tr>
-                      <th style={{ textAlign: "left", padding: "8px 8px 8px 0" }}>Pose</th>
-                      <th style={{ textAlign: "left", padding: 8 }}>Frame lolos</th>
-                      <th style={{ textAlign: "right", padding: 8 }}>Jerawat</th>
-                      <th style={{ textAlign: "right", padding: 8 }}>Kering</th>
-                      <th style={{ textAlign: "right", padding: 8 }}>Berminyak</th>
-                      <th style={{ textAlign: "right", padding: 8 }}>Dark spots</th>
-                      <th style={{ textAlign: "right", padding: 8 }}>Kerutan</th>
-                      <th style={{ textAlign: "right", padding: 8 }}>Keseluruhan</th>
+                      <th>Pose</th>
+                      <th>Frame lolos</th>
+                      <th className="num">Jerawat</th>
+                      <th className="num">Kering</th>
+                      <th className="num">Berminyak</th>
+                      <th className="num">Dark spots</th>
+                      <th className="num">Kerutan</th>
+                      <th className="num">Keseluruhan</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -549,14 +528,14 @@ export default function ScanPage() {
                       const fmt = (v) => (v != null ? `${v}%` : "—");
                       return (
                         <tr key={key}>
-                          <td style={{ padding: "8px 8px 8px 0" }}>{label}</td>
-                          <td style={{ padding: 8 }}>{entry.frames_passed ?? "—"}/{entry.frames_captured ?? "—"}</td>
-                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.acne_score)}</td>
-                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.dry_skin_score)}</td>
-                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.oily_skin_score)}</td>
-                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.dark_spots_score)}</td>
-                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.wrinkles_score)}</td>
-                          <td style={{ textAlign: "right", padding: 8 }}>{fmt(entry.overall_score)}</td>
+                          <td>{label}</td>
+                          <td>{entry.frames_passed ?? "—"}/{entry.frames_captured ?? "—"}</td>
+                          <td className="num">{fmt(entry.acne_score)}</td>
+                          <td className="num">{fmt(entry.dry_skin_score)}</td>
+                          <td className="num">{fmt(entry.oily_skin_score)}</td>
+                          <td className="num">{fmt(entry.dark_spots_score)}</td>
+                          <td className="num">{fmt(entry.wrinkles_score)}</td>
+                          <td className="num">{fmt(entry.overall_score)}</td>
                         </tr>
                       );
                     })}

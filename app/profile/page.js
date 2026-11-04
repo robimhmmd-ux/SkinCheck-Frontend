@@ -52,14 +52,14 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="me-shell">
-      <h1 className="me-page-title">Setting Akun</h1>
-      <p className="muted">Kelola akun dan preferensimu. Data akun di bawah berasal dari akun yang sedang login.</p>
+    <div className="dash">
+      <h1 className="dash-title">Setting Akun</h1>
+      <p className="dash-lead">Kelola akun dan preferensimu. Data akun di bawah berasal dari akun yang sedang login.</p>
       {loading && <Loading />}
       <ErrorBox error={error} />
 
-      <div className="me-panels">
-        <div className="me-panel">
+      <div className="dash-grid">
+        <div className="dash-panel">
           <h2>Akun saya</h2>
           {user && !loading ? (
             <>
@@ -73,20 +73,20 @@ export default function ProfilePage() {
             <p>Belum masuk. <Link href="/login">Masuk</Link></p>
           )}
         </div>
-        <div className="me-panel">
+        <div className="dash-panel">
           <h2>Preferensi</h2>
           <p className="muted">Preferensi ini hanya tersimpan di browser ini, bukan di server.</p>
-          <label className="me-check">
+          <label className="check">
             <input type="checkbox" checked={reminder} onChange={(e) => toggleReminder(e.target.checked)} />
             Ingatkan saya untuk scan berkala
           </label>
-          <label className="me-check">
+          <label className="check">
             <input type="checkbox" checked={showPercent} onChange={(e) => togglePercent(e.target.checked)} />
             Tampilkan skor dalam persen (%)
           </label>
           <p className="muted">Bahasa antarmuka: Indonesia.</p>
         </div>
-        <div className="me-panel">
+        <div className="dash-panel">
           <h2>Keamanan & keluar</h2>
           <p className="muted">Keluar akan mengakhiri sesi di browser ini.</p>
           <button className="btn secondary" onClick={onLogout}>Keluar</button>

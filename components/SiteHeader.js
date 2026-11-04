@@ -49,24 +49,29 @@ export default function SiteHeader() {
     }
   }
 
+  const navItems = [
+    ["/dashboard", "Dashboard"],
+    ["/scan", "Scan"],
+    ["/output", "Output"],
+    ["/history", "Riwayat"],
+    ["/marketplace", "Marketplace"],
+    ["/assistant", "Asisten"],
+    ["/profile", "Profil"],
+  ];
   return (
     <>
       <header className="topbar">
         <Link className="brand" href="/">SkinCheck</Link>
         <nav className="nav">
-          <Link href="/dashboard">Dashboard</Link>
-          <Link href="/scan">Scan</Link>
-          <Link href="/output">Output</Link>
-          <Link href="/history">Riwayat</Link>
-          <Link href="/marketplace">Marketplace</Link>
-          <Link href="/assistant">Asisten</Link>
-          <Link href="/profile">Profil</Link>
+          {navItems.map(([href, label]) => (
+            <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined}>{label}</Link>
+          ))}
           {loggedIn ? (
-            <button type="button" className="btn-login-transparent" onClick={onLogout} disabled={busy}>
+            <button type="button" className="btn ghost sm" onClick={onLogout} disabled={busy}>
               {busy ? "Keluar…" : "Keluar"}
             </button>
           ) : (
-            <button type="button" className="btn-login-transparent" onClick={() => setLoginOpen(true)}>Masuk</button>
+            <button type="button" className="btn ghost sm" onClick={() => setLoginOpen(true)}>Masuk</button>
           )}
         </nav>
       </header>

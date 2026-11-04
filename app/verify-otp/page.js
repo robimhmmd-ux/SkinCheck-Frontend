@@ -66,7 +66,7 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <div className="card">
+    <div className="card auth">
       <h1>Verifikasi OTP WhatsApp</h1>
       <p className="muted">
         Kode 6 digit dikirim lewat WhatsApp (Fonnte) ke nomor kamu. Kode berlaku 10 menit

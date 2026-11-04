@@ -27,9 +27,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="card">
+    <div className="card auth">
       <h1>Masuk</h1>
-      <p className="muted">Masuk dengan akun SkinCheck kamu. Sesi disimpan sebagai cookie oleh backend (credentials: include).</p>
+      <p className="muted">Masuk dengan akun SkinCheck kamu.</p>
       <ErrorBox error={error} />
       <form onSubmit={onSubmit}>
         <label>Email<input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>

@@ -49,7 +49,7 @@ function ScoreList({ analysis }) {
         const raw = Number(analysis[key]);
         const hasBar = Number.isFinite(raw) && raw >= 0 && raw <= 100;
         return (
-          <div key={key} className="me-score-row out-score-row">
+          <div key={key} className="out-score-row">
             <div className="out-score-top"><span>{label}</span><b>{fmtScore(analysis[key])}</b></div>
             {hasBar && (
               <div className="out-bar" aria-hidden="true"><span style={{ width: `${raw}%` }} /></div>
@@ -125,7 +125,7 @@ export default function OutputPage() {
       <div className="output-full-headline">
         <p className="output-brand">SkinCheck untuk analisis wajah</p>
         <h2>{latest ? `Scan terakhir #${latest.id}` : "Belum ada hasil scan"}</h2>
-        <p>{latest ? `${fmtDate(latest.created_at)}, status ${latest.status || "—"}` : "Lakukan scan dulu, lalu hasilnya akan tampil di sini."}</p>
+        <p>{latest ? `${fmtDate(latest.created_at)}, status ${{ completed: "Selesai", processing: "Diproses", failed: "Gagal" }[latest.status] || latest.status || "—"}` : "Lakukan scan dulu, lalu hasilnya akan tampil di sini."}</p>
       </div>
 
       {/* Card kecil, TIDAK dijejer rapi: disebar zigzag di atas

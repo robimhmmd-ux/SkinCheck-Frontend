@@ -37,13 +37,13 @@ export default function MarketplacePage() {
   });
 
   return (
-    <div className="me-shell">
-      <h1 className="me-page-title">Marketplace</h1>
-      <p className="muted">Produk perawatan dari katalog SkinCheck. Link pembelian mengarah ke Shopee / Tokopedia yang tercatat di database, bukan link buatan.</p>
+    <div className="dash">
+      <h1 className="dash-title">Marketplace</h1>
+      <p className="dash-lead">Produk perawatan dari katalog SkinCheck. Link pembelian mengarah ke Shopee / Tokopedia yang tercatat di database, bukan link buatan.</p>
       <ErrorBox error={error} />
       {loading ? <Loading /> : (
         <>
-          <div className="me-filters">
+          <div className="filters">
             <label>Cari produk<input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari brand atau nama produk…" /></label>
             <label>Kategori
               <select value={category} onChange={(e) => setCategory(e.target.value)}>
@@ -56,10 +56,10 @@ export default function MarketplacePage() {
           ) : shown.length === 0 ? (
             <p className="muted">Tidak ada produk yang cocok dengan pencarianmu.</p>
           ) : (
-            <div className="me-market-grid">
+            <div className="product-grid">
               {shown.map((p, i) => (
-                <article key={p.id || i} className="me-market-card">
-                  <p className="me-market-brand">{p.brand || "—"}</p>
+                <article key={p.id || i} className="product-card">
+                  <p className="product-brand">{p.brand || "—"}</p>
                   <h2>{p.name}</h2>
                   <p className="muted">{p.category || ""}</p>
                   {p.description && <p>{p.description}</p>}
@@ -67,7 +67,7 @@ export default function MarketplacePage() {
                     <p className="muted">Cocok untuk: {p.skin_concern.join(", ")}</p>
                   )}
                   {p.usage_guidance && <p className="muted">{p.usage_guidance}</p>}
-                  <div className="me-market-links">
+                  <div className="product-links">
                     {p.shopee_link ? <a className="btn" href={p.shopee_link} target="_blank" rel="noreferrer">Beli di Shopee</a> : null}
                     {p.tokopedia_link ? <a className="btn secondary" href={p.tokopedia_link} target="_blank" rel="noreferrer">Beli di Tokopedia</a> : null}
                     {!p.shopee_link && !p.tokopedia_link && <span className="muted">Belum ada link pembelian untuk produk ini.</span>}

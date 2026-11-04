@@ -157,24 +157,11 @@ export default function AssistantPage() {
   }
 
   return (
-    <div className="card" style={{ maxWidth: 760, margin: "20px auto" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 10,
-          borderBottom: "1px solid var(--line)",
-          paddingBottom: 14,
-          marginBottom: 16,
-        }}
-      >
+    <div className="card chat-shell">
+      <div className="chat-head">
         <div>
-          <h1 style={{ margin: 0, fontSize: 24, color: "var(--navy)" }}>
-            Asisten SkinCheck (Luvenna)
-          </h1>
-          <p className="muted" style={{ margin: "4px 0 0", fontSize: 13 }}>
+          <h1>Asisten SkinCheck (Luvenna)</h1>
+          <p className="muted">
             Konsultasi kesehatan dan bimbingan perawatan kulit wajah terpercaya.
           </p>
         </div>
@@ -182,8 +169,7 @@ export default function AssistantPage() {
           <button
             type="button"
             onClick={() => setConfirmClear(true)}
-            className="btn secondary"
-            style={{ fontSize: 12, padding: "6px 12px" }}
+            className="btn secondary sm"
           >
             Bersihkan Riwayat
           </button>
@@ -201,42 +187,22 @@ export default function AssistantPage() {
       />
 
       {authNeeded && (
-        <div className="notice" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="notice chat-head" style={{ borderBottom: 0, marginBottom: 0 }}>
           <span>Kamu perlu masuk akun terlebih dahulu untuk menggunakan asisten.</span>
-          <Link href="/login" className="btn" style={{ fontSize: 13, padding: "6px 14px" }}>
+          <Link href="/login" className="btn sm">
             Masuk Akun
           </Link>
         </div>
       )}
 
-      <div
-        className="chat"
-        style={{
-          minHeight: 340,
-          maxHeight: 520,
-          overflowY: "auto",
-          padding: "10px 4px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-        }}
-      >
+      <div className="chat chat-scroll">
         {initialLoading ? (
           <p className="muted" style={{ textAlign: "center", padding: 20 }}>
             Memuat percakapan...
           </p>
         ) : (
           messages.map((m, i) => (
-            <div
-              key={i}
-              className={`msg ${m.role}`}
-              style={{
-                lineHeight: 1.55,
-                fontSize: 14.5,
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-word",
-              }}
-            >
+            <div key={i} className={`msg ${m.role}`}>
               {m.content}
             </div>
           ))
@@ -249,15 +215,14 @@ export default function AssistantPage() {
         <div ref={chatEndRef} />
       </div>
 
-      <form onSubmit={onSend} style={{ marginTop: 18, display: "flex", gap: 10, maxWidth: "100%" }}>
+      <form onSubmit={onSend} className="chat-form">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Tanya soal kulit wajah, jerawat, atau riwayat scan..."
           disabled={loading || authNeeded}
-          style={{ flex: 1, marginTop: 0 }}
         />
-        <button className="btn" disabled={loading || !input.trim() || authNeeded} style={{ whiteSpace: "nowrap" }}>
+        <button className="btn" disabled={loading || !input.trim() || authNeeded}>
           {loading ? "Mengirim..." : "Kirim"}
         </button>
       </form>

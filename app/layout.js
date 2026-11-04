@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
           <SiteHeader />
           <main className="container">{children}</main>
           <footer className="footer">
-            SkinCheck — frontend Next.js. Backend Python (FastAPI) dikonfigurasi lewat NEXT_PUBLIC_API_URL.
+            SkinCheck — deteksi kesehatan kulit wajah.
           </footer>
         </ToastProvider>
       </body>

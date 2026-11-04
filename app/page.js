@@ -89,7 +89,7 @@ export default function Home() {
       <section className="landing-status" aria-label="Status backend">
         <h2>Status backend</h2>
         {status === "checking" && <p className="muted">Memeriksa backend…</p>}
-        {status === "online" && <p className="ok">Backend terhubung. {detail ? JSON.stringify(detail).slice(0, 200) : ""}</p>}
+        {status === "online" && <p className="ok">Backend terhubung{detail && detail.app ? ` — ${detail.app}` : ""}{detail && detail.api ? ` (API ${detail.api})` : ""}.</p>}
         {status === "not-configured" && (
           <div className="notice"><strong>Backend belum dikonfigurasi.</strong> Isi <code>NEXT_PUBLIC_API_URL</code> di <code>.env.local</code> atau Environment Variables Vercel dengan URL backend Python kamu. Halaman ini tetap bisa dibuka tanpa backend.</div>
         )}
