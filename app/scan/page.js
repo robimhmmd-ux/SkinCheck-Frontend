@@ -66,6 +66,23 @@ async function compressImageForMobile(file, maxDimension = 1280, quality = 0.85)
   });
 }
 
+const POSE_SCORE_KEYS = [
+  ["acne_score", "Jerawat"],
+  ["dry_skin_score", "Kering"],
+  ["oily_skin_score", "Berminyak"],
+  ["dark_spots_score", "Dark spots"],
+  ["wrinkles_score", "Kerutan"],
+];
+
+function topCondition(entry) {
+  let best = null;
+  for (const [key, label] of POSE_SCORE_KEYS) {
+    const v = Number(entry[key]);
+    if (Number.isFinite(v) && (best === null || v > best.value)) best = { label, value: v };
+  }
+  return best;
+}
+
 export default function ScanPage() {
   const [mode, setMode] = useState("single"); // "single" | "multi"
   const [file, setFile] = useState(null);
@@ -285,46 +302,46 @@ export default function ScanPage() {
   const status = result && result.status;
 
   return (
-    <div className="ed-page narrow">
-      <div className="ed-mast">
-        <h1>Scan wajah</h1>
-        <p className="ed-lead">
+    <div className="gx-page">
+      <div className="gx-head">
+        <h1 className="gx-title">Scan wajah</h1>
+        <p className="gx-lead">
           Analisis kondisi kulit wajah (jerawat, minyak, kekeringan, noda hitam, dan kerutan) menggunakan deteksi wajah YuNet dan model VGG16.
         </p>
       </div>
 
       {!currentUser && (
-        <div className="ed-guest">
+        <div className="gx-note">
           <p><strong>Mode pengujian aktif.</strong> Kamu bisa langsung memindai wajah tanpa login. Hasil analisis AI akan langsung muncul di halaman ini. <Link href="/login">Login</Link> jika ingin menyimpan riwayat ke akun.</p>
         </div>
       )}
 
-      <div className="ed-mode">
+      <div className="gx-seg" role="tablist" aria-label="Mode scan">
         <button
           type="button"
           onClick={() => {
             setMode("single");
             stopCamera();
           }}
-          className={`btn ${mode === "single" ? "" : "secondary"}`}
+          className={`gx-seg-btn ${mode === "single" ? "on" : ""}`}
         >
-          Foto Tunggal (Upload/Kamera)
+          Foto Tunggal
         </button>
         <button
           type="button"
           onClick={() => {
             setMode("multi");
           }}
-          className={`btn ${mode === "multi" ? "" : "secondary"}`}
+          className={`gx-seg-btn ${mode === "multi" ? "on" : ""}`}
         >
-          Kamera Multi-Pose (Realtime)
+          Kamera Multi-Pose
         </button>
       </div>
 
       <ErrorBox error={error} />
 
       {mode === "single" ? (
-        <div className="ed-panel">
+        <div className="gx-drop">
           <form onSubmit={onSubmitSingle}>
             <label>
               Pilih atau ambil foto wajah
@@ -336,13 +353,11 @@ export default function ScanPage() {
               />
             </label>
             {preview && (
-              <div className="ed-preview-arch">
-                <img
-                  className="preview"
-                  src={preview}
-                  alt="Pratinjau foto wajah"
-                />
-              </div>
+              <img
+                className="preview"
+                src={preview}
+                alt="Pratinjau foto wajah"
+              />
             )}
             <button className="btn" disabled={busy} style={{ width: "100%" }}>
               {busy ? "Menganalisis Foto..." : "Mulai Analisis Foto"}
@@ -350,9 +365,9 @@ export default function ScanPage() {
           </form>
         </div>
       ) : (
-        <div className="ed-panel">
+        <div>
           {!webcamActive ? (
-            <div className="ed-camera-empty">
+            <div className="gx-drop">
               <p>
                 Aktifkan kamera untuk panduan pemindaian multi-sudut wajah interaktif.
               </p>
@@ -362,45 +377,43 @@ export default function ScanPage() {
             </div>
           ) : (
             <div>
-              <div className="ed-camera-frame">
+              <div className="gx-camera">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
                   webkit-playsinline="true"
                   muted
-                  className="ed-camera-video"
+                  className="gx-camera-video"
                   style={{ transform: flipPreview ? "scaleX(-1)" : "none" }}
                 />
                 <canvas ref={canvasRef} style={{ display: "none" }} />
-                <span className="ed-camera-oval" aria-hidden="true" />
+                <span className="gx-oval" aria-hidden="true" />
 
                 {recording && (
-                  <div className="ed-rec">
-                    <div className="ed-rec-row">
-                      <span><span className="ed-rec-live">●</span> Merekam: {timer}s / 24s</span>
+                  <div className="gx-rec">
+                    <div className="gx-rec-row">
+                      <span><span className="gx-rec-live">●</span> Merekam: {timer}s / 24s</span>
                       <span>{recordedFrames.length} Frame</span>
                     </div>
-                    <div className="ed-rec-pose">
+                    <div className="gx-rec-pose">
                       Panduan Pose: {currentPose}
                     </div>
                   </div>
                 )}
+
+                <div className="gx-chips">
+                  {POSES.map((p) => (
+                    <span key={p.key} className={`gx-chip ${currentPose === p.label ? "on" : ""}`}>{p.label}</span>
+                  ))}
+                </div>
               </div>
 
-              <div className="ed-pose-steps">
-                {POSES.map((p) => (
-                  <div key={p.key} className={`ed-pose-step ${currentPose === p.label ? "is-current" : ""}`}>
-                    <strong>{p.label}</strong>
-                    detik {p.sec}
-                  </div>
-                ))}
-              </div>
-              <div className="ed-progress" aria-hidden="true">
+              <div className="gx-progress" aria-hidden="true">
                 <span style={{ width: `${recording ? Math.min(100, (timer / 24) * 100) : 0}%` }} />
               </div>
 
-              <div className="ed-btn-row">
+              <div className="gx-btn-row">
                 {!recording ? (
                   <button type="button" onClick={startMultiCapture} className="btn" disabled={busy}>
                     Mulai Scan Multi-Pose (24 Detik)
@@ -430,122 +443,107 @@ export default function ScanPage() {
       )}
 
       {busy && (
-        <p className="ed-busy">
+        <p className="gx-busy">
           Sedang memproses analisis wajah dan 5 kondisi kulit di backend... Mohon tunggu.
         </p>
       )}
 
       {result && (
-        <div className="ed-panel">
-          <h2>Hasil Analisis Wajah</h2>
-          <p>
-            Status: <b>{status || result.message || "terkirim"}</b>
-          </p>
-          {result.message && status !== "failed" && <p className="muted">{result.message}</p>}
+        <div>
+          <section className="gx-section" aria-labelledby="result-heading">
+            <h2 id="result-heading">Hasil Analisis Wajah</h2>
+            <p className="muted">Status: <b>{status || result.message || "terkirim"}</b></p>
+            {result.message && status !== "failed" && <p className="muted">{result.message}</p>}
 
-          {(result.frames_captured || result.frames_passed_yunet) && (
-            <dl className="ed-kpis">
-              <div>
-                <dt>Total Frame</dt>
-                <dd>{result.frames_captured}</dd>
+            {analysis && analysis.overall_score != null && (
+              <div className="gx-result-num">
+                <b>{analysis.overall_score}</b>
+                <span>skor keseluruhan</span>
               </div>
-              <div>
-                <dt>Lolos Deteksi Wajah</dt>
-                <dd>{result.frames_passed_yunet}</dd>
-              </div>
-              <div>
-                <dt>Dianalisis AI VGG16</dt>
-                <dd>{result.frames_used_vgg}</dd>
-              </div>
-            </dl>
-          )}
+            )}
 
-          {status === "failed" && (
-            <>
-              {/* Alasan asli dari backend tampil utama — jangan lagi selalu
-                  menuduh wajah/pencahayaan, karena gagal bisa juga dari
-                  error kode atau server AI (dulu: NameError image_path). */}
-              <p className="error">
-                Analisis gagal: {result.message || "backend tidak mengembalikan alasan."}
-              </p>
-              {(!result.message || /wajah|terdeteksi|deteksi/i.test(result.message)) && (
-                <p className="muted">
-                  Kalau penyebabnya deteksi wajah: pastikan wajah tegak, menghadap kamera, dan terlihat jelas dengan pencahayaan cukup.
+            {(result.frames_captured || result.frames_passed_yunet) && (
+              <div className="gx-stats">
+                <div className="gx-stat"><b>{result.frames_captured}</b><span>Total Frame</span></div>
+                <div className="gx-stat"><b>{result.frames_passed_yunet}</b><span>Lolos Deteksi Wajah</span></div>
+                <div className="gx-stat"><b>{result.frames_used_vgg}</b><span>Dianalisis AI VGG16</span></div>
+              </div>
+            )}
+
+            {status === "failed" && (
+              <>
+                {/* Alasan asli dari backend tampil utama — jangan lagi selalu
+                    menuduh wajah/pencahayaan, karena gagal bisa juga dari
+                    error kode atau server AI (dulu: NameError image_path). */}
+                <p className="error">
+                  Analisis gagal: {result.message || "backend tidak mengembalikan alasan."}
                 </p>
-              )}
-            </>
-          )}
+                {(!result.message || /wajah|terdeteksi|deteksi/i.test(result.message)) && (
+                  <p className="muted">
+                    Kalau penyebabnya deteksi wajah: pastikan wajah tegak, menghadap kamera, dan terlihat jelas dengan pencahayaan cukup.
+                  </p>
+                )}
+              </>
+            )}
 
-          {analysis ? (
-            <>
-              <h3>Skor Kondisi Kulit</h3>
-              <div className="ed-leaders">
-                {SCORES.map(([key, label]) => (
-                  <div key={key} className="ed-leader">
-                    <span>{label}</span>
-                    <span className="ed-dots" aria-hidden="true" />
-                    <b>{analysis[key] != null ? `${analysis[key]}%` : "—"}</b>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : null}
+            {analysis ? (
+              <>
+                <h3>Skor Kondisi Kulit</h3>
+                <div className="gx-ledger">
+                  {SCORES.map(([key, label]) => {
+                    const v = analysis[key];
+                    const finite = v != null && Number.isFinite(Number(v));
+                    return (
+                      <div key={key} className="gx-row">
+                        <span className="gx-label">{label}</span>
+                        <b>{finite ? `${v}%` : "—"}</b>
+                        {finite && (
+                          <span className="gx-scale" aria-hidden="true">
+                            <i style={{ left: `${Math.max(0, Math.min(100, Number(v)))}%` }} />
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : null}
+          </section>
 
           {result.per_pose && Object.keys(result.per_pose).length > 0 && (
-            <>
-              <h3>Skor per pose</h3>
-              <p className="muted">
+            <section className="gx-section" aria-labelledby="perpose-heading">
+              <h2 id="perpose-heading">Skor per pose</h2>
+              <p className="gx-section-lead">
                 Perbandingan ini berdasarkan pose saat perekaman — sudut wajah yang paling dominan terlihat,
-                bukan pengukuran tiap wilayah wajah secara terpisah.
+                bukan pengukuran tiap wilayah wajah secara terpisah. Geser ke samping untuk melihat pose lainnya.
               </p>
-              <div className="ed-table-wrap">
-                <table className="ed-table">
-                  <thead>
-                    <tr>
-                      <th>Pose</th>
-                      <th>Frame lolos</th>
-                      <th className="num">Jerawat</th>
-                      <th className="num">Kering</th>
-                      <th className="num">Berminyak</th>
-                      <th className="num">Dark spots</th>
-                      <th className="num">Kerutan</th>
-                      <th className="num">Keseluruhan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...POSES.map((p) => p.key), ...Object.keys(result.per_pose).filter((k) => !POSES.some((p) => p.key === k))].map((key) => {
-                      const entry = result.per_pose[key];
-                      if (!entry) return null;
-                      const label = (POSES.find((p) => p.key === key) || {}).label || key;
-                      const fmt = (v) => (v != null ? `${v}%` : "—");
-                      return (
-                        <tr key={key}>
-                          <td>{label}</td>
-                          <td>{entry.frames_passed ?? "—"}/{entry.frames_captured ?? "—"}</td>
-                          <td className="num">{fmt(entry.acne_score)}</td>
-                          <td className="num">{fmt(entry.dry_skin_score)}</td>
-                          <td className="num">{fmt(entry.oily_skin_score)}</td>
-                          <td className="num">{fmt(entry.dark_spots_score)}</td>
-                          <td className="num">{fmt(entry.wrinkles_score)}</td>
-                          <td className="num">{fmt(entry.overall_score)}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <div className="gx-strip">
+                {[...POSES.map((p) => p.key), ...Object.keys(result.per_pose).filter((k) => !POSES.some((p) => p.key === k))].map((key) => {
+                  const entry = result.per_pose[key];
+                  if (!entry) return null;
+                  const label = (POSES.find((p) => p.key === key) || {}).label || key;
+                  const top = topCondition(entry);
+                  return (
+                    <article key={key} className="gx-pose-card">
+                      <h3>{label}</h3>
+                      <b>{entry.overall_score != null ? entry.overall_score : "—"}</b>
+                      <p>skor keseluruhan</p>
+                      {top && <p>Tertinggi: {top.label} {top.value}%</p>}
+                      <p className="muted">Frame lolos {entry.frames_passed ?? "—"} dari {entry.frames_captured ?? "—"}</p>
+                    </article>
+                  );
+                })}
               </div>
-            </>
+            </section>
           )}
 
           {result.statements && result.statements.length > 0 && (
-            <>
-              <h3>Yang terlihat dari perbandingan pose</h3>
-              <ul>
-                {result.statements.map((s, i) => (
-                  <li key={i}>{s}</li>
-                ))}
-              </ul>
-            </>
+            <section className="gx-section" aria-labelledby="statements-heading">
+              <h2 id="statements-heading">Yang terlihat dari perbandingan pose</h2>
+              {result.statements.map((s, i) => (
+                <p key={i} className="gx-quote">{s}</p>
+              ))}
+            </section>
           )}
 
           {scanId && (

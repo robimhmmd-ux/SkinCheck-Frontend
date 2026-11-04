@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login, getMe, pickUser } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
+import AuthVisual from "../../components/AuthVisual";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,19 +28,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="ed-page">
-      <div className="ed-auth">
-        <span className="brand-mark" aria-hidden="true">S</span>
-        <h1>Masuk</h1>
-        <p className="muted">Masuk dengan akun SkinCheck kamu.</p>
-        <ErrorBox error={error} />
-        <form onSubmit={onSubmit}>
-          <label>Email<input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-          <label>Password<input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></label>
-          <button className="btn" disabled={busy}>{busy ? "Memproses…" : "Masuk"}</button>
-        </form>
-        <p className="ed-auth-foot">Belum punya akun? <Link href="/register">Daftar</Link></p>
-        <p className="ed-auth-foot">Perlu verifikasi OTP? <Link href="/verify-otp">Lihat info OTP</Link></p>
+    <div className="gx-page">
+      <div className="gx-auth">
+        <AuthVisual title="Selamat datang kembali." text="Lanjutkan dari skor terakhir dan riwayat scanmu." />
+        <div className="gx-auth-form">
+          <span className="brand-mark" aria-hidden="true">S</span>
+          <h1>Masuk</h1>
+          <p className="muted">Masuk dengan akun SkinCheck kamu.</p>
+          <ErrorBox error={error} />
+          <form onSubmit={onSubmit}>
+            <label>Email<input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>
+            <label>Password<input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+            <button className="btn" disabled={busy}>{busy ? "Memproses…" : "Masuk"}</button>
+          </form>
+          <p className="gx-auth-foot">Belum punya akun? <Link href="/register">Daftar</Link></p>
+          <p className="gx-auth-foot">Perlu verifikasi OTP? <Link href="/verify-otp">Lihat info OTP</Link></p>
+        </div>
       </div>
     </div>
   );

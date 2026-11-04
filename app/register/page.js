@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { register, requestFonnteOtp } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
+import AuthVisual from "../../components/AuthVisual";
 
 // Pendaftaran memakai nomor WhatsApp, karena OTP dikirim lewat
 // WhatsApp (Fonnte) ke nomor itu, dan akun BARU TIDAK AKTIF sebelum
@@ -43,42 +44,45 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="ed-page">
-      <div className="ed-auth">
-        <span className="brand-mark" aria-hidden="true">S</span>
-        <h1>Daftar</h1>
-        {done ? (
-          <>
-            <div className="ok">
-              Pendaftaran berhasil, tapi akun belum aktif. Verifikasi kode OTP WhatsApp dulu
-              sebelum bisa masuk.
-            </div>
-            {otpError && <ErrorBox error={otpError} />}
-            <p>
-              <Link href={`/verify-otp?phone=${encodeURIComponent(phone)}`}>Buka verifikasi OTP</Link>{" "}
-              dan kirim kode ke nomor WhatsApp kamu.
-            </p>
-          </>
-        ) : (
-          <>
-            <ErrorBox error={error} />
-            {error && phone && (
-              <p className="muted">
-                Kalau email ini sudah terdaftar tapi belum terverifikasi,{" "}
-                <Link href={`/verify-otp?phone=${encodeURIComponent(phone)}`}>verifikasi OTP di sini</Link>.
+    <div className="gx-page">
+      <div className="gx-auth">
+        <AuthVisual title="Mulai dari kulit yang kamu kenali." text="Daftar, verifikasi WhatsApp, lalu scan pertama." />
+        <div className="gx-auth-form">
+          <span className="brand-mark" aria-hidden="true">S</span>
+          <h1>Daftar</h1>
+          {done ? (
+            <>
+              <div className="ok">
+                Pendaftaran berhasil, tapi akun belum aktif. Verifikasi kode OTP WhatsApp dulu
+                sebelum bisa masuk.
+              </div>
+              {otpError && <ErrorBox error={otpError} />}
+              <p>
+                <Link href={`/verify-otp?phone=${encodeURIComponent(phone)}`}>Buka verifikasi OTP</Link>{" "}
+                dan kirim kode ke nomor WhatsApp kamu.
               </p>
-            )}
-            <form onSubmit={onSubmit}>
-              <label>Nama<input required value={name} onChange={(e) => setName(e.target.value)} /></label>
-              <label>Email<input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-              <label>Nomor WhatsApp<input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="081234567890" inputMode="tel" /></label>
-              <p className="muted">Kode OTP akan dikirim lewat WhatsApp ke nomor ini, dan akun baru aktif setelah kode itu terverifikasi.</p>
-              <label>Password<input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></label>
-              <button className="btn" disabled={busy}>{busy ? "Memproses…" : "Daftar"}</button>
-            </form>
-          </>
-        )}
-        <p className="ed-auth-foot">Sudah punya akun? <Link href="/login">Masuk</Link></p>
+            </>
+          ) : (
+            <>
+              <ErrorBox error={error} />
+              {error && phone && (
+                <p className="muted">
+                  Kalau email ini sudah terdaftar tapi belum terverifikasi,{" "}
+                  <Link href={`/verify-otp?phone=${encodeURIComponent(phone)}`}>verifikasi OTP di sini</Link>.
+                </p>
+              )}
+              <form onSubmit={onSubmit}>
+                <label>Nama<input required value={name} onChange={(e) => setName(e.target.value)} /></label>
+                <label>Email<input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>
+                <label>Nomor WhatsApp<input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="081234567890" inputMode="tel" /></label>
+                <p className="muted">Kode OTP akan dikirim lewat WhatsApp ke nomor ini, dan akun baru aktif setelah kode itu terverifikasi.</p>
+                <label>Password<input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+                <button className="btn" disabled={busy}>{busy ? "Memproses…" : "Daftar"}</button>
+              </form>
+            </>
+          )}
+          <p className="gx-auth-foot">Sudah punya akun? <Link href="/login">Masuk</Link></p>
+        </div>
       </div>
     </div>
   );

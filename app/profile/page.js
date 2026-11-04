@@ -52,58 +52,58 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="ed-page">
-      <div className="ed-mast">
-        <h1>Setting Akun</h1>
-        <p className="ed-lead">Kelola akun dan preferensimu. Data akun di bawah berasal dari akun yang sedang login.</p>
+    <div className="gx-page">
+      <div className="gx-head">
+        <h1 className="gx-title">Setting Akun</h1>
+        <p className="gx-lead">Kelola akun dan preferensimu. Data akun di bawah berasal dari akun yang sedang login.</p>
       </div>
       {loading && <Loading />}
       <ErrorBox error={error} />
 
-      <div className="ed-grid">
-        <div className="ed-panel">
-          <h2>Akun saya</h2>
-          {user && !loading ? (
-            <>
-              <dl className="ed-dl">
-                <div><dt>Nama</dt><dd>{user.name || "—"}</dd></div>
-                <div><dt>Email</dt><dd>{user.email || "—"}</dd></div>
-                <div><dt>Role</dt><dd>{user.role || "—"}</dd></div>
-                <div><dt>Status</dt><dd>{user.status || "—"}</dd></div>
-              </dl>
-              <p className="muted">Ubah nama, email, dan ganti password belum tersedia di /api/v2, jadi bagian ini masih read-only. Kalau perlu diubah, hubungi admin.</p>
-            </>
-          ) : !loading && (
-            <p>Belum masuk. <Link href="/login">Masuk</Link></p>
-          )}
-        </div>
-        <div className="ed-panel">
-          <h2>Preferensi</h2>
-          <p className="muted">Preferensi ini hanya tersimpan di browser ini, bukan di server.</p>
-          <div className="ed-switch-row">
-            <div>
-              <strong>Ingatkan saya untuk scan berkala</strong>
-              <p className="muted">Pengingat scan rutin di browser ini.</p>
-            </div>
-            <button type="button" className="ed-switch" role="switch" aria-checked={reminder} aria-label="Ingatkan saya untuk scan berkala" onClick={() => toggleReminder(!reminder)} />
+      <section className="gx-section" aria-labelledby="account-heading">
+        <h2 id="account-heading">Akun saya</h2>
+        {user && !loading ? (
+          <>
+            <p className="gx-hero-num" style={{ margin: "8px 0" }}><b style={{ fontSize: "clamp(36px, 5vw, 52px)" }}>{user.name || "—"}</b></p>
+            <dl className="gx-dl">
+              <div><dt>Email</dt><dd>{user.email || "—"}</dd></div>
+              <div><dt>Role</dt><dd>{user.role || "—"}</dd></div>
+              <div><dt>Status</dt><dd>{user.status || "—"}</dd></div>
+            </dl>
+            <p className="muted">Ubah nama, email, dan ganti password belum tersedia di /api/v2, jadi bagian ini masih read-only. Kalau perlu diubah, hubungi admin.</p>
+          </>
+        ) : !loading && (
+          <p>Belum masuk. <Link href="/login">Masuk</Link></p>
+        )}
+      </section>
+
+      <section className="gx-section" aria-labelledby="prefs-heading">
+        <h2 id="prefs-heading">Preferensi</h2>
+        <p className="gx-section-lead">Preferensi ini hanya tersimpan di browser ini, bukan di server.</p>
+        <div className="ed-switch-row">
+          <div>
+            <strong>Ingatkan saya untuk scan berkala</strong>
+            <p className="muted">Pengingat scan rutin di browser ini.</p>
           </div>
-          <div className="ed-switch-row">
-            <div>
-              <strong>Tampilkan skor dalam persen</strong>
-              <p className="muted">Skor tampil dengan tanda persen.</p>
-            </div>
-            <button type="button" className="ed-switch" role="switch" aria-checked={showPercent} aria-label="Tampilkan skor dalam persen" onClick={() => togglePercent(!showPercent)} />
+          <button type="button" className="ed-switch" role="switch" aria-checked={reminder} aria-label="Ingatkan saya untuk scan berkala" onClick={() => toggleReminder(!reminder)} />
+        </div>
+        <div className="ed-switch-row">
+          <div>
+            <strong>Tampilkan skor dalam persen</strong>
+            <p className="muted">Skor tampil dengan tanda persen.</p>
           </div>
-          <p className="muted">Bahasa antarmuka: Indonesia.</p>
+          <button type="button" className="ed-switch" role="switch" aria-checked={showPercent} aria-label="Tampilkan skor dalam persen" onClick={() => togglePercent(!showPercent)} />
         </div>
-        <div className="ed-panel">
-          <h2>Keamanan dan keluar</h2>
-          <p className="muted">Keluar akan mengakhiri sesi di browser ini.</p>
-          <button className="btn secondary" onClick={onLogout}>Keluar</button>
-          <p><Link href="/dashboard">Kembali ke dashboard</Link></p>
-          <p><Link href="/history">Riwayat</Link></p>
-        </div>
-      </div>
+        <p className="muted">Bahasa antarmuka: Indonesia.</p>
+      </section>
+
+      <section className="gx-section" aria-labelledby="security-heading">
+        <h2 id="security-heading">Keamanan dan keluar</h2>
+        <p className="gx-section-lead">Keluar akan mengakhiri sesi di browser ini.</p>
+        <button className="btn secondary" onClick={onLogout}>Keluar</button>
+        <p><Link href="/dashboard">Kembali ke dashboard</Link></p>
+        <p><Link href="/history">Riwayat</Link></p>
+      </section>
     </div>
   );
 }

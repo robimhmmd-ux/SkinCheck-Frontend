@@ -23,33 +23,25 @@ export default function HistoryPage() {
   }, []);
 
   return (
-    <div className="ed-page">
-      <div className="ed-mast">
-        <h1>Riwayat Scan</h1>
-        <p className="ed-lead">Semua scan yang pernah kamu kirim, dari yang terbaru.</p>
+    <div className="gx-page">
+      <div className="gx-head">
+        <h1 className="gx-title">Riwayat Scan</h1>
+        <p className="gx-lead">Semua scan yang pernah kamu kirim, dari yang terbaru.</p>
       </div>
       <ErrorBox error={error} />
       {loading ? <Loading /> : items.length === 0 ? (
         <p className="muted">Belum ada riwayat. <Link href="/scan">Mulai scan baru</Link>.</p>
       ) : (
-        <div className="ed-panel">
-          <div className="ed-table-wrap">
-            <table className="ed-table">
-              <thead>
-                <tr><th scope="col">Scan</th><th scope="col">Status</th><th scope="col">Tanggal</th><th scope="col" className="num">Kualitas gambar</th></tr>
-              </thead>
-              <tbody>
-                {items.map((s, i) => (
-                  <tr key={s.id || i}>
-                    <td><Link href={`/history/${s.id}`}>Scan #{s.id ?? i + 1}</Link></td>
-                    <td><span className={`ed-status ${STATUS_CLASS[s.status] || ""}`}>{STATUS_LABEL[s.status] || s.status || "—"}</span></td>
-                    <td>{s.created_at || s.created || "—"}</td>
-                    <td className="num">{s.image_quality_score != null ? s.image_quality_score : "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="gx-timeline">
+          {items.map((s, i) => (
+            <div key={s.id || i} className="gx-tl">
+              <div className="gx-tl-top">
+                <Link href={`/history/${s.id}`}>Scan #{s.id ?? i + 1}</Link>
+                <span className={`ed-status ${STATUS_CLASS[s.status] || ""}`}>{STATUS_LABEL[s.status] || s.status || "—"}</span>
+              </div>
+              <p className="gx-tl-meta">{s.created_at || s.created || "—"}{s.image_quality_score != null ? `, kualitas gambar ${s.image_quality_score}` : ""}</p>
+            </div>
+          ))}
         </div>
       )}
     </div>

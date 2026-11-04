@@ -157,14 +157,16 @@ export default function AssistantPage() {
   }
 
   return (
-    <div className="ed-page">
-      <div className="ed-chat">
-        <div className="ed-chat-head">
+    <div className="gx-page">
+      <div className="gx-head">
+        <h1 className="gx-title">Asisten SkinCheck</h1>
+        <p className="gx-lead">Konsultasi kesehatan dan bimbingan perawatan kulit wajah terpercaya.</p>
+      </div>
+      <div className="gx-chat">
+        <div className="gx-chat-head">
           <div>
-            <h1>Asisten SkinCheck (Luvenna)</h1>
-            <p className="muted">
-              Konsultasi kesehatan dan bimbingan perawatan kulit wajah terpercaya.
-            </p>
+            <h1>Luvenna</h1>
+            <p className="muted">Asisten kulit wajah SkinCheck.</p>
           </div>
           {messages.length > 1 && (
             <button
@@ -194,25 +196,28 @@ export default function AssistantPage() {
           </div>
         )}
 
-        <div className="ed-chat-scroll">
+        <div className="gx-chat-scroll">
           {initialLoading ? (
             <p className="muted">Memuat percakapan...</p>
           ) : (
             messages.map((m, i) => (
-              <div key={i} className={`ed-msg ${m.role}`}>
-                {m.content}
-              </div>
+              m.role === "user" ? (
+                <div key={i} className="gx-msg-user">{m.content}</div>
+              ) : (
+                <div key={i} className="gx-msg-asst"><span>Luvenna</span>{m.content}</div>
+              )
             ))
           )}
           {loading && (
-            <div className="ed-msg assistant">
+            <div className="gx-msg-asst">
+              <span>Luvenna</span>
               <em>Ven sedang mengetik...</em>
             </div>
           )}
           <div ref={chatEndRef} />
         </div>
 
-        <form onSubmit={onSend} className="ed-chat-form">
+        <form onSubmit={onSend} className="gx-chat-form">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}

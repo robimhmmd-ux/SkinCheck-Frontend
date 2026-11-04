@@ -20,25 +20,20 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="ed-page" aria-busy="true" aria-label="Memuat ringkasan admin">
+      <div className="gx-page" aria-busy="true" aria-label="Memuat ringkasan admin">
         <div className="ed-skeleton-title" />
         <div className="ed-skeleton-line" />
-        <div className="ed-kpis">
-          <div className="ed-skeleton-kpi" />
-          <div className="ed-skeleton-kpi" />
-          <div className="ed-skeleton-kpi" />
-          <div className="ed-skeleton-kpi" />
-        </div>
+        <div className="ed-skeleton-panel" />
       </div>
     );
   }
 
   if (error && (error.status === 401 || error.status === 403)) {
     return (
-      <div className="ed-page">
-        <div className="ed-mast">
-          <h1>Admin</h1>
-          <p className="ed-lead">Halaman ini hanya untuk admin.</p>
+      <div className="gx-page">
+        <div className="gx-head">
+          <h1 className="gx-title">Admin</h1>
+          <p className="gx-lead">Halaman ini hanya untuk admin.</p>
         </div>
         <p className="muted">Jika kamu bukan admin, backend akan menolak akses. <Link href="/login">Masuk sebagai admin</Link> atau kembali ke <Link href="/dashboard">dashboard</Link>.</p>
       </div>
@@ -47,10 +42,10 @@ export default function AdminPage() {
 
   if (error || !data) {
     return (
-      <div className="ed-page">
-        <div className="ed-mast">
-          <h1>Admin</h1>
-          <p className="ed-lead">Ringkasan admin tidak bisa dimuat saat ini.</p>
+      <div className="gx-page">
+        <div className="gx-head">
+          <h1 className="gx-title">Admin</h1>
+          <p className="gx-lead">Ringkasan admin tidak bisa dimuat saat ini.</p>
         </div>
         <ErrorBox error={error} />
         <p><button type="button" className="btn" onClick={() => window.location.reload()}>Coba lagi</button></p>
@@ -68,30 +63,18 @@ export default function AdminPage() {
   const activeProducts = data.active_products ?? "—";
 
   return (
-    <div className="ed-page">
-      <div className="ed-mast">
-        <h1>Admin</h1>
-        <p className="ed-lead">Ringkasan akun, scan, dan katalog dari backend.</p>
+    <div className="gx-page">
+      <div className="gx-head">
+        <h1 className="gx-title">Admin</h1>
+        <p className="gx-lead">Ringkasan akun, scan, dan katalog dari backend.</p>
       </div>
 
-      <dl className="ed-kpis">
-        <div>
-          <dt>Total pengguna</dt>
-          <dd>{users}</dd>
-        </div>
-        <div>
-          <dt>Total scan</dt>
-          <dd>{scans}</dd>
-        </div>
-        <div>
-          <dt>Total produk</dt>
-          <dd>{products}</dd>
-        </div>
-        <div>
-          <dt>Produk aktif</dt>
-          <dd>{activeProducts}</dd>
-        </div>
-      </dl>
+      <div className="gx-stats">
+        <div className="gx-stat"><b>{users}</b><span>Total pengguna</span></div>
+        <div className="gx-stat"><b>{scans}</b><span>Total scan</span></div>
+        <div className="gx-stat"><b>{products}</b><span>Total produk</span></div>
+        <div className="gx-stat"><b>{activeProducts}</b><span>Produk aktif</span></div>
+      </div>
 
       <p className="muted">
         Endpoint admin saat ini hanya menyediakan angka ringkasan di atas — belum ada daftar

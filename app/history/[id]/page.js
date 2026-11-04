@@ -5,17 +5,25 @@ import { getScanDetail, getHistory, pickObject, pickArray } from "../../../lib/a
 import { ErrorBox, Loading } from "../../../components/Notice";
 import { SCORE_KEYS, averageScores, latestAnalyzedScan, fmtScore, fmtDate } from "../../../lib/scores";
 
-function LeaderList({ analysis }) {
+function Ledger({ analysis }) {
   if (!analysis) return <p className="muted">Belum ada skor untuk ditampilkan.</p>;
   return (
-    <div className="ed-leaders">
-      {SCORE_KEYS.map(([key, label]) => (
-        <div key={key} className="ed-leader">
-          <span>{label}</span>
-          <span className="ed-dots" aria-hidden="true" />
-          <b>{analysis[key] != null ? `${analysis[key]}%` : "—"}</b>
-        </div>
-      ))}
+    <div className="gx-ledger">
+      {SCORE_KEYS.map(([key, label]) => {
+        const v = analysis[key];
+        const finite = v != null && Number.isFinite(Number(v));
+        return (
+          <div key={key} className="gx-row">
+            <span className="gx-label">{label}</span>
+            <b>{finite ? `${v}%` : "—"}</b>
+            {finite && (
+              <span className="gx-scale" aria-hidden="true">
+                <i style={{ left: `${Math.max(0, Math.min(100, Number(v)))}%` }} />
+              </span>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -41,7 +49,7 @@ export default function ScanDetailPage({ params }) {
     return () => { alive = false; };
   }, [params.id]);
 
-  if (loading) return <div className="ed-page"><Loading /></div>;
+  if (loading) return <div className="gx-page"><Loading /></div>;
 
   const scan = data ? (data.scan || data) : {};
   const result = data ? (data.result || data.analysis || data.analysis_result || scan) : null;
@@ -53,10 +61,10 @@ export default function ScanDetailPage({ params }) {
   const statusLabel = { completed: "Selesai", processing: "Diproses", failed: "Gagal" }[scan.status] || scan.status || "—";
   const statusClass = { completed: "ed-status-ok", processing: "ed-status-proc", failed: "ed-status-fail" }[scan.status] || "";
   return (
-    <div className="ed-page">
-      <div className="ed-mast">
-        <h1>Hasil Scan #{params.id}</h1>
-        <p className="ed-lead"><span className={`ed-status ${statusClass}`}>{statusLabel}</span></p>
+    <div className="gx-page">
+      <div className="gx-head">
+        <h1 className="gx-title">Hasil Scan #{params.id}</h1>
+        <p className="gx-lead"><span className={`ed-status ${statusClass}`}>{statusLabel}</span></p>
         <p className="muted">Dibuat: {fmtDate(scan.created_at || scan.created)}</p>
       </div>
       <ErrorBox error={error} />
@@ -69,26 +77,27 @@ export default function ScanDetailPage({ params }) {
             <div className="error">Analisis gagal di backend. Tidak ada skor yang ditampilkan untuk scan ini, karena tidak ada hasil analisis yang valid.</div>
           )}
 
-          <div className="ed-grid">
-            <div className="ed-panel">
-              <h2>Output VGG scan ini</h2>
-              <p className="muted">5 skor kondisi kulit dari model VGG untuk foto pada scan ini.</p>
-              <LeaderList analysis={analysis} />
-              {(analysis && (analysis.ai_response || analysis.recommendation)) && (
-                <div><h3>Catatan AI</h3><p>{analysis.ai_response || analysis.recommendation}</p></div>
-              )}
-            </div>
-            <div className="ed-panel">
-              <h2>Rata-rata dari seluruh scan</h2>
-              <p className="muted">{avg ? `Dihitung dari ${avg.count} scan yang sudah selesai dianalisis.` : "Belum ada scan yang selesai dianalisis."}</p>
-              <LeaderList analysis={avg} />
+          <section className="gx-section" aria-labelledby="scan-heading">
+            <h2 id="scan-heading">Output VGG scan ini</h2>
+            <p className="gx-section-lead">5 skor kondisi kulit dari model VGG untuk foto pada scan ini.</p>
+            <Ledger analysis={analysis} />
+            {(analysis && (analysis.ai_response || analysis.recommendation)) && (
+              <p className="gx-quote">{analysis.ai_response || analysis.recommendation}</p>
+            )}
+          </section>
+
+          <div className="gx-cols">
+            <section className="gx-section" aria-labelledby="avg-heading">
+              <h2 id="avg-heading">Rata-rata dari seluruh scan</h2>
+              <p className="gx-section-lead">{avg ? `Dihitung dari ${avg.count} scan yang sudah selesai dianalisis.` : "Belum ada scan yang selesai dianalisis."}</p>
+              <Ledger analysis={avg} />
               <p className="muted">Total scan di riwayat: {history.length ? history.length : "—"}</p>
-            </div>
-            <div className="ed-panel">
-              <h2>Rata-rata scan terakhir</h2>
-              <p className="muted">{latest ? `Scan #${latest.id}, ${fmtDate(latest.created_at)} — ini skor scan terbaru (satu sesi), ditampilkan berdampingan dengan rata-rata seluruh scan agar perubahannya terlihat.` : "Belum ada scan terbaru yang selesai dianalisis."}</p>
-              <LeaderList analysis={latestAnalysis} />
-            </div>
+            </section>
+            <section className="gx-section" aria-labelledby="latest-heading">
+              <h2 id="latest-heading">Rata-rata scan terakhir</h2>
+              <p className="gx-section-lead">{latest ? `Scan #${latest.id}, ${fmtDate(latest.created_at)} — ini skor scan terbaru (satu sesi), ditampilkan berdampingan dengan rata-rata seluruh scan agar perubahannya terlihat.` : "Belum ada scan terbaru yang selesai dianalisis."}</p>
+              <Ledger analysis={latestAnalysis} />
+            </section>
           </div>
           <details className="debug-details"><summary>Data mentah (debug)</summary><pre>{JSON.stringify(data, null, 2)}</pre></details>
         </>
