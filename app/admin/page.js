@@ -1,20 +1,24 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { 
-  ShieldAlert, 
-  Users, 
-  Scan, 
-  Package, 
-  ShoppingBag, 
-  ArrowRight, 
-  RefreshCw, 
+import {
+  ShieldAlert,
+  Users,
+  Scan,
+  Package,
+  ShoppingBag,
+  ArrowRight,
+  RefreshCw,
   Activity,
-  Layers,
-  Sparkles
+  UserCheck,
+  CalendarCheck,
+  Percent,
+  MessageSquare,
+  Database,
 } from "lucide-react";
-import { getAdminSummary, pickObject } from "../../lib/api";
+import { getAdminDashboard, pickObject } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
+import AdminDenied from "../../components/AdminDenied";
 
 export default function AdminPage() {
   const [data, setData] = useState(null);
@@ -23,7 +27,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     let alive = true;
-    getAdminSummary()
+    getAdminDashboard()
       .then((d) => { if (alive) setData(pickObject(d)); })
       .catch((e) => { if (alive) setError(e); })
       .finally(() => { if (alive) setLoading(false); });
@@ -41,35 +45,15 @@ export default function AdminPage() {
   }
 
   if (error && (error.status === 401 || error.status === 403)) {
-    return (
-      <div className="page-shell-wrap">
-        <div className="glass-panel admin-denied-card">
-          <div className="admin-denied-icon">
-            <ShieldAlert size={36} />
-          </div>
-          <h2>Otoritas Terbatas</h2>
-          <p className="muted">
-            Halaman konsol ini dikhususkan untuk akun dengan hak akses administrator sistem Laomera.
-          </p>
-          <div className="admin-denied-actions">
-            <Link href="/login" className="btn btn-primary btn-sm">
-              Masuk sebagai Administrator
-            </Link>
-            <Link href="/dashboard" className="btn btn-secondary btn-sm">
-              Kembali ke Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+    return <AdminDenied />;
   }
 
   if (error || !data) {
     return (
       <div className="page-shell-wrap">
         <div className="glass-panel" style={{ padding: "36px", textAlign: "center" }}>
-          <h2>Gagal Memuat Ringkasan Admin</h2>
-          <p className="muted">Koneksi ke endpoint ringkasan mengalami hambatan.</p>
+          <h2>Gagal Memuat Dashboard Admin</h2>
+          <p className="muted">Koneksi ke endpoint dashboard admin mengalami hambatan.</p>
           <ErrorBox error={error} />
           <button type="button" className="btn btn-primary" onClick={() => window.location.reload()}>
             <RefreshCw size={15} /> Coba Muat Ulang
@@ -79,85 +63,77 @@ export default function AdminPage() {
     );
   }
 
-  const users = data.users ?? "0";
-  const scans = data.scans ?? "0";
-  const products = data.products ?? "0";
-  const activeProducts = data.active_products ?? "0";
+  const kpi = (icon, value, label) => (
+    <div className="glass-panel admin-kpi-card">
+      <div className="kpi-icon-pill icon-blue">{icon}</div>
+      <div className="kpi-content">
+        <span className="kpi-value">{value}</span>
+        <span className="kpi-label">{label}</span>
+      </div>
+    </div>
+  );
 
   return (
     <div className="page-shell-wrap">
-      {/* ── Admin Header ── */}
       <div className="admin-hero-header">
         <div className="badge badge-amber" style={{ margin: "0 auto 12px" }}>
           <ShieldAlert size={13} /> KONSOL ADMINISTRASI SISTEM
         </div>
-        <h1 className="admin-page-title">Ringkasan Sistem</h1>
+        <h1 className="admin-page-title">Dashboard Admin</h1>
         <p className="admin-page-subtitle">
-          Statistik agregat pengguna terdaftar, volume scan kecerdasan buatan, dan katalog produk formulasi.
+          Statistik agregat pengguna, volume scan AI, katalog produk, dan kesehatan sistem — langsung dari database.
         </p>
       </div>
 
-      {/* ── 4 KPI Stats Grid ── */}
       <div className="admin-kpi-grid">
-        <div className="glass-panel admin-kpi-card">
-          <div className="kpi-icon-pill icon-blue">
-            <Users size={22} />
-          </div>
-          <div className="kpi-content">
-            <span className="kpi-value">{users}</span>
-            <span className="kpi-label">Total Pengguna Terdaftar</span>
-          </div>
-        </div>
-
-        <div className="glass-panel admin-kpi-card">
-          <div className="kpi-icon-pill icon-amber">
-            <Scan size={22} />
-          </div>
-          <div className="kpi-content">
-            <span className="kpi-value">{scans}</span>
-            <span className="kpi-label">Total Sesi Pemindaian</span>
-          </div>
-        </div>
-
-        <div className="glass-panel admin-kpi-card">
-          <div className="kpi-icon-pill icon-sage">
-            <Package size={22} />
-          </div>
-          <div className="kpi-content">
-            <span className="kpi-value">{products}</span>
-            <span className="kpi-label">Total Katalog Produk</span>
-          </div>
-        </div>
-
-        <div className="glass-panel admin-kpi-card">
-          <div className="kpi-icon-pill icon-peach">
-            <ShoppingBag size={22} />
-          </div>
-          <div className="kpi-content">
-            <span className="kpi-value">{activeProducts}</span>
-            <span className="kpi-label">Produk Berstatus Aktif</span>
-          </div>
-        </div>
+        {kpi(<Users size={22} />, data.users ?? "0", "Total Pengguna Terdaftar")}
+        {kpi(<UserCheck size={22} />, data.active_users ?? "0", "Pengguna Berstatus Aktif")}
+        {kpi(<Scan size={22} />, data.total_scans ?? "0", "Total Sesi Pemindaian")}
+        {kpi(<CalendarCheck size={22} />, data.scans_today ?? "0", "Scan Hari Ini (UTC)")}
+        {kpi(<Percent size={22} />, data.success_rate != null ? `${data.success_rate}%` : "—", "AI Success Rate (selesai/total)")}
+        {kpi(<MessageSquare size={22} />, data.chat_messages_30d ?? "0", "Pesan Chat User 30 Hari Terakhir")}
+        {kpi(<Package size={22} />, data.products ?? "0", "Total Katalog Produk")}
+        {kpi(<ShoppingBag size={22} />, data.active_products ?? "0", "Produk Berstatus Aktif")}
       </div>
 
-      {/* ── System Status & Shortcuts ── */}
       <div className="glass-panel admin-info-card">
         <div className="admin-info-header">
-          <Activity size={18} className="text-amber" />
+          <Database size={18} className="text-amber" />
           <h3>Status Integrasi Layanan</h3>
         </div>
         <p className="muted" style={{ fontSize: "14px", lineHeight: "1.6" }}>
-          Data statistik di atas disinkronkan secara langsung dari basis data relasional backend. 
-          Katalog formulasi dan rekomendasi produk aktif dapat ditinjau melalui direktori marketplace.
+          Database: <strong>{data.health?.db === "ok" ? `OK (${data.health.db_latency_ms} ms)` : "tidak teruji"}</strong>
+          {" • "}Lingkungan: <strong>{data.health?.app_env || "—"}</strong>
+          {" • "}Scan gagal: <strong>{data.failed_scans ?? "0"}</strong>
+          {" • "}Pengguna chat 30 hari: <strong>{data.chat_users_30d ?? "0"}</strong>.
+          Uji koneksi layanan eksternal (SMTP, Fonnte, Gemini) tersedia di halaman Pengaturan &gt; Testing Hub.
         </p>
         <div className="admin-action-links">
-          <Link href="/marketplace" className="btn btn-secondary btn-sm">
-            Tinjau Katalog Produk <ArrowRight size={14} />
+          <Link href="/admin/users" className="btn btn-secondary btn-sm">
+            Kelola Pengguna <ArrowRight size={14} />
           </Link>
-          <Link href="/dashboard" className="btn btn-ghost btn-sm">
-            Kembali ke Dashboard
+          <Link href="/admin/products" className="btn btn-secondary btn-sm">
+            Kelola Produk <ArrowRight size={14} />
+          </Link>
+          <Link href="/admin/scans" className="btn btn-secondary btn-sm">
+            Audit Scan <ArrowRight size={14} />
+          </Link>
+          <Link href="/admin/settings" className="btn btn-ghost btn-sm">
+            Pengaturan & Testing Hub
           </Link>
         </div>
+      </div>
+
+      <div className="glass-panel admin-info-card">
+        <div className="admin-info-header">
+          <Activity size={18} className="text-amber" />
+          <h3>Catatan Adaptasi dari Versi Lama</h3>
+        </div>
+        <p className="muted" style={{ fontSize: "14px", lineHeight: "1.6" }}>
+          Login admin tidak lagi terpisah — login tetap terpadu dan peran dibaca dari database.
+          Foto scan tidak disajikan di audit (backend API-only tanpa /static), dan tombol sync RAG
+          hanya melaporkan jumlah produk aktif karena tidak ada indeks RAG terpisah di arsitektur ini.
+        </p>
       </div>
     </div>
   );

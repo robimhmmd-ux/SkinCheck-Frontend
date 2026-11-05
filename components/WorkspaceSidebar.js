@@ -18,6 +18,14 @@ import {
   Home as HomeIcon,
   PanelLeftClose,
   Sparkles,
+  ShieldAlert,
+  Users,
+  Package,
+  ScanSearch,
+  BrainCircuit,
+  Settings,
+  ScrollText,
+  UserCog,
 } from "lucide-react";
 import { getMe, logout, pickUser } from "../lib/api";
 import { useToast } from "./Toast";
@@ -30,6 +38,18 @@ const SIDEBAR_LINKS = [
   { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   { href: "/assistant", label: "Laomera Asisten", icon: Bot },
   { href: "/profile", label: "Profil Akun", icon: User },
+];
+
+// Tautan admin: HANYA tampil kalau user.role === "admin".
+const ADMIN_LINKS = [
+  { href: "/admin", label: "Dashboard Admin", icon: ShieldAlert },
+  { href: "/admin/users", label: "Pengguna", icon: Users },
+  { href: "/admin/products", label: "Produk", icon: Package },
+  { href: "/admin/scans", label: "Audit Scan", icon: ScanSearch },
+  { href: "/admin/ai-copilot", label: "AI Copilot", icon: BrainCircuit },
+  { href: "/admin/settings", label: "Pengaturan", icon: Settings },
+  { href: "/admin/logs", label: "Log Aktivitas", icon: ScrollText },
+  { href: "/admin/profile", label: "Profil Admin", icon: UserCog },
 ];
 
 export default function WorkspaceSidebar({ open, onClose }) {
@@ -147,6 +167,29 @@ export default function WorkspaceSidebar({ open, onClose }) {
               );
             })}
           </nav>
+
+          {user?.role === "admin" && (
+            <nav className="side-slide-nav" aria-label="Navigasi Admin">
+              <span className="side-nav-heading">ADMIN</span>
+              {ADMIN_LINKS.map(({ href, label, icon: Icon }) => {
+                const active =
+                  pathname === href || (href !== "/admin" && pathname.startsWith(href + "/"));
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`side-nav-link ${active ? "active" : ""}`}
+                    aria-current={active ? "page" : undefined}
+                    onClick={(e) => handleNavClick(e, href)}
+                  >
+                    <Icon size={18} aria-hidden="true" />
+                    <span className="side-nav-text">{label}</span>
+                    {active && <span className="side-nav-dot" aria-hidden="true" />}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
 
           <div className="side-slide-action-box">
             <div className="action-box-head">

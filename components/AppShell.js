@@ -25,6 +25,7 @@ const WORKSPACE_PREFIXES = [
   "/marketplace",
   "/assistant",
   "/profile",
+  "/admin",
 ];
 
 const PAGE_LABELS = [
@@ -35,6 +36,14 @@ const PAGE_LABELS = [
   ["/marketplace", "Marketplace"],
   ["/assistant", "Laomera Asisten"],
   ["/profile", "Profil Akun"],
+  ["/admin/users", "Admin • Pengguna"],
+  ["/admin/products", "Admin • Produk"],
+  ["/admin/scans", "Admin • Audit Scan"],
+  ["/admin/ai-copilot", "Admin • AI Copilot"],
+  ["/admin/settings", "Admin • Pengaturan"],
+  ["/admin/logs", "Admin • Log Aktivitas"],
+  ["/admin/profile", "Admin • Profil"],
+  ["/admin", "Admin • Dashboard"],
 ];
 
 function pageLabel(pathname) {
