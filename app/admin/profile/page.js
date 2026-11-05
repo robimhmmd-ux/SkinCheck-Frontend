@@ -78,7 +78,12 @@ export default function AdminProfilePage() {
     }
     setBusy(true);
     try {
-      const body = { name, email };
+      // Email sengaja tidak dikirim: email tidak dapat diubah.
+      const body = { name };
+      if (newPassword) {
+        body.old_password = oldPassword;
+        body.new_password = newPassword;
+      }
       if (newPassword) {
         body.old_password = oldPassword;
         body.new_password = newPassword;
@@ -100,7 +105,7 @@ export default function AdminProfilePage() {
       <div className="admin-hero-header">
         <h1 className="admin-page-title">Profil Admin</h1>
         <p className="admin-page-subtitle">
-          Nama dan email dapat diubah langsung. Password baru hanya diproses kalau password lama terverifikasi.
+          Nama dapat diubah. Email tidak dapat diubah. Password baru hanya diproses kalau password lama terverifikasi.
         </p>
       </div>
 
@@ -110,8 +115,8 @@ export default function AdminProfilePage() {
           <input style={inputStyle} value={name} required onChange={(e) => setName(e.target.value)} />
         </label>
         <label style={{ display: "grid", gap: "4px" }}>
-          <span style={{ fontSize: "13px", fontWeight: 600 }}>Email</span>
-          <input style={inputStyle} type="email" value={email} required onChange={(e) => setEmail(e.target.value)} />
+          <span style={{ fontSize: "13px", fontWeight: 600 }}>Email (tidak dapat diubah)</span>
+          <input style={{ ...inputStyle, background: "var(--sand-100)", color: "var(--text-muted)" }} type="email" value={email} disabled />
         </label>
         <p className="muted" style={{ fontSize: "13px", margin: 0 }}>
           Role: <strong>{data.role}</strong> • Status: <strong>{data.status}</strong> • Password lama wajib diisi hanya kalau mau ganti password.
