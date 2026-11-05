@@ -47,7 +47,6 @@ export default function SiteHeader() {
   const toast = useToast();
 
   const isLandingPage = pathname === "/";
-  const isDashboardPage = pathname === "/dashboard";
 
   useEffect(() => {
     let alive = true;
@@ -96,11 +95,6 @@ export default function SiteHeader() {
     } finally {
       setBusy(false);
     }
-  }
-
-  // On the dashboard page, navigation is handled exclusively by the side slide taskbar
-  if (isDashboardPage) {
-    return null;
   }
 
   return (

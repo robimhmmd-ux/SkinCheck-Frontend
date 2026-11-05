@@ -1,5 +1,5 @@
 import { Playfair_Display, Fraunces, Instrument_Sans } from "next/font/google";
-import SiteHeader from "../components/SiteHeader";
+import AppShell from "../components/AppShell";
 import FloatingChatWidget from "../components/FloatingChatWidget";
 import { ToastProvider } from "../components/Toast";
 import "./globals.css";
@@ -35,22 +35,8 @@ export default function RootLayout({ children }) {
           >
             Lewati ke konten
           </a>
-          <SiteHeader />
-          <main id="main" className="app-main-viewport">
-            {children}
-          </main>
+          <AppShell>{children}</AppShell>
           <FloatingChatWidget />
-          <footer className="site-footer-bar">
-            <div className="content-canvas footer-inner">
-              <p className="footer-brand-title">Laomera</p>
-              <p className="footer-tagline">
-                Sistem Evaluasi Kesehatan Kulit Wajah Berbasis Kecerdasan Buatan & Rekomendasi Formulasi Terkurasi.
-              </p>
-              <div className="footer-meta-row">
-                <span>© 2026 Laomera Platform. Seluruh hak cipta dilindungi.</span>
-              </div>
-            </div>
-          </footer>
         </ToastProvider>
       </body>
     </html>
