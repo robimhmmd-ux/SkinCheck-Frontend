@@ -31,8 +31,8 @@ const WORKSPACE_PREFIXES = [
 const PAGE_LABELS = [
   ["/dashboard", "Dashboard"],
   ["/scan", "Scan Kulit"],
-  ["/output", "Diagnosis Terkini"],
-  ["/history", "Riwayat Scan"],
+  ["/output", "Riwayat & Diagnosis"],
+  ["/history", "Riwayat & Diagnosis"],
   ["/marketplace", "Marketplace"],
   ["/assistant", "Laomera Asisten"],
   ["/profile", "Profil Akun"],

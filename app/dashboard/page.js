@@ -56,8 +56,7 @@ function fmtDateShort(iso) {
 const DASH_SIDEBAR_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/scan", label: "Scan Kulit", icon: Camera },
-  { href: "/output", label: "Diagnosis Terkini", icon: Sparkles },
-  { href: "/history", label: "Riwayat Scan", icon: History },
+  { href: "/history", label: "Riwayat & Diagnosis", icon: History },
   { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   { href: "/assistant", label: "Laomera Asisten", icon: Bot },
   { href: "/profile", label: "Profil Akun", icon: User },
@@ -304,8 +303,8 @@ export default function DashboardPage() {
                   <h2 className="panel-title">Tingkat 5 Kondisi Wajah</h2>
                   <p className="panel-subtitle">Tingkat persentase kondisi kulit hasil deteksi neural terkini.</p>
                 </div>
-                <Link href="/output" className="panel-link">
-                  Lihat Dossier Lengkap <ChevronRight size={14} />
+                <Link href="/history" className="panel-link">
+                  Lihat Riwayat &amp; Diagnosis <ChevronRight size={14} />
                 </Link>
               </div>
 

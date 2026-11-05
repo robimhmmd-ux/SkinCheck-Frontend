@@ -29,8 +29,7 @@ import { useToast } from "./Toast";
 const INNER_NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/scan", label: "Scan Kulit", icon: Camera },
-  { href: "/output", label: "Diagnosis", icon: Sparkles },
-  { href: "/history", label: "Riwayat", icon: History },
+  { href: "/history", label: "Riwayat & Diagnosis", icon: History },
   { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   { href: "/assistant", label: "Laomera Asisten", icon: Bot },
   { href: "/profile", label: "Profil", icon: User },
