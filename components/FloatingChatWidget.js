@@ -21,6 +21,7 @@ import {
   pickArray,
 } from "../lib/api";
 import { useToast } from "./Toast";
+import { renderChatInline } from "./ChatText";
 
 const QUICK_INQUIRIES = [
   "🌟 Rutin Skincare Pagi & Malam",
@@ -160,6 +161,10 @@ export default function FloatingChatWidget() {
     try {
       const res = await assistantChat(text);
       const reply =
+        // Backend /assistant/chat mengembalikan { response }, bukan reply /
+        // message / content — field itu harus dibaca dulu, kalau tidak
+        // setiap balasan baru jatuh ke pesan fallback di bawah.
+        res?.response ||
         res?.reply ||
         res?.message ||
         res?.content ||
@@ -294,7 +299,7 @@ export default function FloatingChatWidget() {
                   <div className="floating-msg-text">
                     {m.content.split("\n").map((line, lIdx) => (
                       <p key={lIdx} style={{ margin: "0 0 4px" }}>
-                        {line}
+                        {isBot ? renderChatInline(line, `m${idx}-${lIdx}`) : line}
                       </p>
                     ))}
                   </div>
