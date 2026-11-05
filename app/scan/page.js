@@ -18,6 +18,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { uploadScan, uploadMultiScan, pickObject, getMe } from "../../lib/api";
+import { fmtDate } from "../../lib/scores";
 import { ErrorBox } from "../../components/Notice";
 
 const SCORES = [
@@ -540,7 +541,6 @@ export default function ScanPage() {
           </div>
           <p style={{ color: "var(--text-muted)", fontSize: "14.5px", marginBottom: "20px" }}>
             {result.message || "Analisis AI gagal diproses."}
-            {scanId ? ` (Scan #${scanId})` : ""}
           </p>
           <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", marginBottom: "20px", fontSize: "14px" }}>
             {result.frames_captured != null && (
@@ -581,7 +581,7 @@ export default function ScanPage() {
             </div>
             <div style={{ color: "var(--text-muted)", fontSize: "15px" }}>
               <strong>Skor Kesehatan Keseluruhan</strong>
-              <div>Scan #{scanId || "Baru"} telah selesai diproses.</div>
+              <div>Scan {fmtDate(new Date().toISOString())} telah selesai diproses.</div>
             </div>
           </div>
 

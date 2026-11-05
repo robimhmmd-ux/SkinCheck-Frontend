@@ -226,7 +226,7 @@ export default function ScanDetailPage({ params }) {
             />
             <LedgerCard 
               title="Perbandingan Scan Terakhir"
-              subtitle={latest ? `Scan #${latest.id} • ${fmtDate(latest.created_at)}` : "Belum ada scan lain"}
+              subtitle={latest ? fmtDate(latest.created_at) : "Belum ada scan lain"}
               analysis={latestAnalysis}
               icon={Activity}
             />

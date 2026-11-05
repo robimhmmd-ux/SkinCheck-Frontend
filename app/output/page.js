@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { getHistory, getDashboard, pickArray, pickObject } from "../../lib/api";
 import { ErrorBox, Loading } from "../../components/Notice";
-import { SCORE_KEYS, averageScores, latestAnalyzedScan, fmtScore, fmtDate } from "../../lib/scores";
+import { SCORE_KEYS, averageScores, latestScan, fmtScore, fmtDate } from "../../lib/scores";
 
 function Chapter({ id, title, subtitle, open, onToggle, children }) {
   return (
@@ -150,7 +150,9 @@ export default function OutputPage() {
 
   const scans = history.length ? history : pickArray(dash && (dash.recent_scans || dash.scans || dash));
   const avg = averageScores(scans);
-  const latest = latestAnalyzedScan(scans);
+  // "Scan Terakhir" = scan terbaru apa pun statusnya (bukan hanya yang
+  // sudah teranalisis). Rata-rata tetap hanya dari scan yang punya analysis.
+  const latest = latestScan(scans);
   const latestAnalysis = latest ? (latest.analysis || latest.analysis_result || latest.result) : null;
   const totalScans = scans.length;
   const analyzedCount = avg ? avg.count : 0;
@@ -213,7 +215,7 @@ export default function OutputPage() {
           <div className="dossier-details-col">
             <div className="dossier-status-bar">
               <span className="badge badge-navy">
-                {latest ? `Scan Terakhir #${latest.id}` : "Belum Ada Riwayat"}
+                {latest ? "Scan Terakhir" : "Belum Ada Riwayat"}
               </span>
               {latestStatus && (
                 <span className={`badge ${latestStatus === "Selesai" ? "badge-success" : latestStatus === "Gagal" ? "badge-danger" : "badge-warning"}`}>
@@ -234,7 +236,11 @@ export default function OutputPage() {
               <div className="score-desc-block">
                 <strong>Skor Kesehatan Kulit Keseluruhan</strong>
                 <p className="muted">
-                  {latest ? `Dianalisis pada ${fmtDate(latest.created_at)}` : "Lakukan pemindaian wajah untuk mengaktifkan kalkulasi skor."}
+                  {latest
+                    ? latestAnalysis
+                      ? `Dianalisis pada ${fmtDate(latest.created_at)}`
+                      : `Pemindaian ${fmtDate(latest.created_at)} belum berhasil dianalisis.`
+                    : "Lakukan pemindaian wajah untuk mengaktifkan kalkulasi skor."}
                 </p>
               </div>
             </div>
@@ -275,7 +281,7 @@ export default function OutputPage() {
         <Chapter
           id="latest"
           title="Detail 5 Metrik Scan Terakhir"
-          subtitle={latest ? `Scan #${latest.id} • ${fmtDate(latest.created_at)}` : "Belum ada scan terakhir"}
+          subtitle={latest ? fmtDate(latest.created_at) : "Belum ada scan terakhir"}
           open={openSection === "latest"}
           onToggle={() => toggle("latest")}
         >

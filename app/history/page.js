@@ -13,7 +13,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { getHistory, pickArray } from "../../lib/api";
-import { pickAnalysis, fmtScore } from "../../lib/scores";
+import { pickAnalysis, fmtScore, fmtDate, fmtDateShort } from "../../lib/scores";
 import { ErrorBox, Loading } from "../../components/Notice";
 
 const STATUS_LABEL = { completed: "Selesai", processing: "Diproses", failed: "Gagal" };
@@ -74,7 +74,9 @@ export default function HistoryPage() {
           {items.map((s, i) => {
             const analysis = pickAnalysis(s);
             const score = analysis ? Number(analysis.overall_score) : null;
-            const dateStr = s.created_at || s.created || "—";
+            // Nama scan = tanggal scan, bukan #ID.
+            const dateLabel = fmtDate(s.created_at || s.created);
+            const dateBadge = fmtDateShort(s.created_at || s.created);
 
             return (
               <div
@@ -101,21 +103,23 @@ export default function HistoryPage() {
                       display: "grid",
                       placeItems: "center",
                       fontFamily: "var(--font-serif)",
-                      fontSize: "18px",
+                      fontSize: "13px",
                       fontWeight: 700,
+                      textAlign: "center",
+                      lineHeight: 1.2,
                     }}
                   >
-                    #{s.id ?? i + 1}
+                    {dateBadge}
                   </div>
                   <div>
                     <Link
                       href={`/history/${s.id}`}
                       style={{ fontSize: "16px", fontWeight: 700, color: "var(--brand-navy)" }}
                     >
-                      Pemeriksaan Wajah #{s.id ?? i + 1}
+                      Pemeriksaan Wajah • {dateLabel}
                     </Link>
                     <div style={{ fontSize: "13px", color: "var(--text-muted)", display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                      <span>{dateStr}</span>
+                      <span>{dateLabel}</span>
                       <span>·</span>
                       <span>Status: {STATUS_LABEL[s.status] || s.status || "—"}</span>
                       {s.image_quality_score != null && (
