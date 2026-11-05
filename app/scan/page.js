@@ -297,6 +297,13 @@ export default function ScanPage() {
 
   const scanId = result && (result.scan_id || result.id);
   const analysis = result && (result.analysis || result.analysis_result || null);
+  // Status dari backend: "completed" / "failed" / "processing". Backend selalu
+  // membalas 201 bahkan saat analisis gagal (analysis = null) — jadi hasil
+  // gagal HARUS ditampilkan sendiri, bukan disembunyikan. Versi halaman ini
+  // sebelumnya hanya merender panel sukses (result && analysis), sehingga
+  // scan yang gagal tampak seperti "tidak ada loading dan tidak ada output".
+  const resultStatus = result && (result.status || "");
+  const resultFailed = Boolean(result) && !analysis;
 
   return (
     <div className="scanner-stage-wrap">
@@ -484,6 +491,17 @@ export default function ScanPage() {
                 )}
               </div>
 
+              {/* Indikator upload: selama busy, tombol di bawah hanya
+                  nonaktif tanpa teks apa pun — inilah kenapa mode kamera
+                  terasa "tidak ada loading". Banner ini tampil selama
+                  upload/analisis berjalan. */}
+              {busy && (
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "var(--sand-100)", border: "1px solid var(--border-subtle)", padding: "12px 16px", borderRadius: "var(--radius-md)", fontSize: "14px", color: "var(--brand-navy)" }}>
+                  <Activity className="animate-spin" size={18} />
+                  <span><strong>Menganalisis frame…</strong> Mohon tunggu, proses ini bisa memakan waktu beberapa detik.</span>
+                </div>
+              )}
+
               {/* Camera Controls */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
                 <button type="button" className="btn btn-secondary btn-sm" onClick={stopCamera}>
@@ -506,6 +524,44 @@ export default function ScanPage() {
               </div>
 
               <canvas ref={canvasRef} style={{ display: "none" }} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── 3b. HASIL GAGAL / MASIH DIPROSES (JANGAN DISEMBUNYIKAN) ── */}
+      {resultFailed && (
+        <div className="glass-panel" style={{ padding: "32px", border: "1.5px solid rgba(217, 136, 42, 0.5)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+            <AlertCircle size={24} color="#b45309" />
+            <h2 style={{ fontSize: "22px" }}>
+              {resultStatus === "processing" ? "Scan masih diproses" : "Analisis belum berhasil"}
+            </h2>
+          </div>
+          <p style={{ color: "var(--text-muted)", fontSize: "14.5px", marginBottom: "20px" }}>
+            {result.message || "Analisis AI gagal diproses."}
+            {scanId ? ` (Scan #${scanId})` : ""}
+          </p>
+          <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", marginBottom: "20px", fontSize: "14px" }}>
+            {result.frames_captured != null && (
+              <span>Frame direkam: <strong>{result.frames_captured}</strong></span>
+            )}
+            {result.frames_passed_yunet != null && (
+              <span>Lolos deteksi wajah: <strong>{result.frames_passed_yunet}</strong></span>
+            )}
+            {result.frames_used_vgg != null && (
+              <span>Dianalisis: <strong>{result.frames_used_vgg}</strong></span>
+            )}
+          </div>
+          <p style={{ fontSize: "13.5px", color: "var(--text-muted)" }}>
+            Silakan coba lagi dengan pencahayaan merata dan wajah menghadap kamera. Kalau pesan di atas menyebut wajah tidak terdeteksi, itu alasan aslinya dari backend, bukan sekadar tebakan.
+          </p>
+          {scanId && (
+            <div style={{ marginTop: "16px" }}>
+              <Link href={`/history/${scanId}`} className="btn btn-secondary">
+                <span>Lihat scan ini di Riwayat</span>
+                <ArrowRight size={16} />
+              </Link>
             </div>
           )}
         </div>
