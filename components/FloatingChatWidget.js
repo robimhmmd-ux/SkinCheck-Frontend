@@ -22,6 +22,7 @@ import {
 } from "../lib/api";
 import { useToast } from "./Toast";
 import { renderChatInline } from "./ChatText";
+import { fmtTime } from "../lib/scores";
 
 const QUICK_INQUIRIES = [
   "🌟 Rutin Skincare Pagi & Malam",
@@ -120,7 +121,9 @@ export default function FloatingChatWidget() {
           list.map((m) => ({
             role: m.role || "assistant",
             content: m.content || m.text || "",
-            time: m.time || "",
+            // Jam dari created_at (UTC) yang dikonversi ke waktu lokal,
+            // bukan field time mentah backend yang masih jam UTC.
+            time: m.created_at ? fmtTime(m.created_at) : (m.time || ""),
           }))
         );
       } else {
