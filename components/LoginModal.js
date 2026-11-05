@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { X, Mail, Lock, LogIn, Sparkles, ArrowRight } from "lucide-react";
 import { login, getMe, pickUser } from "../lib/api";
 import { ErrorBox } from "./Notice";
 
@@ -25,32 +26,102 @@ export default function LoginModal({ open, onClose }) {
 
   async function onSubmit(e) {
     e.preventDefault();
-    setError(null); setBusy(true);
+    setError(null);
+    setBusy(true);
     try {
       const res = await login(email, password);
       const user = pickUser(res);
       let role = user && user.role;
       if (!role) {
-        try { role = pickUser(await getMe()).role; } catch { /* tetap lanjut ke dashboard */ }
+        try { role = pickUser(await getMe()).role; } catch { /* tetap lanjut */ }
       }
       onClose();
       router.push(role === "admin" ? "/admin" : "/dashboard");
-    } catch (err) { setError(err); } finally { setBusy(false); }
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
-    <div className="ed-modal-overlay" role="presentation" onClick={onClose}>
-      <div className="ed-modal-card" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="ed-modal-close" aria-label="Tutup login" onClick={onClose}>×</button>
-        <h2 id="login-modal-title">Selamat datang kembali</h2>
-        <p className="muted">Masuk dengan akun SkinCheck kamu untuk melihat dashboard dan riwayat scan.</p>
+    <div className="modal-backdrop-overlay" role="presentation" onClick={onClose}>
+      <div 
+        className="glass-panel modal-surface-card" 
+        role="dialog" 
+        aria-modal="true" 
+        aria-labelledby="login-modal-title" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button 
+          type="button" 
+          className="modal-close-icon-btn" 
+          aria-label="Tutup jendela login" 
+          onClick={onClose}
+        >
+          <X size={18} />
+        </button>
+
+        <div className="modal-header-block">
+          <div className="modal-brand-badge">
+            <Sparkles size={14} className="text-amber" />
+            <span>PORTAL AUTENTIKASI</span>
+          </div>
+          <h2 id="login-modal-title" className="modal-title">Selamat Datang Kembali</h2>
+          <p className="modal-subtitle">
+            Masuk ke akun Laomera untuk mengakses riwayat analisis dan dossier kesehatan kulitmu.
+          </p>
+        </div>
+
         <ErrorBox error={error} />
-        <form onSubmit={onSubmit}>
-          <label>Email<input ref={emailRef} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" /></label>
-          <label>Password<input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" /></label>
-          <button className="btn" disabled={busy}>{busy ? "Memproses…" : "Masuk"}</button>
+
+        <form onSubmit={onSubmit} className="modal-form-stack">
+          <div className="form-group-field">
+            <label className="form-label" htmlFor="modal-email">
+              <Mail size={14} /> Alamat Email
+            </label>
+            <input
+              id="modal-email"
+              ref={emailRef}
+              type="email"
+              required
+              className="app-text-input"
+              placeholder="nama@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+          </div>
+
+          <div className="form-group-field">
+            <label className="form-label" htmlFor="modal-password">
+              <Lock size={14} /> Kata Sandi
+            </label>
+            <input
+              id="modal-password"
+              type="password"
+              required
+              className="app-text-input"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
+
+          <button type="submit" className="btn btn-primary" style={{ width: "100%", marginTop: "8px" }} disabled={busy}>
+            <LogIn size={16} /> {busy ? "Memverifikasi Kredensial…" : "Masuk ke Akun"}
+          </button>
         </form>
-        <p>Belum punya akun? <Link href="/register" onClick={onClose}>Daftar</Link> · <Link href="/login" onClick={onClose}>Buka halaman login penuh</Link></p>
+
+        <div className="modal-footer-nav">
+          <p className="muted" style={{ margin: 0, fontSize: "13px" }}>
+            Belum memiliki akun?{" "}
+            <Link href="/register" onClick={onClose} style={{ fontWeight: 600, color: "var(--brand-navy)" }}>
+              Daftar Baru <ArrowRight size={12} style={{ display: "inline" }} />
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

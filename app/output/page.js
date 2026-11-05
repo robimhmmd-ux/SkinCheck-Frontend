@@ -2,39 +2,47 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { 
+  Sparkles, 
+  FileText, 
+  CheckCircle2, 
+  Clock, 
+  AlertCircle, 
+  ChevronDown, 
+  ChevronUp, 
+  ArrowRight, 
+  Scan, 
+  Activity, 
+  BarChart3,
+  ExternalLink
+} from "lucide-react";
 import { getHistory, getDashboard, pickArray, pickObject } from "../../lib/api";
 import { ErrorBox, Loading } from "../../components/Notice";
-import Seal from "../../components/Seal";
 import { SCORE_KEYS, averageScores, latestAnalyzedScan, fmtScore, fmtDate } from "../../lib/scores";
 
-// Halaman Output VGG — dossier laporan, bukan lagi card tersebar
-// di atas foto fullscreen (arah lama sudah dibatalkan user
-// 2026-11-04) dan bukan lagi laporan editorial panel putaran 2
-// (dirombak total lagi putaran 3: dossier terpusat, stempel besar,
-// angka raksasa, ledger skala, chapter buka-tutup).
-// Skema buka/tutup section (dipertahankan dari sebelumnya):
-// - Masuk lewat scan (URL mengandung ?from=scan): section "5 output
-//   scan terakhir" TERBUKA sejak awal, section lain tertutup.
-// - Masuk langsung ke /output (tanpa ?from=scan): SEMUA section
-//   tertutup, masing-masing hanya terbuka kalau diklik.
 function Chapter({ id, title, subtitle, open, onToggle, children }) {
   return (
-    <div className="gx-chapter">
+    <div className={`output-accordion-item ${open ? "open" : ""}`}>
       <button
         type="button"
-        className="gx-chapter-head"
+        className="output-accordion-header"
         onClick={onToggle}
         aria-expanded={open}
         aria-controls={`output-section-${id}`}
       >
-        <span>
-          <strong>{title}</strong>
-          <span className="muted">{subtitle}</span>
-        </span>
-        <span className="gx-chapter-icon" aria-hidden="true">{open ? "−" : "+"}</span>
+        <div className="output-header-content">
+          <div className="output-header-title-row">
+            <span className="output-section-tag">BAB {id.toUpperCase()}</span>
+            <strong className="output-accordion-title">{title}</strong>
+          </div>
+          {subtitle && <span className="output-accordion-subtitle">{subtitle}</span>}
+        </div>
+        <div className="output-header-chevron">
+          {open ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </div>
       </button>
       {open && (
-        <div className="gx-chapter-body" id={`output-section-${id}`}>
+        <div className="output-accordion-body" id={`output-section-${id}`}>
           {children}
         </div>
       )}
@@ -42,25 +50,55 @@ function Chapter({ id, title, subtitle, open, onToggle, children }) {
   );
 }
 
-function ScaleLedger({ analysis }) {
-  if (!analysis) return <p className="muted">Belum ada skor untuk ditampilkan.</p>;
+function MetricScaleBar({ label, value, colorClass = "amber" }) {
+  const num = Number(value);
+  const finite = Number.isFinite(num);
+  const pct = finite ? Math.max(0, Math.min(100, num)) : 0;
+
   return (
-    <div className="gx-ledger">
-      {SCORE_KEYS.map(([key, label]) => {
-        const raw = Number(analysis[key]);
-        const finite = Number.isFinite(raw);
-        return (
-          <div key={key} className="gx-row">
-            <span className="gx-label">{label}</span>
-            <b className={finite ? "" : "muted"}>{finite ? `${analysis[key]}%` : "—"}</b>
-            {finite && (
-              <span className="gx-scale" aria-hidden="true">
-                <i style={{ left: `${Math.max(0, Math.min(100, raw))}%` }} />
-              </span>
-            )}
-          </div>
-        );
-      })}
+    <div className="output-metric-row">
+      <div className="output-metric-info">
+        <span className="output-metric-name">{label}</span>
+        <span className="output-metric-val">{finite ? `${num}%` : "—"}</span>
+      </div>
+      <div className="output-meter-track" aria-hidden="true">
+        <div 
+          className={`output-meter-fill fill-${colorClass}`} 
+          style={{ width: `${pct}%` }} 
+        />
+      </div>
+    </div>
+  );
+}
+
+function ScaleLedger({ analysis }) {
+  if (!analysis) {
+    return (
+      <div className="empty-ledger-box">
+        <Clock size={20} className="text-muted" />
+        <p className="muted">Belum ada data skor yang terekam.</p>
+      </div>
+    );
+  }
+
+  const colorMap = {
+    acne_score: "amber",
+    dryness_score: "blue",
+    oiliness_score: "peach",
+    darkspots_score: "purple",
+    wrinkles_score: "navy",
+  };
+
+  return (
+    <div className="output-ledger-stack">
+      {SCORE_KEYS.map(([key, label]) => (
+        <MetricScaleBar 
+          key={key} 
+          label={label} 
+          value={analysis[key]} 
+          colorClass={colorMap[key] || "amber"} 
+        />
+      ))}
     </div>
   );
 }
@@ -70,16 +108,14 @@ export default function OutputPage() {
   const [dash, setDash] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [openSection, setOpenSection] = useState(null); // null | "latest" | "all" | "count"
+  const [openSection, setOpenSection] = useState(null);
 
   useEffect(() => {
-    // Baca penanda asal di client saja (tanpa useSearchParams,
-    // supaya tidak butuh Suspense boundary): kalau URL-nya
-    // ?from=scan, berarti user baru saja menyelesaikan scan.
     try {
       const from = new URLSearchParams(window.location.search).get("from");
       if (from === "scan") setOpenSection("latest");
     } catch {}
+
     let alive = true;
     (async () => {
       try {
@@ -89,8 +125,11 @@ export default function OutputPage() {
         if (d.status === "fulfilled") setDash(pickObject(d.value));
         const firstErr = [h, d].find((r) => r.status === "rejected");
         if (firstErr) setError(firstErr.reason);
-      } catch (e) { if (alive) setError(e); }
-      finally { if (alive) setLoading(false); }
+      } catch (e) {
+        if (alive) setError(e);
+      } finally {
+        if (alive) setLoading(false);
+      }
     })();
     return () => { alive = false; };
   }, []);
@@ -99,7 +138,15 @@ export default function OutputPage() {
     setOpenSection((cur) => (cur === id ? null : id));
   }
 
-  if (loading) return <div className="gx-page"><Loading label="Memuat hasil…" /></div>;
+  if (loading) {
+    return (
+      <div className="page-shell-wrap">
+        <div className="glass-panel" style={{ padding: "48px 32px", textAlign: "center" }}>
+          <Loading label="Menyiapkan berkas dossier klinis…" />
+        </div>
+      </div>
+    );
+  }
 
   const scans = history.length ? history : pickArray(dash && (dash.recent_scans || dash.scans || dash));
   const avg = averageScores(scans);
@@ -110,95 +157,186 @@ export default function OutputPage() {
   const latestStatus = latest ? ({ completed: "Selesai", processing: "Diproses", failed: "Gagal" }[latest.status] || latest.status || "—") : null;
 
   return (
-    <div className="gx-page">
-      <div className="gx-dossier">
-        <div className="gx-dossier-hero gx-rise">
-          <Seal big />
-          <h1>Output</h1>
-          <p className="gx-lead" style={{ margin: "0 auto 16px" }}>Laporan kulit wajahmu dari analisis VGG. Klik sebuah bab untuk membuka atau menutupnya.</p>
-          <div className="gx-actions" style={{ justifyContent: "center" }}>
-            <Link className="btn" href="/scan">Scan baru</Link>
-            <Link className="btn secondary" href="/dashboard">Dashboard</Link>
-          </div>
+    <div className="page-shell-wrap">
+      {/* ── Page Hero Header ── */}
+      <div className="dossier-hero-header">
+        <div className="badge badge-amber" style={{ margin: "0 auto 12px" }}>
+          <FileText size={14} /> DOSSIER KLINIS VGG
         </div>
-        <ErrorBox error={error} />
-        {error && error.status === 401 && <p className="muted">Sepertinya kamu belum masuk. <Link href="/login">Masuk dulu</Link> untuk melihat hasilmu.</p>}
-
-        <div className="gx-dossier-hero">
-          <div className="gx-arch-img">
-            <Image src="/output-face.jpg" alt="Ilustrasi wajah" width={560} height={700} priority={false} />
-          </div>
-          <h2>{latest ? `Scan terakhir #${latest.id}` : "Belum ada hasil scan"}</h2>
-          <p className="muted" style={{ margin: "0 auto" }}>{latest ? `${fmtDate(latest.created_at)}, status ${latestStatus}` : "Lakukan scan dulu, lalu hasilnya akan tampil di sini."}</p>
-          <div className="gx-result-num" style={{ justifyContent: "center" }}>
-            <b>{latestAnalysis && latestAnalysis.overall_score != null ? (<>{fmtScore(latestAnalysis.overall_score)}<span className="gx-unit">%</span></>) : "—"}</b>
-            <span>skor keseluruhan</span>
-          </div>
-          {(() => {
-            if (!latestAnalysis) return null;
-            let top = null;
-            for (const [key, label] of SCORE_KEYS) {
-              if (key === "overall_score") continue;
-              const v = Number(latestAnalysis[key]);
-              if (Number.isFinite(v) && (top === null || v > top.value)) top = { label, value: v };
-            }
-            if (!top) return null;
-            return <p className="gx-hero-finding" style={{ textAlign: "center", margin: "0 auto 20px" }}>Yang paling menonjol: {top.label} {top.value}%.</p>;
-          })()}
+        <h1 className="dossier-title">Laporan Analisis Kulit</h1>
+        <p className="dossier-subtitle">
+          Rekapitulasi komprehensif metrik kulit wajah berdasarkan model convolutional VGG.
+        </p>
+        <div className="dossier-actions-row">
+          <Link className="btn btn-primary btn-sm" href="/scan">
+            <Scan size={15} /> Scan Baru
+          </Link>
+          <Link className="btn btn-secondary btn-sm" href="/dashboard">
+            <Activity size={15} /> Dashboard
+          </Link>
+          <Link className="btn btn-secondary btn-sm" href="/history">
+            <Clock size={15} /> Riwayat
+          </Link>
         </div>
+      </div>
 
-        <div className="gx-ledger">
-          {SCORE_KEYS.filter(([key]) => key !== "overall_score").map(([key, label]) => {
-            const raw = latestAnalysis ? Number(latestAnalysis[key]) : NaN;
-            const finite = Number.isFinite(raw);
-            return (
-              <div key={key} className="gx-row">
-                <span className="gx-label">{label}</span>
-                <b className={finite ? "" : "muted"}>{finite ? `${latestAnalysis[key]}%` : "—"}</b>
-                {finite && (
-                  <span className="gx-scale" aria-hidden="true">
-                    <i style={{ left: `${Math.max(0, Math.min(100, raw))}%` }} />
-                  </span>
-                )}
+      <ErrorBox error={error} />
+      {error && error.status === 401 && (
+        <div className="glass-panel" style={{ padding: "20px", marginBottom: "24px", textAlign: "center" }}>
+          <p className="muted" style={{ margin: 0 }}>
+            Sepertinya kamu belum masuk. <Link href="/login" style={{ fontWeight: 600 }}>Masuk dulu</Link> untuk melihat hasil lengkapmu.
+          </p>
+        </div>
+      )}
+
+      {/* ── Main Highlight Dossier Card ── */}
+      <div className="glass-panel dossier-main-card">
+        <div className="dossier-grid">
+          {/* Visual Portrait Column */}
+          <div className="dossier-visual-col">
+            <div className="dossier-portrait-frame">
+              <Image 
+                src="/output-face.jpg" 
+                alt="Ilustrasi Wajah Dermatologis" 
+                width={400} 
+                height={480} 
+                className="dossier-portrait-img"
+                priority={false} 
+              />
+              <div className="portrait-badge-overlay">
+                <Sparkles size={14} /> AI Evaluated
               </div>
-            );
-          })}
-        </div>
+            </div>
+          </div>
 
+          {/* Metric Details Column */}
+          <div className="dossier-details-col">
+            <div className="dossier-status-bar">
+              <span className="badge badge-navy">
+                {latest ? `Scan Terakhir #${latest.id}` : "Belum Ada Riwayat"}
+              </span>
+              {latestStatus && (
+                <span className={`badge ${latestStatus === "Selesai" ? "badge-success" : latestStatus === "Gagal" ? "badge-danger" : "badge-warning"}`}>
+                  {latestStatus}
+                </span>
+              )}
+            </div>
+
+            <div className="dossier-overall-score-box">
+              <div className="score-number-display">
+                <span className="score-giant-val">
+                  {latestAnalysis && latestAnalysis.overall_score != null 
+                    ? fmtScore(latestAnalysis.overall_score) 
+                    : "—"}
+                </span>
+                <span className="score-giant-unit">%</span>
+              </div>
+              <div className="score-desc-block">
+                <strong>Skor Kesehatan Kulit Keseluruhan</strong>
+                <p className="muted">
+                  {latest ? `Dianalisis pada ${fmtDate(latest.created_at)}` : "Lakukan pemindaian wajah untuk mengaktifkan kalkulasi skor."}
+                </p>
+              </div>
+            </div>
+
+            {/* Top finding alert */}
+            {(() => {
+              if (!latestAnalysis) return null;
+              let top = null;
+              for (const [key, label] of SCORE_KEYS) {
+                if (key === "overall_score") continue;
+                const v = Number(latestAnalysis[key]);
+                if (Number.isFinite(v) && (top === null || v > top.value)) top = { label, value: v };
+              }
+              if (!top) return null;
+              return (
+                <div className="dossier-highlight-finding">
+                  <span className="finding-indicator" />
+                  <span>
+                    Fokus Utama: <strong>{top.label} ({top.value}%)</strong> menunjukkan persentase tertinggi yang membutuhkan perawatan tertarget.
+                  </span>
+                </div>
+              );
+            })()}
+
+            {/* Quick 5 metric overview */}
+            <div className="dossier-quick-ledger">
+              <h4 className="ledger-title">
+                <BarChart3 size={16} /> Distribusi Kondisi Kulit
+              </h4>
+              <ScaleLedger analysis={latestAnalysis} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Accordion Chapters ── */}
+      <div className="dossier-chapters-wrapper">
         <Chapter
           id="latest"
-          title="5 output scan terakhir"
-          subtitle={latest ? `Scan #${latest.id}, ${fmtDate(latest.created_at)}` : "Belum ada scan terakhir"}
+          title="Detail 5 Metrik Scan Terakhir"
+          subtitle={latest ? `Scan #${latest.id} • ${fmtDate(latest.created_at)}` : "Belum ada scan terakhir"}
           open={openSection === "latest"}
           onToggle={() => toggle("latest")}
         >
-          <ScaleLedger analysis={latestAnalysis} />
-          {latest && <p><Link href={`/history/${latest.id}`}>Lihat detail scan ini</Link></p>}
+          <div className="chapter-inner-content">
+            <ScaleLedger analysis={latestAnalysis} />
+            {latest && (
+              <div className="chapter-actions-footer">
+                <Link className="btn btn-secondary btn-sm" href={`/history/${latest.id}`}>
+                  Inspeksi Scan Ini <ExternalLink size={14} />
+                </Link>
+              </div>
+            )}
+          </div>
         </Chapter>
 
         <Chapter
           id="all"
-          title="Rata-rata 5 output seluruh scan"
-          subtitle={avg ? `Dari ${avg.count} scan yang selesai dianalisis` : "Belum bisa dihitung"}
+          title="Rata-rata Akumulatif Seluruh Scan"
+          subtitle={avg ? `Dihitung dari ${avg.count} sesi scan terverifikasi` : "Data agregat belum mencukupi"}
           open={openSection === "all"}
           onToggle={() => toggle("all")}
         >
-          <ScaleLedger analysis={avg} />
+          <div className="chapter-inner-content">
+            <p className="muted" style={{ marginBottom: "16px" }}>
+              Perbandingan tren kulit kamu dari total pemindaian yang telah berhasil diselesaikan:
+            </p>
+            <ScaleLedger analysis={avg} />
+          </div>
         </Chapter>
 
         <Chapter
           id="count"
-          title="Berapa kali scan"
-          subtitle={totalScans ? `${totalScans} kali scan di riwayat` : "Belum ada scan"}
+          title="Audit Volume Pemindaian"
+          subtitle={totalScans ? `${totalScans} sesi tercatat di database` : "Belum ada sesi scan"}
           open={openSection === "count"}
           onToggle={() => toggle("count")}
         >
-          <p><strong>{totalScans || "—"}</strong> kali scan di riwayat.</p>
-          <p><strong>{analyzedCount || "—"}</strong> di antaranya sudah selesai dianalisis dan masuk hitungan rata-rata.</p>
-          <p className="muted">Scan yang masih processing atau gagal tidak punya skor, jadi tidak masuk rata-rata.</p>
+          <div className="chapter-inner-content audit-counts-grid">
+            <div className="audit-stat-card">
+              <span className="audit-stat-num">{totalScans || "0"}</span>
+              <span className="audit-stat-lbl">Total Pemindaian Tercatat</span>
+            </div>
+            <div className="audit-stat-card">
+              <span className="audit-stat-num">{analyzedCount || "0"}</span>
+              <span className="audit-stat-lbl">Tuntas Teranalisis (VGG)</span>
+            </div>
+            <div className="audit-stat-card">
+              <span className="audit-stat-num">
+                {totalScans && analyzedCount ? `${Math.round((analyzedCount / totalScans) * 100)}%` : "0%"}
+              </span>
+              <span className="audit-stat-lbl">Tingkat Keberhasilan Sesi</span>
+            </div>
+          </div>
         </Chapter>
+      </div>
 
-        <p className="muted">Skor di atas berasal dari backend, bukan angka contoh. Kalau masih strip (—), berarti belum ada scan yang selesai dianalisis. <Link href="/history">Lihat riwayat lengkap</Link></p>
+      <div className="dossier-footer-note">
+        <p className="muted">
+          Semua metrik diekstrak langsung dari pemrosesan AI convolutional backend Laomera.
+          Kunjungi <Link href="/history" style={{ fontWeight: 600 }}>Riwayat Scan</Link> untuk melihat seluruh lini masa pemindaianmu.
+        </p>
       </div>
     </div>
   );

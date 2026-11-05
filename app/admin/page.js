@@ -1,6 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { 
+  ShieldAlert, 
+  Users, 
+  Scan, 
+  Package, 
+  ShoppingBag, 
+  ArrowRight, 
+  RefreshCw, 
+  Activity,
+  Layers,
+  Sparkles
+} from "lucide-react";
 import { getAdminSummary, pickObject } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
 
@@ -20,67 +32,133 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="gx-page" aria-busy="true" aria-label="Memuat ringkasan admin">
-        <div className="ed-skeleton-title" />
-        <div className="ed-skeleton-line" />
-        <div className="ed-skeleton-panel" />
+      <div className="page-shell-wrap">
+        <div className="glass-panel" style={{ padding: "48px 32px", textAlign: "center" }}>
+          <p className="muted">Mengumpulkan telemetri sistem admin…</p>
+        </div>
       </div>
     );
   }
 
   if (error && (error.status === 401 || error.status === 403)) {
     return (
-      <div className="gx-page">
-        <div className="gx-head">
-          <h1 className="gx-title">Admin</h1>
-          <p className="gx-lead">Halaman ini hanya untuk admin.</p>
+      <div className="page-shell-wrap">
+        <div className="glass-panel admin-denied-card">
+          <div className="admin-denied-icon">
+            <ShieldAlert size={36} />
+          </div>
+          <h2>Otoritas Terbatas</h2>
+          <p className="muted">
+            Halaman konsol ini dikhususkan untuk akun dengan hak akses administrator sistem Laomera.
+          </p>
+          <div className="admin-denied-actions">
+            <Link href="/login" className="btn btn-primary btn-sm">
+              Masuk sebagai Administrator
+            </Link>
+            <Link href="/dashboard" className="btn btn-secondary btn-sm">
+              Kembali ke Dashboard
+            </Link>
+          </div>
         </div>
-        <p className="muted">Jika kamu bukan admin, backend akan menolak akses. <Link href="/login">Masuk sebagai admin</Link> atau kembali ke <Link href="/dashboard">dashboard</Link>.</p>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="gx-page">
-        <div className="gx-head">
-          <h1 className="gx-title">Admin</h1>
-          <p className="gx-lead">Ringkasan admin tidak bisa dimuat saat ini.</p>
+      <div className="page-shell-wrap">
+        <div className="glass-panel" style={{ padding: "36px", textAlign: "center" }}>
+          <h2>Gagal Memuat Ringkasan Admin</h2>
+          <p className="muted">Koneksi ke endpoint ringkasan mengalami hambatan.</p>
+          <ErrorBox error={error} />
+          <button type="button" className="btn btn-primary" onClick={() => window.location.reload()}>
+            <RefreshCw size={15} /> Coba Muat Ulang
+          </button>
         </div>
-        <ErrorBox error={error} />
-        <p><button type="button" className="btn" onClick={() => window.location.reload()}>Coba lagi</button></p>
       </div>
     );
   }
 
-  // Bentuk respons backend /api/v2/admin/summary apa adanya:
-  // users, scans, products, active_products. Tidak ada daftar
-  // pengguna atau scan di endpoint ini, jadi halaman ini tidak
-  // menampilkan tabel kelola — tabel itu butuh endpoint backend baru.
-  const users = data.users ?? "—";
-  const scans = data.scans ?? "—";
-  const products = data.products ?? "—";
-  const activeProducts = data.active_products ?? "—";
+  const users = data.users ?? "0";
+  const scans = data.scans ?? "0";
+  const products = data.products ?? "0";
+  const activeProducts = data.active_products ?? "0";
 
   return (
-    <div className="gx-page">
-      <div className="gx-head">
-        <h1 className="gx-title">Admin</h1>
-        <p className="gx-lead">Ringkasan akun, scan, dan katalog dari backend.</p>
+    <div className="page-shell-wrap">
+      {/* ── Admin Header ── */}
+      <div className="admin-hero-header">
+        <div className="badge badge-amber" style={{ margin: "0 auto 12px" }}>
+          <ShieldAlert size={13} /> KONSOL ADMINISTRASI SISTEM
+        </div>
+        <h1 className="admin-page-title">Ringkasan Sistem</h1>
+        <p className="admin-page-subtitle">
+          Statistik agregat pengguna terdaftar, volume scan kecerdasan buatan, dan katalog produk formulasi.
+        </p>
       </div>
 
-      <div className="gx-stats">
-        <div className="gx-stat"><b>{users}</b><span>Total pengguna</span></div>
-        <div className="gx-stat"><b>{scans}</b><span>Total scan</span></div>
-        <div className="gx-stat"><b>{products}</b><span>Total produk</span></div>
-        <div className="gx-stat"><b>{activeProducts}</b><span>Produk aktif</span></div>
+      {/* ── 4 KPI Stats Grid ── */}
+      <div className="admin-kpi-grid">
+        <div className="glass-panel admin-kpi-card">
+          <div className="kpi-icon-pill icon-blue">
+            <Users size={22} />
+          </div>
+          <div className="kpi-content">
+            <span className="kpi-value">{users}</span>
+            <span className="kpi-label">Total Pengguna Terdaftar</span>
+          </div>
+        </div>
+
+        <div className="glass-panel admin-kpi-card">
+          <div className="kpi-icon-pill icon-amber">
+            <Scan size={22} />
+          </div>
+          <div className="kpi-content">
+            <span className="kpi-value">{scans}</span>
+            <span className="kpi-label">Total Sesi Pemindaian</span>
+          </div>
+        </div>
+
+        <div className="glass-panel admin-kpi-card">
+          <div className="kpi-icon-pill icon-sage">
+            <Package size={22} />
+          </div>
+          <div className="kpi-content">
+            <span className="kpi-value">{products}</span>
+            <span className="kpi-label">Total Katalog Produk</span>
+          </div>
+        </div>
+
+        <div className="glass-panel admin-kpi-card">
+          <div className="kpi-icon-pill icon-peach">
+            <ShoppingBag size={22} />
+          </div>
+          <div className="kpi-content">
+            <span className="kpi-value">{activeProducts}</span>
+            <span className="kpi-label">Produk Berstatus Aktif</span>
+          </div>
+        </div>
       </div>
 
-      <p className="muted">
-        Endpoint admin saat ini hanya menyediakan angka ringkasan di atas — belum ada daftar
-        pengguna atau scan, jadi belum ada yang bisa dikelola dari halaman ini.
-        Katalog produk bisa dilihat di <Link href="/marketplace">marketplace</Link>.
-      </p>
+      {/* ── System Status & Shortcuts ── */}
+      <div className="glass-panel admin-info-card">
+        <div className="admin-info-header">
+          <Activity size={18} className="text-amber" />
+          <h3>Status Integrasi Layanan</h3>
+        </div>
+        <p className="muted" style={{ fontSize: "14px", lineHeight: "1.6" }}>
+          Data statistik di atas disinkronkan secara langsung dari basis data relasional backend. 
+          Katalog formulasi dan rekomendasi produk aktif dapat ditinjau melalui direktori marketplace.
+        </p>
+        <div className="admin-action-links">
+          <Link href="/marketplace" className="btn btn-secondary btn-sm">
+            Tinjau Katalog Produk <ArrowRight size={14} />
+          </Link>
+          <Link href="/dashboard" className="btn btn-ghost btn-sm">
+            Kembali ke Dashboard
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

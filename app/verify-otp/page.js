@@ -1,18 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Phone, KeyRound, CheckCircle2, Send, ArrowRight, ShieldCheck, Clock } from "lucide-react";
 import { requestFonnteOtp, verifyFonnteOtp } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
 import { useToast } from "../../components/Toast";
 import AuthVisual from "../../components/AuthVisual";
 
-// Verifikasi OTP via WhatsApp (Fonnte), endpoint /api/v2/auth/otp/*.
-// Alur: isi nomor WhatsApp -> kirim kode -> masukkan 6 digit yang
-// diterima di WhatsApp -> verifikasi. Kode tidak pernah ditampilkan
-// di halaman ini dan tidak pernah dikembalikan backend lewat respons.
-// Token Fonnte diisi pemilik backend sendiri (env FONNTE_TOKEN /
-// system_settings WA_API_TOKEN); kalau belum diisi, backend menjawab
-// 503 dan halaman menampilkan instruksinya, bukan klaim "terkirim".
 export default function VerifyOtpPage() {
   const toast = useToast();
   const [phone, setPhone] = useState("");
@@ -24,10 +18,6 @@ export default function VerifyOtpPage() {
   const [busy, setBusy] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
-  // Prefill nomor dari pendaftaran: /verify-otp?phone=0812... (dibaca
-  // lewat window.location.search, tanpa useSearchParams supaya tidak
-  // perlu Suspense boundary). Kalau pendaftaran sudah berhasil
-  // mengirim OTP (&sent=1), kolom kode langsung ditampilkan.
   useEffect(() => {
     try {
       const q = new URLSearchParams(window.location.search);
@@ -47,61 +37,139 @@ export default function VerifyOtpPage() {
 
   async function onRequest(e) {
     e.preventDefault();
-    setError(null); setBusy(true);
+    setError(null);
+    setBusy(true);
     try {
       const res = await requestFonnteOtp(phone, name);
       setSentTo(res.phone_masked || phone);
       setCooldown(res.cooldown_seconds || 60);
-      toast.success(`Kode OTP dikirim via WhatsApp ke ${res.phone_masked || phone}. Berlaku 10 menit.`);
-    } catch (err) { setError(err); } finally { setBusy(false); }
+      toast.success(`Kode OTP dikirimkan ke WhatsApp ${res.phone_masked || phone}.`);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function onVerify(e) {
     e.preventDefault();
-    setError(null); setBusy(true);
+    setError(null);
+    setBusy(true);
     try {
       await verifyFonnteOtp(phone, code);
       setVerified(true);
-      toast.success("Nomor WhatsApp terverifikasi.");
-    } catch (err) { setError(err); } finally { setBusy(false); }
+      toast.success("Nomor WhatsApp terverifikasi dengan sukses.");
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
-    <div className="gx-page">
-      <div className="gx-auth">
-        <AuthVisual title="Satu kode lagi." text="Kode 6 digit dikirim lewat WhatsApp dan berlaku 10 menit." />
-        <div className="gx-auth-form">
-          <span className="brand-mark" aria-hidden="true">S</span>
-          <h1>Verifikasi OTP WhatsApp</h1>
-          <p className="muted">
-            Kode 6 digit dikirim lewat WhatsApp (Fonnte) ke nomor kamu. Kode berlaku 10 menit
-            dan hanya bisa dipakai sekali. Jangan bagikan kode itu ke siapa pun.
-          </p>
+    <div className="page-shell-wrap">
+      <div className="auth-split-layout">
+        <AuthVisual 
+          title="Verifikasi keamanan akun." 
+          text="Kode 6 digit dikirimkan langsung ke nomor WhatsApp kamu dan berlaku selama 10 menit." 
+        />
+
+        <div className="glass-panel auth-form-panel">
+          <div className="auth-panel-header">
+            <span className="badge badge-navy">VERIFIKASI OTP</span>
+            <h1 className="auth-panel-title">Aktivasi Nomor WhatsApp</h1>
+            <p className="auth-panel-subtitle">
+              Satu langkah akhir untuk mengaktifkan akun dan melindungi privasi rekam medismu.
+            </p>
+          </div>
+
           <ErrorBox error={error} />
+
           {verified ? (
-            <div className="ok">
-              Nomor {sentTo || phone} terverifikasi. Silakan <Link href="/login">masuk</Link>
-              {` atau `}<Link href="/register">daftar</Link> untuk melanjutkan.
+            <div className="auth-success-flow">
+              <div className="badge badge-success" style={{ margin: "0 auto 12px" }}>
+                <CheckCircle2 size={14} /> NOMOR TERVERIFIKASI
+              </div>
+              <h3 style={{ fontSize: "18px", marginBottom: "8px" }}>Akun Siap Digunakan!</h3>
+              <p className="muted" style={{ fontSize: "14px" }}>
+                Nomor WhatsApp <strong>{sentTo || phone}</strong> telah berhasil divalidasi. Silakan masuk untuk memulai sesi analisismu.
+              </p>
+              <div style={{ marginTop: "20px" }}>
+                <Link href="/login" className="btn btn-primary" style={{ width: "100%" }}>
+                  Masuk Sekarang <ArrowRight size={15} />
+                </Link>
+              </div>
             </div>
           ) : (
-            <>
-              <form onSubmit={onRequest}>
-                <label>Nama (opsional)<input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama kamu" /></label>
-                <label>Nomor WhatsApp<input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="081234567890" inputMode="tel" /></label>
-                <button className="btn" disabled={busy || cooldown > 0}>
-                  {busy ? "Mengirim…" : cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : "Kirim kode via WhatsApp"}
+            <div className="auth-form-stack">
+              <form onSubmit={onRequest} className="otp-request-subform">
+                <div className="form-group-field">
+                  <label className="form-label" htmlFor="otp-phone">
+                    <Phone size={14} /> Nomor WhatsApp Terdaftar
+                  </label>
+                  <input
+                    id="otp-phone"
+                    type="tel"
+                    required
+                    className="app-text-input"
+                    placeholder="081234567890"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="btn btn-secondary btn-sm" 
+                  style={{ width: "100%" }} 
+                  disabled={busy || cooldown > 0}
+                >
+                  <Send size={14} />{" "}
+                  {busy ? "Mengirim Permintaan…" : cooldown > 0 ? `Kirim ulang dalam ${cooldown}s` : "Kirim Kode OTP via WhatsApp"}
                 </button>
               </form>
+
               {sentTo && (
-                <form onSubmit={onVerify}>
-                  <p className="muted">Kode dikirim ke {sentTo}. Masukkan 6 digit dari WhatsApp di bawah ini.</p>
-                  <label>Kode OTP<input required value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="123456" inputMode="numeric" /></label>
-                  <button className="btn" disabled={busy || code.length !== 6}>{busy ? "Memeriksa…" : "Verifikasi kode"}</button>
+                <form onSubmit={onVerify} className="otp-verify-subform" style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px dashed var(--border-medium)" }}>
+                  <p className="muted" style={{ fontSize: "13px", marginBottom: "12px" }}>
+                    Kode telah dikirim ke <strong>{sentTo}</strong>. Masukkan 6 digit di bawah:
+                  </p>
+
+                  <div className="form-group-field">
+                    <label className="form-label" htmlFor="otp-code">
+                      <KeyRound size={14} /> 6 Digit Kode OTP
+                    </label>
+                    <input
+                      id="otp-code"
+                      type="text"
+                      required
+                      className="app-text-input text-center font-mono"
+                      placeholder="123456"
+                      maxLength={6}
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      style={{ letterSpacing: "6px", fontSize: "20px", fontWeight: "700" }}
+                    />
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary" 
+                    style={{ width: "100%", marginTop: "10px" }} 
+                    disabled={busy || code.length !== 6}
+                  >
+                    <CheckCircle2 size={16} /> {busy ? "Memvalidasi Kode…" : "Verifikasi & Aktifkan"}
+                  </button>
                 </form>
               )}
-            </>
+            </div>
           )}
-          <p className="gx-auth-foot"><Link href="/login">Kembali ke login</Link></p>
+
+          <div className="auth-links-footer">
+            <p className="muted" style={{ margin: 0, fontSize: "13.5px" }}>
+              Sudah aktif? <Link href="/login" style={{ fontWeight: 600 }}>Masuk</Link> · <Link href="/register">Daftar Akun Lain</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

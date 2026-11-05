@@ -1,6 +1,6 @@
-# SkinCheck Frontend (Next.js)
+# Laomera Frontend (Next.js)
 
-Frontend SkinCheck hasil pemisahan dari monolit FastAPI (template Jinja).
+Frontend Laomera hasil pemisahan dari monolit FastAPI (template Jinja).
 Backend adalah repo Python/FastAPI terpisah yang mengekspos JSON di `/api/v2`
 (health, auth/login, auth/register, auth/logout, me, dashboard, history,
 history/{id}, scan/upload, products, admin/summary) dengan autentikasi

@@ -1,13 +1,18 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import {
+  ShoppingBag,
+  Search,
+  ExternalLink,
+  Sparkles,
+  Tag,
+  CheckCircle2,
+  Filter,
+} from "lucide-react";
 import { getProducts, pickArray } from "../../lib/api";
 import { ErrorBox, Loading } from "../../components/Notice";
 
-// Marketplace: HANYA produk dari database backend (status aktif
-// yang dikembalikan /api/v2/products). Link Shopee/Tokopedia
-// ditampilkan hanya kalau memang ada di database — tidak ada
-// link karangan, dan tidak ada produk contoh.
 export default function MarketplacePage() {
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
@@ -18,10 +23,18 @@ export default function MarketplacePage() {
   useEffect(() => {
     let alive = true;
     getProducts()
-      .then((d) => { if (alive) setItems(pickArray(d)); })
-      .catch((e) => { if (alive) setError(e); })
-      .finally(() => { if (alive) setLoading(false); });
-    return () => { alive = false; };
+      .then((d) => {
+        if (alive) setItems(pickArray(d));
+      })
+      .catch((e) => {
+        if (alive) setError(e);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const categories = useMemo(() => {
@@ -37,50 +50,129 @@ export default function MarketplacePage() {
   });
 
   return (
-    <div className="gx-page">
-      <div className="gx-head">
-        <h1 className="gx-title">Marketplace</h1>
-        <p className="gx-lead">Produk perawatan dari katalog SkinCheck. Link pembelian mengarah ke Shopee dan Tokopedia yang tercatat di database, bukan link buatan.</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      {/* Header */}
+      <div>
+        <div className="badge badge-amber" style={{ marginBottom: "8px" }}>
+          <ShoppingBag size={13} aria-hidden="true" />
+          <span>DISPENSARI SKINCARE TERKURASI</span>
+        </div>
+        <h1>Marketplace Produk Perawatan</h1>
+        <p style={{ color: "var(--text-muted)", fontSize: "14.5px", margin: "4px 0 0" }}>
+          Katalog formula skincare terverifikasi. Link pembelian langsung mengarah ke toko resmi terdaftar.
+        </p>
       </div>
+
       <ErrorBox error={error} />
-      {loading ? <Loading /> : (
-        <>
-          <div className="gx-filters">
-            <label>Cari produk<input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari brand atau nama produk…" /></label>
-            <label>Kategori
-              <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                {categories.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </label>
-          </div>
-          {items.length === 0 ? (
-            <p className="muted">Belum ada produk di katalog. {error ? "Periksa koneksi backend dulu." : "Produk akan tampil di sini setelah admin menambahkan katalog di database."}</p>
-          ) : shown.length === 0 ? (
-            <p className="muted">Tidak ada produk yang cocok dengan pencarianmu.</p>
-          ) : (
-            <div>
-              {shown.map((p, i) => (
-                <article key={p.id || i} className="gx-product">
-                  <span><span className="gx-tag">{p.brand || "—"}</span></span>
-                  <h2>{p.name}</h2>
-                  <p className="muted">{p.category || ""}</p>
-                  {p.description && <p>{p.description}</p>}
-                  {Array.isArray(p.skin_concern) && p.skin_concern.length > 0 && (
-                    <p className="muted">Cocok untuk: {p.skin_concern.join(", ")}</p>
-                  )}
-                  {p.usage_guidance && <p className="muted">{p.usage_guidance}</p>}
-                  <div className="gx-product-links">
-                    {p.shopee_link ? <a className="btn" href={p.shopee_link} target="_blank" rel="noreferrer">Beli di Shopee</a> : null}
-                    {p.tokopedia_link ? <a className="btn secondary" href={p.tokopedia_link} target="_blank" rel="noreferrer">Beli di Tokopedia</a> : null}
-                    {!p.shopee_link && !p.tokopedia_link && <span className="muted">Belum ada link pembelian untuk produk ini.</span>}
+
+      {/* Filter and Search Bar */}
+      <div className="glass-panel" style={{ padding: "20px 24px", display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ position: "relative", flex: "1 1 280px" }}>
+          <Search size={18} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--ink-400)" }} />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Cari brand, nama produk, atau bahan aktif…"
+            style={{
+              width: "100%",
+              padding: "10px 16px 10px 42px",
+              borderRadius: "var(--radius-pill)",
+              border: "1px solid var(--border-medium)",
+              background: "var(--sand-50)",
+              fontSize: "14px",
+              color: "var(--text-main)",
+            }}
+          />
+        </div>
+
+        <div style={{ display: "flex", gap: "8px", overflowX: "auto", maxWidth: "100%", alignItems: "center" }}>
+          <Filter size={16} color="var(--brand-navy)" />
+          {categories.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setCategory(c)}
+              className={`chip-btn ${category === c ? "btn-primary" : ""}`}
+              style={{
+                background: category === c ? "var(--brand-navy)" : "#ffffff",
+                color: category === c ? "#ffffff" : "var(--ink-700)",
+                borderColor: category === c ? "var(--brand-navy)" : "var(--border-medium)",
+                textTransform: "capitalize",
+              }}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? (
+        <Loading label="Memuat katalog skincare terverifikasi…" />
+      ) : items.length === 0 ? (
+        <div className="glass-panel" style={{ textAlign: "center", padding: "48px 24px", color: "var(--text-muted)" }}>
+          <p>Belum ada produk di katalog database saat ini.</p>
+        </div>
+      ) : shown.length === 0 ? (
+        <div className="glass-panel" style={{ textAlign: "center", padding: "48px 24px", color: "var(--text-muted)" }}>
+          <p>Tidak ada produk yang cocok dengan pencarian kata kunci tersebut.</p>
+        </div>
+      ) : (
+        <div className="marketplace-grid">
+          {shown.map((p, i) => (
+            <article key={p.id || i} className="product-dispensary-card">
+              <div>
+                <span className="product-brand-tag">{p.brand || "Laomera Formula"}</span>
+                <h3>{p.name}</h3>
+                <span className="badge badge-navy" style={{ marginBottom: "12px", fontSize: "11px" }}>
+                  {p.category || "Skincare"}
+                </span>
+
+                {p.description && (
+                  <p className="product-meta-desc">
+                    {p.description}
+                  </p>
+                )}
+
+                {Array.isArray(p.skin_concern) && p.skin_concern.length > 0 && (
+                  <div style={{ marginBottom: "16px" }}>
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--sage-600)", display: "block", marginBottom: "4px" }}>
+                      Target Masalah:
+                    </span>
+                    <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                      {p.skin_concern.map((conc, cIdx) => (
+                        <span key={cIdx} className="badge badge-success" style={{ fontSize: "10.5px", padding: "2px 8px" }}>
+                          {conc}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </>
+                )}
+              </div>
+
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "16px" }}>
+                {p.shopee_link && (
+                  <a href={p.shopee_link} target="_blank" rel="noreferrer" className="btn btn-amber btn-sm" style={{ flex: "1 1 120px" }}>
+                    <span>Shopee Official</span>
+                    <ExternalLink size={13} />
+                  </a>
+                )}
+                {p.tokopedia_link && (
+                  <a href={p.tokopedia_link} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ flex: "1 1 120px" }}>
+                    <span>Tokopedia</span>
+                    <ExternalLink size={13} />
+                  </a>
+                )}
+                {!p.shopee_link && !p.tokopedia_link && (
+                  <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                    Tersedia di Apotek & Klinik Rekanan
+                  </span>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
       )}
-      <p><Link href="/dashboard">Kembali ke dashboard</Link></p>
     </div>
   );
 }

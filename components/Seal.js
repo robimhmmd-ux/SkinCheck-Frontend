@@ -7,11 +7,11 @@ export default function Seal({ big }) {
         </defs>
         <text>
           <textPath href={big ? "#gx-seal-circle" : "#ed-seal-circle"} textLength="276" lengthAdjust="spacingAndGlyphs">
-            SkinCheck laporan kulit
+            Laomera laporan kulit
           </textPath>
         </text>
       </svg>
-      <span className="ed-seal-center">S</span>
+      <span className="ed-seal-center">L</span>
     </div>
   );
 }

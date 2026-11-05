@@ -1,13 +1,24 @@
 import { Playfair_Display } from "next/font/google";
 import SiteHeader from "../components/SiteHeader";
+import FloatingChatWidget from "../components/FloatingChatWidget";
 import { ToastProvider } from "../components/Toast";
 import "./globals.css";
 
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-display" });
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
+});
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
 
 export const metadata = {
-  title: "SkinCheck — Deteksi Kesehatan Kulit Wajah",
-  description: "SkinCheck: aplikasi web untuk mendeteksi kondisi kulit wajah dan rekomendasi perawatan.",
+  title: "Laomera — Deteksi Kesehatan Kulit Wajah & Rekomendasi AI",
+  description: "Aplikasi web cerdas untuk menganalisis 5 kondisi kulit wajah dan rekomendasi perawatan terpersonalisasi.",
 };
 
 export default function RootLayout({ children }) {
@@ -15,11 +26,32 @@ export default function RootLayout({ children }) {
     <html lang="id" className={playfair.variable}>
       <body>
         <ToastProvider>
-          <a className="gx-skip" href="#main">Lewati ke konten</a>
+          <a
+            className="gx-skip"
+            href="#main"
+            style={{
+              position: "absolute",
+              top: "-9999px",
+              left: "-9999px",
+            }}
+          >
+            Lewati ke konten
+          </a>
           <SiteHeader />
-          <main id="main" className="container">{children}</main>
-          <footer className="footer">
-            SkinCheck — deteksi kesehatan kulit wajah.
+          <main id="main" className="app-main-viewport">
+            {children}
+          </main>
+          <FloatingChatWidget />
+          <footer className="site-footer-bar">
+            <div className="content-canvas footer-inner">
+              <p className="footer-brand-title">Laomera</p>
+              <p className="footer-tagline">
+                Sistem Evaluasi Kesehatan Kulit Wajah Berbasis Kecerdasan Buatan & Rekomendasi Formulasi Terkurasi.
+              </p>
+              <div className="footer-meta-row">
+                <span>© 2026 Laomera Platform. Seluruh hak cipta dilindungi.</span>
+              </div>
+            </div>
           </footer>
         </ToastProvider>
       </body>

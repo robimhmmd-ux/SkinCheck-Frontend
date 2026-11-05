@@ -1,6 +1,22 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import {
+  Camera,
+  Layers,
+  UploadCloud,
+  RotateCw,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  FileImage,
+  ArrowRight,
+  Eye,
+  Activity,
+  Play,
+  Square,
+  RefreshCw,
+} from "lucide-react";
 import { uploadScan, uploadMultiScan, pickObject, getMe } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
 
@@ -25,10 +41,9 @@ const POSES = [
   { key: "close", label: "Maju Sedikit (Detail Tekstur)", sec: 24 },
 ];
 
-// Helper: Kompres foto dari HP sebelum di-upload agar tidak melebihi batas 4.5MB Vercel / server
 async function compressImageForMobile(file, maxDimension = 1280, quality = 0.85) {
   if (!file || !file.type.startsWith("image/")) return file;
-  if (file.size < 600 * 1024) return file; // File sudah cukup ringan
+  if (file.size < 600 * 1024) return file;
 
   return new Promise((resolve) => {
     const img = new Image();
@@ -94,7 +109,7 @@ export default function ScanPage() {
 
   // Webcam multi-pose capture state
   const [webcamActive, setWebcamActive] = useState(false);
-  const [facingMode, setFacingMode] = useState("user"); // "user" (depan) | "environment" (belakang)
+  const [facingMode, setFacingMode] = useState("user");
   const [flipPreview, setFlipPreview] = useState(true);
   const [recording, setRecording] = useState(false);
   const [timer, setTimer] = useState(0);
@@ -107,7 +122,6 @@ export default function ScanPage() {
   const intervalRef = useRef(null);
 
   useEffect(() => {
-    // Cek status sesi login (opsional)
     getMe()
       .then((user) => setCurrentUser(user))
       .catch(() => setCurrentUser(null));
@@ -117,7 +131,6 @@ export default function ScanPage() {
     };
   }, []);
 
-  // Pasang stream ke elemen <video> saat webcam aktif
   useEffect(() => {
     if (webcamActive && streamRef.current && videoRef.current) {
       videoRef.current.srcObject = streamRef.current;
@@ -140,7 +153,6 @@ export default function ScanPage() {
           },
         });
       } catch {
-        // Fallback jika orientasi / resolusi spesifik ditolak perangkat HP
         stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: desiredFacing },
         });
@@ -155,15 +167,9 @@ export default function ScanPage() {
       setFlipPreview(desiredFacing === "user");
       setWebcamActive(true);
     } catch (err) {
-      let msg = "Tidak dapat mengakses kamera. Pastikan izin kamera aktif di browser HP/laptop kamu.";
+      let msg = "Tidak dapat mengakses kamera. Pastikan izin kamera aktif di browser.";
       if (err && err.name === "NotAllowedError") {
-        msg = "Izin kamera ditolak browser. Izinkan akses kamera di pengaturan browser/HP, lalu coba lagi.";
-      } else if (err && err.name === "NotFoundError") {
-        msg = "Tidak ada kamera yang ditemukan pada perangkat ini.";
-      } else if (err && err.name === "NotReadableError") {
-        msg = "Kamera sedang dipakai oleh aplikasi lain. Tutup aplikasi tersebut lalu coba lagi.";
-      } else if (err && err.name === "SecurityError") {
-        msg = "Kamera hanya dapat diakses melalui koneksi aman (HTTPS) atau localhost.";
+        msg = "Izin kamera ditolak. Silakan izinkan akses kamera di pengaturan browser.";
       }
       setError(new Error(msg));
     }
@@ -185,7 +191,6 @@ export default function ScanPage() {
     setTimer(0);
   }
 
-  // Mulai perekaman frame pose (1 frame per 1.5 detik, ramah memori HP & kuota)
   function startMultiCapture() {
     if (!videoRef.current) return;
     setRecordedFrames([]);
@@ -197,9 +202,6 @@ export default function ScanPage() {
     setCurrentPose(POSES[0].label);
 
     const frames = [];
-    // Label pose sejajar dengan urutan frame — inilah yang membuat backend
-    // bisa mengelompokkan skor per pose (sebelumnya frame dikirim polos
-    // tanpa label, jadi backend tidak tahu frame mana dari pose mana).
     const framePoses = [];
     const startTime = Date.now();
     let lastCaptureSec = -1;
@@ -208,11 +210,9 @@ export default function ScanPage() {
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
       setTimer(elapsed);
 
-      // Tentukan panduan pose aktif
       const p = POSES.find((pos) => elapsed <= pos.sec) || POSES[POSES.length - 1];
       setCurrentPose(p.label);
 
-      // Ambil 1 frame setiap 1.5 - 2 detik untuk efisiensi transfer data HP
       if (videoRef.current && canvasRef.current && elapsed > lastCaptureSec + 1) {
         lastCaptureSec = elapsed;
         const vid = videoRef.current;
@@ -239,7 +239,6 @@ export default function ScanPage() {
         );
       }
 
-      // Selesai otomatis di detik ke-24 (atau dihentikan manual oleh user)
       if (elapsed >= 24) {
         clearInterval(intervalRef.current);
         finishRecording(frames, framePoses);
@@ -286,7 +285,6 @@ export default function ScanPage() {
     setError(null);
     setBusy(true);
     try {
-      // Kompres otomatis gambar HP sebelum kirim
       const readyFile = await compressImageForMobile(file);
       const res = await uploadScan(readyFile);
       setResult(pickObject(res));
@@ -299,259 +297,262 @@ export default function ScanPage() {
 
   const scanId = result && (result.scan_id || result.id);
   const analysis = result && (result.analysis || result.analysis_result || null);
-  const status = result && result.status;
 
   return (
-    <div className="gx-page">
-      <div className="gx-head">
-        <h1 className="gx-title">Scan wajah</h1>
-        <p className="gx-lead">
-          Analisis kondisi kulit wajah (jerawat, minyak, kekeringan, noda hitam, dan kerutan) menggunakan deteksi wajah YuNet dan model VGG16.
+    <div className="scanner-stage-wrap">
+      {/* Header */}
+      <div>
+        <div className="badge badge-amber" style={{ marginBottom: "8px" }}>
+          <Camera size={13} aria-hidden="true" />
+          <span>PEMINDAI WAJAH AI</span>
+        </div>
+        <h1>Scan Wajah & Deteksi Kondisi Kulit</h1>
+        <p style={{ color: "var(--text-muted)", fontSize: "14.5px", margin: "4px 0 0" }}>
+          Posisikan wajahmu tegak dengan pencahayaan merata. Sistem mendeteksi tanda jerawat, minyak, kekeringan, noda gelap, dan garis halus.
         </p>
       </div>
 
       {!currentUser && (
-        <div className="gx-note">
-          <p><strong>Mode pengujian aktif.</strong> Kamu bisa langsung memindai wajah tanpa login. Hasil analisis AI akan langsung muncul di halaman ini. <Link href="/login">Login</Link> jika ingin menyimpan riwayat ke akun.</p>
+        <div className="glass-panel" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: "12px", background: "var(--amber-100)", borderColor: "rgba(217, 136, 42, 0.3)" }}>
+          <Sparkles size={18} color="var(--amber-700)" />
+          <span style={{ fontSize: "13.5px", color: "var(--amber-700)" }}>
+            <strong>Mode Uji Coba Cepat:</strong> Kamu bisa langsung memindai tanpa login. Hasil akan langsung tampil di sini. <Link href="/login" style={{ textDecoration: "underline", fontWeight: 700 }}>Masuk</Link> jika ingin menyimpan ke riwayat akun.
+          </span>
         </div>
       )}
 
-      <div className="gx-seg" role="tablist" aria-label="Mode scan">
+      {/* Mode Selector Tabs */}
+      <div style={{ display: "inline-flex", background: "var(--sand-200)", padding: "4px", borderRadius: "var(--radius-pill)", width: "fit-content", gap: "4px" }}>
         <button
           type="button"
           onClick={() => {
             setMode("single");
             stopCamera();
           }}
-          className={`gx-seg-btn ${mode === "single" ? "on" : ""}`}
+          className={`btn btn-sm ${mode === "single" ? "btn-primary" : "btn-ghost"}`}
         >
-          Foto Tunggal
+          <FileImage size={15} />
+          <span>Upload Foto</span>
         </button>
         <button
           type="button"
-          onClick={() => {
-            setMode("multi");
-          }}
-          className={`gx-seg-btn ${mode === "multi" ? "on" : ""}`}
+          onClick={() => setMode("multi")}
+          className={`btn btn-sm ${mode === "multi" ? "btn-primary" : "btn-ghost"}`}
         >
-          Kamera Multi-Pose
+          <Camera size={15} />
+          <span>Kamera Live Pose</span>
         </button>
       </div>
 
       <ErrorBox error={error} />
 
-      {mode === "single" ? (
-        <div className="gx-drop">
+      {/* ── MODE 1: FOTO TUNGGAL (UPLOAD) ── */}
+      {mode === "single" && (
+        <div className="glass-panel" style={{ padding: "36px" }}>
           <form onSubmit={onSubmitSingle}>
-            <label>
-              Pilih atau ambil foto wajah
+            <label
+              htmlFor="skin-file-input"
+              className="dropzone-upload-panel"
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}
+            >
+              {preview ? (
+                <div style={{ position: "relative" }}>
+                  <img
+                    src={preview}
+                    alt="Preview wajah terpilih"
+                    style={{ maxWidth: "320px", maxHeight: "320px", borderRadius: "16px", objectFit: "cover", boxShadow: "var(--shadow-md)" }}
+                  />
+                  <div style={{ marginTop: "14px", fontSize: "13px", color: "var(--brand-amber)", fontWeight: 600 }}>
+                    Klik untuk mengganti foto
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ width: "56px", height: "56px", borderRadius: "16px", background: "var(--sand-100)", color: "var(--brand-amber)", display: "grid", placeItems: "center", marginBottom: "14px" }}>
+                    <UploadCloud size={28} />
+                  </div>
+                  <strong style={{ fontSize: "16px", color: "var(--brand-navy)", marginBottom: "4px" }}>
+                    Pilih atau Geser Foto Wajah ke Sini
+                  </strong>
+                  <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                    Format JPG atau PNG (Maks 10MB). Kompresi otomatis saat upload.
+                  </span>
+                </>
+              )}
               <input
+                id="skin-file-input"
                 type="file"
                 accept="image/*"
-                capture="user"
                 onChange={onFile}
+                style={{ display: "none" }}
               />
             </label>
-            {preview && (
-              <img
-                className="preview"
-                src={preview}
-                alt="Pratinjau foto wajah"
-              />
-            )}
-            <button className="btn" disabled={busy} style={{ width: "100%" }}>
-              {busy ? "Menganalisis Foto..." : "Mulai Analisis Foto"}
-            </button>
+
+            <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              {preview && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setFile(null);
+                    setPreview("");
+                  }}
+                  disabled={busy}
+                >
+                  Hapus
+                </button>
+              )}
+              <button
+                type="submit"
+                className="btn btn-amber"
+                disabled={busy || !file}
+                style={{ minWidth: "160px" }}
+              >
+                {busy ? (
+                  <>
+                    <Activity className="animate-spin" size={16} />
+                    <span>Menganalisis…</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={16} />
+                    <span>Mulai Analisis AI</span>
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
-      ) : (
-        <div>
+      )}
+
+      {/* ── MODE 2: KAMERA LIVE MULTI-POSE ── */}
+      {mode === "multi" && (
+        <div className="glass-panel" style={{ padding: "32px" }}>
           {!webcamActive ? (
-            <div className="gx-drop">
-              <p>
-                Aktifkan kamera untuk panduan pemindaian multi-sudut wajah interaktif.
+            <div style={{ textAlign: "center", padding: "40px 20px" }}>
+              <div style={{ width: "56px", height: "56px", borderRadius: "16px", background: "var(--sand-100)", color: "var(--brand-amber)", display: "grid", placeItems: "center", margin: "0 auto 16px" }}>
+                <Camera size={28} />
+              </div>
+              <h2 style={{ fontSize: "20px", marginBottom: "8px" }}>Aktifkan Kamera Perangkat</h2>
+              <p style={{ color: "var(--text-muted)", fontSize: "14px", maxWidth: "480px", margin: "0 auto 24px" }}>
+                Kamera akan membantumu merekam pose wajah dari sudut depan, pipi kiri, pipi kanan, dahi, dan dagu secara otomatis.
               </p>
-              <button type="button" onClick={() => startCamera(facingMode)} className="btn">
-                Buka Kamera
+              <button type="button" className="btn btn-amber" onClick={() => startCamera("user")}>
+                Buka Kamera Sekarang
               </button>
             </div>
           ) : (
-            <div>
-              <div className="gx-camera">
+            <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+              <div className="scanner-viewfinder-box">
                 <video
                   ref={videoRef}
-                  autoPlay
                   playsInline
-                  webkit-playsinline="true"
                   muted
-                  className="gx-camera-video"
+                  className="scanner-video-feed"
                   style={{ transform: flipPreview ? "scaleX(-1)" : "none" }}
                 />
-                <canvas ref={canvasRef} style={{ display: "none" }} />
-                <span className="gx-oval" aria-hidden="true" />
 
+                {/* Oval Guide & Beam */}
+                <div className="viewfinder-face-reticle">
+                  {recording && <div className="reticle-scanning-beam" />}
+                </div>
+
+                {/* Status Bar inside Camera */}
+                <div style={{ position: "absolute", top: "14px", left: "14px", right: "14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span className="badge badge-amber" style={{ background: "rgba(0,0,0,0.65)", color: "#ffffff", backdropFilter: "blur(6px)" }}>
+                    {recording ? `Merekam: ${timer}s / 24s` : "Kamera Siap"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={toggleCamera}
+                    className="btn btn-secondary btn-sm"
+                    style={{ background: "rgba(0,0,0,0.65)", color: "#ffffff", border: 0 }}
+                    title="Ganti kamera depan/belakang"
+                  >
+                    <RotateCw size={14} />
+                    <span>Putar</span>
+                  </button>
+                </div>
+
+                {/* Pose Instruction Prompt */}
                 {recording && (
-                  <div className="gx-rec">
-                    <div className="gx-rec-row">
-                      <span>Merekam: {timer}s / 24s</span>
-                      <span>{recordedFrames.length} Frame</span>
-                    </div>
-                    <div className="gx-rec-pose">
+                  <div style={{ position: "absolute", bottom: "16px", left: "16px", right: "16px", textAlign: "center", background: "rgba(23, 32, 51, 0.85)", backdropFilter: "blur(8px)", color: "#ffffff", padding: "10px 16px", borderRadius: "var(--radius-pill)" }}>
+                    <strong style={{ color: "var(--amber-400)", fontSize: "14px" }}>
                       Panduan Pose: {currentPose}
-                    </div>
+                    </strong>
                   </div>
                 )}
+              </div>
 
-                <div className="gx-chips">
-                  {POSES.map((p) => (
-                    <span key={p.key} className={`gx-chip ${currentPose === p.label ? "on" : ""}`}>{p.label}</span>
-                  ))}
+              {/* Camera Controls */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                <button type="button" className="btn btn-secondary btn-sm" onClick={stopCamera}>
+                  Matikan Kamera
+                </button>
+
+                <div style={{ display: "flex", gap: "10px" }}>
+                  {!recording ? (
+                    <button type="button" className="btn btn-amber" onClick={startMultiCapture} disabled={busy}>
+                      <Play size={16} />
+                      <span>Mulai Perekaman (24 Detik)</span>
+                    </button>
+                  ) : (
+                    <button type="button" className="btn btn-primary" onClick={() => finishRecording()} disabled={busy}>
+                      <Square size={16} />
+                      <span>Selesaikan Sekarang ({recordedFrames.length} frame)</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              <div className="gx-progress" aria-hidden="true">
-                <span style={{ width: `${recording ? Math.min(100, (timer / 24) * 100) : 0}%` }} />
-              </div>
-
-              <div className="gx-btn-row">
-                {!recording ? (
-                  <button type="button" onClick={startMultiCapture} className="btn" disabled={busy}>
-                    Mulai Scan Multi-Pose (24 Detik)
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => finishRecording()}
-                    className="btn danger"
-                  >
-                    Selesai dan Analisis ({recordedFrames.length} frame)
-                  </button>
-                )}
-                <button type="button" onClick={toggleCamera} className="btn secondary" disabled={recording}>
-                  Ganti Kamera (Depan/Belakang)
-                </button>
-                <button type="button" onClick={() => setFlipPreview((f) => !f)} className="btn secondary" disabled={recording}>
-                  Balik Pratinjau
-                </button>
-                <button type="button" onClick={stopCamera} className="btn secondary" disabled={recording}>
-                  Tutup
-                </button>
-              </div>
+              <canvas ref={canvasRef} style={{ display: "none" }} />
             </div>
           )}
         </div>
       )}
 
-      {busy && (
-        <p className="gx-busy">
-          Sedang memproses analisis wajah dan 5 kondisi kulit di backend... Mohon tunggu.
-        </p>
-      )}
+      {/* ── 3. HASIL ANALISIS REAL-TIME (JIKA SELESAI) ── */}
+      {result && analysis && (
+        <div className="glass-panel" style={{ padding: "36px", border: "1.5px solid var(--brand-amber)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+            <CheckCircle2 size={24} color="var(--sage-600)" />
+            <h2 style={{ fontSize: "24px" }}>Hasil Analisis AI Berhasil Diterbitkan</h2>
+          </div>
 
-      {result && (
-        <div>
-          <section className="gx-section" aria-labelledby="result-heading">
-            <h2 id="result-heading">Hasil Analisis Wajah</h2>
-            <p className="muted">Status: <b>{status || result.message || "terkirim"}</b></p>
-            {result.message && status !== "failed" && <p className="muted">{result.message}</p>}
+          <div style={{ display: "flex", alignItems: "baseline", gap: "16px", margin: "16px 0 24px" }}>
+            <div style={{ fontFamily: "var(--font-serif)", fontSize: "72px", fontWeight: 700, color: "var(--brand-navy)", lineHeight: 1 }}>
+              {analysis.overall_score != null ? `${analysis.overall_score}%` : "—"}
+            </div>
+            <div style={{ color: "var(--text-muted)", fontSize: "15px" }}>
+              <strong>Skor Kesehatan Keseluruhan</strong>
+              <div>Scan #{scanId || "Baru"} telah selesai diproses.</div>
+            </div>
+          </div>
 
-            {analysis && analysis.overall_score != null && (
-              <div className="gx-result-num">
-                <b>{analysis.overall_score}<span className="gx-unit">%</span></b>
-                <span>skor keseluruhan</span>
-              </div>
-            )}
-
-            {(result.frames_captured || result.frames_passed_yunet) && (
-              <div className="gx-stats">
-                <div className="gx-stat"><b>{result.frames_captured}</b><span>Total Frame</span></div>
-                <div className="gx-stat"><b>{result.frames_passed_yunet}</b><span>Lolos Deteksi Wajah</span></div>
-                <div className="gx-stat"><b>{result.frames_used_vgg}</b><span>Dianalisis AI VGG16</span></div>
-              </div>
-            )}
-
-            {status === "failed" && (
-              <>
-                {/* Alasan asli dari backend tampil utama — jangan lagi selalu
-                    menuduh wajah/pencahayaan, karena gagal bisa juga dari
-                    error kode atau server AI (dulu: NameError image_path). */}
-                <p className="error">
-                  Analisis gagal: {result.message || "backend tidak mengembalikan alasan."}
-                </p>
-                {(!result.message || /wajah|terdeteksi|deteksi/i.test(result.message)) && (
-                  <p className="muted">
-                    Kalau penyebabnya deteksi wajah: pastikan wajah tegak, menghadap kamera, dan terlihat jelas dengan pencahayaan cukup.
-                  </p>
-                )}
-              </>
-            )}
-
-            {analysis ? (
-              <>
-                <h3>Skor Kondisi Kulit</h3>
-                <div className="gx-ledger">
-                  {SCORES.map(([key, label]) => {
-                    const v = analysis[key];
-                    const finite = v != null && Number.isFinite(Number(v));
-                    return (
-                      <div key={key} className="gx-row">
-                        <span className="gx-label">{label}</span>
-                        <b className={finite ? "" : "muted"}>{finite ? `${v}%` : "—"}</b>
-                        {finite && (
-                          <span className="gx-scale" aria-hidden="true">
-                            <i style={{ left: `${Math.max(0, Math.min(100, Number(v)))}%` }} />
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "28px" }}>
+            {SCORES.map(([key, label]) => {
+              if (key === "overall_score") return null;
+              const val = analysis[key];
+              return (
+                <div key={key} style={{ background: "var(--sand-50)", padding: "14px 18px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-subtle)" }}>
+                  <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>{label}</div>
+                  <strong style={{ fontSize: "20px", color: "var(--brand-navy)" }}>
+                    {val != null ? `${val}%` : "—"}
+                  </strong>
                 </div>
-              </>
-            ) : null}
-          </section>
+              );
+            })}
+          </div>
 
-          {result.per_pose && Object.keys(result.per_pose).length > 0 && (
-            <section className="gx-section" aria-labelledby="perpose-heading">
-              <h2 id="perpose-heading">Skor per pose</h2>
-              <p className="gx-section-lead">
-                Perbandingan ini berdasarkan pose saat perekaman — sudut wajah yang paling dominan terlihat,
-                bukan pengukuran tiap wilayah wajah secara terpisah. Geser ke samping untuk melihat pose lainnya.
-              </p>
-              <div className="gx-strip">
-                {[...POSES.map((p) => p.key), ...Object.keys(result.per_pose).filter((k) => !POSES.some((p) => p.key === k))].map((key) => {
-                  const entry = result.per_pose[key];
-                  if (!entry) return null;
-                  const label = (POSES.find((p) => p.key === key) || {}).label || key;
-                  const top = topCondition(entry);
-                  return (
-                    <article key={key} className="gx-pose-card">
-                      <h3>{label}</h3>
-                      <b>{entry.overall_score != null ? entry.overall_score : "—"}</b>
-                      <p>skor keseluruhan</p>
-                      {top && <p>Tertinggi: {top.label} {top.value}%</p>}
-                      <p className="muted">Frame lolos {entry.frames_passed ?? "—"} dari {entry.frames_captured ?? "—"}</p>
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {result.statements && result.statements.length > 0 && (
-            <section className="gx-section" aria-labelledby="statements-heading">
-              <h2 id="statements-heading">Yang terlihat dari perbandingan pose</h2>
-              {result.statements.map((s, i) => (
-                <p key={i} className="gx-quote">{s}</p>
-              ))}
-            </section>
-          )}
-
-          {scanId && (
-            <>
-              <p><Link href={`/history/${scanId}`}>Lihat detail scan #{scanId}</Link></p>
-              <p><Link href="/output?from=scan">Lihat di halaman Output</Link></p>
-            </>
-          )}
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <Link href={`/history/${scanId}`} className="btn btn-primary">
+              <span>Buka Detail Diagnosis</span>
+              <ArrowRight size={16} />
+            </Link>
+            <Link href="/assistant" className="btn btn-secondary">
+              <span>Diskusikan dengan Asisten AI</span>
+            </Link>
+          </div>
         </div>
       )}
     </div>

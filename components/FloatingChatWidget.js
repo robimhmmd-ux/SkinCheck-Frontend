@@ -1,0 +1,388 @@
+"use client";
+import { useState, useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Bot,
+  Send,
+  X,
+  Minus,
+  Trash2,
+  Sparkles,
+  User,
+  MessageSquare,
+  ChevronDown,
+} from "lucide-react";
+import {
+  assistantChat,
+  getAssistantHistory,
+  clearAssistantHistory,
+  getMe,
+  pickUser,
+  pickArray,
+} from "../lib/api";
+import { useToast } from "./Toast";
+
+const QUICK_INQUIRIES = [
+  "🌟 Rutin Skincare Pagi & Malam",
+  "💧 Atasi Kulit Kering & Dehidrasi",
+  "✨ Rekomendasi Kandungan Jerawat",
+  "☀️ Cara Mengurangi Dark Spots",
+  "🔍 Panduan Membaca Skor Scan",
+];
+
+export default function FloatingChatWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [initialLoaded, setInitialLoaded] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const pathname = usePathname();
+  const chatEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const toast = useToast();
+
+  // 1. Session check: Only show floating widget when logged in or in workspace
+  useEffect(() => {
+    let alive = true;
+    getMe()
+      .then((d) => {
+        if (alive) setUser(pickUser(d));
+      })
+      .catch(() => {
+        if (alive) setUser(null);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [pathname]);
+
+  // 2. Strict Requirement: When navigating to Account Settings / Profile, automatically CLOSE the chat!
+  // "dan ga kan ke close saat kita pindah pindah ke fitur lainya, kecuali saat kita pindah di setting akun"
+  useEffect(() => {
+    if (pathname && (pathname.startsWith("/profile") || pathname.startsWith("/settings"))) {
+      setIsOpen(false);
+    }
+  }, [pathname]);
+
+  // 3. Listen to external events (e.g., clicking "Konsultasi AI" or "Asisten AI" anywhere in app)
+  useEffect(() => {
+    function handleOpenChat() {
+      // Don't open if on profile/settings
+      if (pathname && (pathname.startsWith("/profile") || pathname.startsWith("/settings"))) {
+        return;
+      }
+      setIsOpen(true);
+    }
+    window.addEventListener("open-laomera-chat", handleOpenChat);
+    window.addEventListener("open-skincheck-chat", handleOpenChat);
+
+    // Also check URL parameter ?openChat=1
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("openChat") === "1" && !pathname.startsWith("/profile")) {
+        setIsOpen(true);
+      }
+    }
+
+    return () => {
+      window.removeEventListener("open-laomera-chat", handleOpenChat);
+      window.removeEventListener("open-skincheck-chat", handleOpenChat);
+    };
+  }, [pathname]);
+
+  // 4. Auto scroll to latest message when open or when message arrives
+  useEffect(() => {
+    if (isOpen) {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 150);
+    }
+  }, [isOpen, messages, loading]);
+
+  // 5. Load history on first open
+  useEffect(() => {
+    if (isOpen && !initialLoaded && user) {
+      loadHistory();
+    }
+  }, [isOpen, user, initialLoaded]);
+
+  async function loadHistory() {
+    setHistoryLoading(true);
+    try {
+      const res = await getAssistantHistory();
+      const list = pickArray(res);
+      if (list && list.length > 0) {
+        setMessages(
+          list.map((m) => ({
+            role: m.role || "assistant",
+            content: m.content || m.text || "",
+            time: m.time || "",
+          }))
+        );
+      } else {
+        setMessages([
+          {
+            role: "assistant",
+            content:
+              "Halo! Aku Laomera Asisten, asisten dermatologi AI pribadimu. Ada yang ingin kamu konsultasikan seputar kondisi kulit, rekomendasi skincare, atau panduan hasil scan wajahmu?",
+          },
+        ]);
+      }
+      setInitialLoaded(true);
+    } catch {
+      // Fallback greeting if history fails
+      setMessages([
+        {
+          role: "assistant",
+          content:
+            "Halo! Aku Laomera Asisten, asisten dermatologi AI pribadimu. Ada yang ingin kamu konsultasikan seputar kondisi kulit, rekomendasi skincare, atau panduan hasil scan wajahmu?",
+        },
+      ]);
+      setInitialLoaded(true);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
+
+  async function onSend(e, customPrompt) {
+    if (e) e.preventDefault();
+    const text = (customPrompt || input).trim();
+    if (!text || loading) return;
+
+    const userMsg = { role: "user", content: text };
+    setMessages((prev) => [...prev, userMsg]);
+    if (!customPrompt) setInput("");
+    setLoading(true);
+
+    try {
+      const res = await assistantChat(text);
+      const reply =
+        res?.reply ||
+        res?.message ||
+        res?.content ||
+        "Maaf, asisten belum dapat memproses jawaban saat ini. Coba tanyakan kembali.";
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    } catch (err) {
+      const msg =
+        err.status === 401
+          ? "Sesi login kamu telah berakhir. Silakan masuk kembali untuk melanjutkan obrolan."
+          : "Koneksi terputus. Pastikan backend terhubung dan coba kirim ulang.";
+      setMessages((prev) => [...prev, { role: "assistant", content: msg }]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleClearHistory() {
+    try {
+      await clearAssistantHistory();
+      setMessages([
+        {
+          role: "assistant",
+          content: "Riwayat obrolan telah dibersihkan. Apa yang ingin kamu tanyakan hari ini?",
+        },
+      ]);
+      toast.success("Riwayat obrolan telah dibersihkan.");
+    } catch {
+      setMessages([
+        {
+          role: "assistant",
+          content: "Riwayat obrolan telah dibersihkan. Apa yang ingin kamu tanyakan hari ini?",
+        },
+      ]);
+      toast.success("Riwayat obrolan telah dibersihkan.");
+    }
+  }
+
+  // Determine visibility:
+  // Visible if user is logged in (or on workspace routes like /dashboard, /scan, /output, /history, /marketplace).
+  // Strictly hidden when on /profile (Account Settings) as requested!
+  const isProfilePage = pathname && (pathname.startsWith("/profile") || pathname.startsWith("/settings"));
+  const isAuthPage = pathname && (pathname.startsWith("/login") || pathname.startsWith("/register") || pathname.startsWith("/verify-otp"));
+  const isWorkspace = pathname && (pathname.startsWith("/dashboard") || pathname.startsWith("/scan") || pathname.startsWith("/output") || pathname.startsWith("/history") || pathname.startsWith("/marketplace"));
+  
+  const shouldRender = !isProfilePage && !isAuthPage && (Boolean(user) || isWorkspace);
+
+  if (!shouldRender) {
+    return null;
+  }
+
+  return (
+    <>
+      {/* ── 1. FLOATING POP-UP CHAT WINDOW ── */}
+      <div
+        className={`floating-chat-window ${isOpen ? "open" : "closed"}`}
+        role="dialog"
+        aria-label="Konsultasi Asisten AI"
+        aria-hidden={!isOpen}
+      >
+        {/* Window Top Header */}
+        <div className="floating-chat-header">
+          <div className="chat-header-info">
+            <div className="chat-header-avatar">
+              <Bot size={20} />
+              <span className="chat-avatar-online-dot" />
+            </div>
+            <div>
+              <h3 className="chat-header-title">Laomera Asisten</h3>
+              <p className="chat-header-subtitle">Dermatologi AI Cerdas · Siap Membantu</p>
+            </div>
+          </div>
+
+          <div className="chat-header-actions">
+            {messages.length > 1 && (
+              <button
+                type="button"
+                className="chat-header-btn"
+                onClick={handleClearHistory}
+                title="Hapus riwayat obrolan"
+                aria-label="Hapus riwayat obrolan"
+              >
+                <Trash2 size={15} />
+              </button>
+            )}
+            <button
+              type="button"
+              className="chat-header-btn"
+              onClick={() => setIsOpen(false)}
+              title="Ciutkan obrolan"
+              aria-label="Ciutkan obrolan"
+            >
+              <Minus size={16} />
+            </button>
+            <button
+              type="button"
+              className="chat-header-btn"
+              onClick={() => setIsOpen(false)}
+              title="Tutup obrolan"
+              aria-label="Tutup obrolan"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+
+        {/* Message Stream */}
+        <div className="floating-chat-messages">
+          {historyLoading && (
+            <div className="chat-mini-loader">
+              <div className="loader-spinner-sm" />
+              <span>Memuat percakapan…</span>
+            </div>
+          )}
+
+          {messages.map((m, idx) => {
+            const isBot = m.role === "assistant";
+            return (
+              <div
+                key={idx}
+                className={`floating-msg-row ${isBot ? "bot-msg" : "user-msg"}`}
+              >
+                {isBot && (
+                  <div className="floating-msg-avatar" aria-hidden="true">
+                    <Bot size={15} />
+                  </div>
+                )}
+                <div className="floating-msg-bubble">
+                  <div className="floating-msg-sender">
+                    <strong>{isBot ? "Laomera Asisten" : "Kamu"}</strong>
+                    {m.time && <span className="floating-msg-time">{m.time}</span>}
+                  </div>
+                  <div className="floating-msg-text">
+                    {m.content.split("\n").map((line, lIdx) => (
+                      <p key={lIdx} style={{ margin: "0 0 4px" }}>
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {loading && (
+            <div className="floating-msg-row bot-msg">
+              <div className="floating-msg-avatar">
+                <Bot size={15} />
+              </div>
+              <div className="floating-msg-bubble">
+                <div className="chat-typing-dots">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={chatEndRef} style={{ height: "1px" }} />
+        </div>
+
+        {/* Quick Inquiry Chips */}
+        <div className="floating-chat-chips-scroll" role="region" aria-label="Pertanyaan Cepat">
+          {QUICK_INQUIRIES.map((q) => (
+            <button
+              key={q}
+              type="button"
+              className="floating-chip-item"
+              onClick={() => onSend(null, q.replace(/^[^\w\s]+/, "").trim())}
+              disabled={loading}
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+
+        {/* Chat Composer Input */}
+        <form onSubmit={onSend} className="floating-chat-composer">
+          <input
+            ref={inputRef}
+            type="text"
+            className="floating-chat-input"
+            placeholder="Tanyakan seputar kulit, skincare, skor scan..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={loading}
+            aria-label="Tulis pesan untuk asisten AI"
+          />
+          <button
+            type="submit"
+            className="floating-chat-send-btn"
+            disabled={!input.trim() || loading}
+            aria-label="Kirim pesan"
+          >
+            <Send size={16} />
+          </button>
+        </form>
+      </div>
+
+      {/* ── 2. ROUND FLOATING LAUNCHER LOGO BUTTON (LOGO BULAT MELAYANG) ── */}
+      <button
+        type="button"
+        className={`floating-chat-trigger ${isOpen ? "active" : ""}`}
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-label={isOpen ? "Tutup Konsultasi AI" : "Buka Konsultasi AI"}
+        aria-expanded={isOpen}
+      >
+        <span className="floating-trigger-pulse" aria-hidden="true" />
+        <div className="floating-trigger-inner">
+          {isOpen ? (
+            <X size={24} className="floating-trigger-icon" />
+          ) : (
+            <Bot size={26} className="floating-trigger-icon" />
+          )}
+        </div>
+        <span className="floating-trigger-badge" aria-hidden="true">
+          <Sparkles size={11} />
+        </span>
+        <span className="floating-trigger-tooltip">
+          {isOpen ? "Tutup Asisten" : "Tanya Laomera Asisten"}
+        </span>
+      </button>
+    </>
+  );
+}
+

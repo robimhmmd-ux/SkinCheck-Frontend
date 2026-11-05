@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Mail, Lock, LogIn, ArrowRight, ShieldCheck } from "lucide-react";
 import { login, getMe, pickUser } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
 import AuthVisual from "../../components/AuthVisual";
@@ -15,34 +16,86 @@ export default function LoginPage() {
 
   async function onSubmit(e) {
     e.preventDefault();
-    setError(null); setBusy(true);
+    setError(null);
+    setBusy(true);
     try {
       const res = await login(email, password);
       const user = pickUser(res);
       let role = user && user.role;
       if (!role) {
-        try { role = pickUser(await getMe()).role; } catch { /* tetap lanjut ke dashboard */ }
+        try { role = pickUser(await getMe()).role; } catch {}
       }
       router.push(role === "admin" ? "/admin" : "/dashboard");
-    } catch (err) { setError(err); } finally { setBusy(false); }
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
-    <div className="gx-page">
-      <div className="gx-auth">
-        <AuthVisual title="Selamat datang kembali." text="Lanjutkan dari skor terakhir dan riwayat scanmu." />
-        <div className="gx-auth-form">
-          <span className="brand-mark" aria-hidden="true">S</span>
-          <h1>Masuk</h1>
-          <p className="muted">Masuk dengan akun SkinCheck kamu.</p>
+    <div className="page-shell-wrap">
+      <div className="auth-split-layout">
+        <AuthVisual 
+          title="Selamat datang kembali." 
+          text="Lanjutkan pemantauan kesehatan kulit, tinjau skor VGG, dan akses riwayat pemindaianmu." 
+        />
+        
+        <div className="glass-panel auth-form-panel">
+          <div className="auth-panel-header">
+            <span className="badge badge-navy">MASUK</span>
+            <h1 className="auth-panel-title">Masuk ke Akun</h1>
+            <p className="auth-panel-subtitle">Gunakan email terdaftar untuk membuka sesi Laomera.</p>
+          </div>
+
           <ErrorBox error={error} />
-          <form onSubmit={onSubmit}>
-            <label>Email<input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-            <label>Password<input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></label>
-            <button className="btn" disabled={busy}>{busy ? "Memproses…" : "Masuk"}</button>
+
+          <form onSubmit={onSubmit} className="auth-form-stack">
+            <div className="form-group-field">
+              <label className="form-label" htmlFor="login-email">
+                <Mail size={14} /> Alamat Email
+              </label>
+              <input
+                id="login-email"
+                type="email"
+                required
+                className="app-text-input"
+                placeholder="nama@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+              />
+            </div>
+
+            <div className="form-group-field">
+              <label className="form-label" htmlFor="login-password">
+                <Lock size={14} /> Kata Sandi
+              </label>
+              <input
+                id="login-password"
+                type="password"
+                required
+                className="app-text-input"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ width: "100%", marginTop: "12px" }} disabled={busy}>
+              <LogIn size={16} /> {busy ? "Memverifikasi Akun…" : "Masuk"}
+            </button>
           </form>
-          <p className="gx-auth-foot">Belum punya akun? <Link href="/register">Daftar</Link></p>
-          <p className="gx-auth-foot">Perlu verifikasi OTP? <Link href="/verify-otp">Lihat info OTP</Link></p>
+
+          <div className="auth-links-footer">
+            <p className="muted" style={{ margin: "0 0 8px", fontSize: "13.5px" }}>
+              Belum memiliki akun? <Link href="/register" style={{ fontWeight: 600 }}>Daftar sekarang</Link>
+            </p>
+            <p className="muted" style={{ margin: 0, fontSize: "13px" }}>
+              Menunggu aktivasi? <Link href="/verify-otp">Verifikasi kode OTP WhatsApp</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

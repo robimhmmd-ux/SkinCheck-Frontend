@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-// Sistem notifikasi SkinCheck — pengganti popup bawaan browser.
+// Sistem notifikasi Laomera — pengganti popup bawaan browser.
 // Prinsipnya: tidak ada lagi window.alert / window.confirm di proyek
 // ini. Umpan balik aksi tampil sebagai toast yang halus (geser + fade,
 // hanya transform dan opacity), panel kertas palet landing, ikon SVG

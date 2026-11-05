@@ -1,100 +1,373 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { apiHealth, isBackendNotConfigured } from "../lib/api";
+import {
+  Camera,
+  Bot,
+  HeartPulse,
+  Activity,
+  ArrowRight,
+  Droplets,
+  Sun,
+  Flame,
+  Zap,
+  Sparkles,
+  ChevronDown,
+} from "lucide-react";
+import FeedbackModal from "../components/FeedbackModal";
+import CinematicOrbitStage from "../components/CinematicOrbitStage";
 
-const orbitFeatures = [
-  { title: "Analisis AI 5 kondisi", text: "Jerawat, kering, berminyak, dark spots, dan kerutan dari satu foto." },
-  { title: "Rutin harian personal", text: "Rekomendasi yang menyesuaikan kondisi kulitmu, bukan sekadar tren." },
-  { title: "Kecantikan + teknologi", text: "Desain yang tenang, analisis yang terukur, hasil yang bisa ditelusuri." },
-  { title: "Aman dan mudah", text: "Satu foto, tanpa antre. Riwayatmu tersimpan untuk melihat perubahan." },
+const ORBIT_NODES = [
+  {
+    id: "node-1",
+    title: "FULL-STACK INNOVATION",
+    subtitle: "Hardware + AI-powered software",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="12" cy="4.5" r="2.8" />
+        <circle cx="4.5" cy="12" r="2.8" />
+        <circle cx="19.5" cy="12" r="2.8" />
+        <circle cx="12" cy="19.5" r="2.8" />
+      </svg>
+    ),
+  },
+  {
+    id: "node-2",
+    title: "DAILY RITUAL REIMAGINED",
+    subtitle: "Save time, unlock pro-level results",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <rect x="4.5" y="7" width="3.5" height="10" rx="1.75" />
+        <rect x="10.25" y="4" width="3.5" height="16" rx="1.75" />
+        <rect x="16" y="7" width="3.5" height="10" rx="1.75" />
+      </svg>
+    ),
+  },
+  {
+    id: "node-3",
+    title: "BEAUTY + TECH",
+    subtitle: "Premium industrial design meets personalization",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3.5 2.5" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    ),
+  },
+  {
+    id: "node-4",
+    title: "SAFE & EFFORTLESS",
+    subtitle: "Designed for the face, built with care",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 2.5L13.5 7.5L18.5 6L16.5 10.5L21.5 12L16.5 13.5L18.5 18L13.5 16.5L12 21.5L10.5 16.5L5.5 18L7.5 13.5L2.5 12L7.5 10.5L5.5 6L10.5 7.5Z" />
+      </svg>
+    ),
+  },
 ];
 
-// Label orbit mengikuti referensi: judul uppercase kecil + subteks pendek.
-const orbitLabels = [
-  { title: "FULL-STACK INNOVATION", text: "AI + foto wajah" },
-  { title: "DAILY RITUAL REIMAGINED", text: "Hemat waktu, hasil level pro" },
-  { title: "BEAUTY + TECH", text: "Desain premium, personalisasi penuh" },
-  { title: "SAFE & EFFORTLESS", text: "Dibuat untuk wajah, dengan hati-hati" },
+const HISTORICAL_CARDS = [
+  {
+    id: "hist-1",
+    era: "PRASEJARAH",
+    title: "Pigmen Ochre Alami",
+    desc: "Perlindungan kulit mineral tertua",
+    img: "/history/1-indigenous.jpg",
+    cardClass: "vision-card-1",
+  },
+  {
+    id: "hist-2",
+    era: "MESIR KUNO",
+    title: "Kohl & Minyak Teratai",
+    desc: "Simbol keagungan dan pelindung mata dari debu gurun",
+    img: "/history/2-egyptian.jpg",
+    cardClass: "vision-card-2",
+  },
+  {
+    id: "hist-3",
+    era: "UPACARA TRADISI",
+    title: "Tanah Liat & Skinguard",
+    desc: "Perlindungan mikrobiom berbasis lempung putih kaolin",
+    img: "/history/3-tribal.jpg",
+    cardClass: "vision-card-3",
+  },
+  {
+    id: "hist-4",
+    era: "RENAISANS",
+    title: "Air Mawar & Cermin Kaca",
+    desc: "Awal mula ritual perawatan estetik personal",
+    img: "/history/4-renaissance.jpg",
+    cardClass: "vision-card-4",
+  },
+  {
+    id: "hist-5",
+    era: "YUNANI KLASIK",
+    title: "Ekstrak Minyak Murni",
+    desc: "Formulasi herbal dan minyak zaitun untuk elastisitas",
+    img: "/history/5-classical.jpg",
+    cardClass: "vision-card-5",
+  },
 ];
 
-const conditions = [
-  { name: "Jerawat", note: "Acne" },
-  { name: "Kulit kering", note: "Dry" },
-  { name: "Kulit berminyak", note: "Oily" },
-  { name: "Dark spots", note: "Noda gelap" },
-  { name: "Kerutan", note: "Wrinkles" },
+const CONDITIONS = [
+  {
+    name: "Jerawat",
+    sub: "Acne Vulgaris",
+    desc: "Deteksi inflamasi, komedo, dan pustula pada zona wajah.",
+    icon: Flame,
+    color: "#e9957d",
+  },
+  {
+    name: "Kulit Kering",
+    sub: "Dehydration",
+    desc: "Tingkat kelembapan epidermis dan tanda kekeringan lapisan pelindung.",
+    icon: Droplets,
+    color: "#3a8a6d",
+  },
+  {
+    name: "Berminyak",
+    sub: "Excess Sebum",
+    desc: "Kelebihan produksi sebum pada area T-Zone dan pipi.",
+    icon: Zap,
+    color: "#d9882a",
+  },
+  {
+    name: "Dark Spots",
+    sub: "Hyperpigmentation",
+    desc: "Bercak bekas jerawat, paparan UV, dan hiperpigmentasi melanin.",
+    icon: Sun,
+    color: "#68758e",
+  },
+  {
+    name: "Kerutan",
+    sub: "Fine Lines",
+    desc: "Garis halus ekspresi dan elastisitas kolagen kulit.",
+    icon: Sparkles,
+    color: "#c53030",
+  },
+];
+
+const FEATURES = [
+  {
+    title: "Analisis Komprehensif Satu Foto",
+    desc: "Cukup ambil satu foto wajah dengan pencahayaan cukup. Model AI menganalisis tekstur mikro secara menyeluruh.",
+    icon: Camera,
+  },
+  {
+    title: "Asisten Dermatologi AI Pintar",
+    desc: "Konsultasikan hasil analisis dengan chatbot cerdas kami untuk memahami bahan aktif skincare yang aman.",
+    icon: Bot,
+  },
+  {
+    title: "Marketplace Skincare Terkurasi",
+    desc: "Temukan produk perawatan terverifikasi yang langsung sesuai dengan kebutuhan kulitmu tanpa coba-coba.",
+    icon: HeartPulse,
+  },
+  {
+    title: "Jejak Perkembangan Berkala",
+    desc: "Pantau efektivitas skincare harianmu dengan grafik perbandingan skor dari scan ke scan.",
+    icon: Activity,
+  },
+];
+
+const FAQS = [
+  {
+    q: "Bagaimana cara kerja deteksi AI pada Laomera?",
+    a: "Laomera memproses foto wajah menggunakan arsitektur deep learning yang dilatih mengenali karakteristik mikroskopis kulit: pori sebum, inflamasi jerawat, tingkat dehidrasi epidermis, deposisi melanin (noda), dan garis halus elastisitas.",
+  },
+  {
+    q: "Apakah foto wajah saya aman dan privasi terjaga?",
+    a: "Keamanan privasi adalah prioritas utama kami. Gambar hanya dianalisis sementara oleh inference engine dan tidak pernah dijual atau dibagikan ke pihak ketiga.",
+  },
+  {
+    q: "Seberapa sering saya harus melakukan scan kulit?",
+    a: "Disarankan melakukan scan berkala 1-2 minggu sekali setelah memulai rutinitas skincare baru untuk memantau perubahan skor kelembapan dan inflamasi pada menu Riwayat.",
+  },
+  {
+    q: "Bisakah saya berkonsultasi mengenai hasil dengan Laomera Asisten?",
+    a: "Tentu! Setelah scan, kamu bisa langsung membuka fitur Laomera Asisten untuk menanyakan arti skor, kandungan skincare yang cocok, dan tips perawatan harian.",
+  },
 ];
 
 export default function Home() {
-  const [status, setStatus] = useState("checking");
-  const [detail, setDetail] = useState(null);
-
-  useEffect(() => {
-    let alive = true;
-    apiHealth()
-      .then((d) => { if (alive) { setStatus("online"); setDetail(d); } })
-      .catch((e) => { if (alive) { setStatus(isBackendNotConfigured(e) ? "not-configured" : "error"); setDetail(e.message); } });
-    return () => { alive = false; };
-  }, []);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState(0);
 
   return (
-    <div className="landing">
-      <section className="landing-hero">
-        <h1>The Future of Skin Health is Automated</h1>
-        <p className="landing-actions">
-          <Link className="hero-pill" href="/scan">Mulai scan gratis <span aria-hidden="true">→</span></Link>
-        </p>
-        <p className="landing-lead">Upload satu foto wajah, SkinCheck menganalisis kondisi kulitmu dan memberi rekomendasi perawatan yang sesuai denganmu.</p>
+    <div className="landing-fullscreen-flow">
+      {/* ── 1. HERO SHOWCASE (EDITORIAL HIGH-FASHION MINIMALIST STAGE) ── */}
+      <section id="tentang" className="landing-hero-fullscreen">
+        <div className="hero-ambient-glow" aria-hidden="true" />
+        
+        <div className="hero-editorial-header">
+          <h1 className="hero-editorial-title">
+            The Future of<br />Beauty is Automated
+          </h1>
 
-        <div className="hero-visual">
-          <div className="hero-oval" aria-hidden="true" />
-          <img className="hero-face-img" src="/hero-face.png" alt="Wajah dengan mata tertutup, kulit bercahaya lembut" />
-          {orbitLabels.map((o, i) => (
-            <div key={o.title} className={`orbit orbit-${i + 1}`}><span className="orbit-dot" aria-hidden="true">✦</span><strong>{o.title}</strong><span>{o.text}</span></div>
-          ))}
+          {/* Interactive capsule subscribe / launch pill */}
+          <Link href="/scan" className="hero-editorial-capsule" aria-label="Mulai scan kesehatan kulit wajah">
+            <span className="capsule-sub-text">Mulai scan kesehatan kulitmu sekarang</span>
+            <span className="capsule-sub-btn" aria-hidden="true">
+              <ArrowRight size={14} />
+            </span>
+          </Link>
         </div>
-      </section>
 
-      <section className="landing-features">
-        <h2>Kenapa SkinCheck terasa berbeda</h2>
-        <div className="feature-list">
-          {orbitFeatures.map((f) => (
-            <div key={f.title} className="feature-item">
-              <h3>{f.title}</h3>
-              <p>{f.text}</p>
+        {/* ── CINEMATIC 3D ORBITAL STAGE DENGAN ANIMASI ROTASI & FADE GRADASI TRANSPARAN ── */}
+        <CinematicOrbitStage nodes={ORBIT_NODES} />
+
+        {/* Mobile Satellites: Clean 2x2 grid on smartphones */}
+        <div className="orbit-mobile-grid">
+          {ORBIT_NODES.map((node) => (
+            <div key={node.id} className="orbit-mobile-card">
+              <div className="orbit-mobile-icon-row">
+                <div className="orbit-dock-glyph-mobile">{node.icon}</div>
+                <span className="orbit-mobile-tag">{node.title}</span>
+              </div>
+              <p className="orbit-mobile-desc">{node.subtitle}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="landing-vision">
-        <p className="vision-pill">OUR VISION</p>
-        <h2>Lima kondisi yang kami kenali</h2>
-        <p className="muted">Bukan sekadar label. Setiap kondisi mengarah ke rekomendasi produk dan langkah perawatan yang berbeda.</p>
-        <div className="vision-cards vision-arc">
-          {conditions.map((c, i) => (
-            <article key={c.name} className={`vision-card arc-${i}`}>
-              <span className="vision-note">{c.note}</span>
-              <h3>{c.name}</h3>
-            </article>
-          ))}
+      {/* ── 2. OUR VISION SECTION (FLOATING HISTORICAL RITUAL CARDS IN CURVED ARC) ── */}
+      <section id="visi" className="landing-vision-section">
+        <div className="content-canvas vision-container">
+          <div className="vision-pill-badge">
+            <span>OUR VISION</span>
+          </div>
+
+          {/* Arc of 5 Historical Cards */}
+          <div className="vision-arc-track">
+            {HISTORICAL_CARDS.map((card) => (
+              <div key={card.id} className={`vision-card ${card.cardClass}`} title={`${card.era}: ${card.title}`}>
+                <img src={card.img} alt={`${card.era} - ${card.title}`} className="vision-card-img" />
+              </div>
+            ))}
+          </div>
+
+          {/* Center Geometric Glyph Divider */}
+          <div className="vision-center-glyph" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="4.5" r="2.8" />
+              <circle cx="4.5" cy="12" r="2.8" />
+              <circle cx="19.5" cy="12" r="2.8" />
+              <circle cx="12" cy="19.5" r="2.8" />
+            </svg>
+          </div>
+
+          {/* Editorial Serif Quote Statement */}
+          <h2 className="vision-statement-serif">
+            The daily ritual of applying makeup has remained a manual process for centuries, until now.
+          </h2>
+
+          <p className="vision-statement-sub">
+            Selama berabad-abad, merawat dan memahami kebutuhan kulit selalu bergantung pada coba-coba tanpa kepastian.
+            Laomera mentransformasikan tradisi ini dengan kecerdasan visi komputer deep learning yang objektif, instan, dan presisi.
+          </p>
         </div>
-        <p className="vision-statement">Ritual harian memeriksa kulit masih manual, sampai sekarang. SkinCheck membuatnya otomatis, dari satu foto.</p>
-        <p className="landing-actions">
-          <Link className="btn" href="/scan">Coba scan sekarang</Link>
-        </p>
       </section>
 
-      <section className="landing-status" aria-label="Status backend">
-        <h2>Status backend</h2>
-        {status === "checking" && <p className="muted">Memeriksa backend…</p>}
-        {status === "online" && <p className="ok">Backend terhubung{detail && detail.app ? ` — ${detail.app}` : ""}{detail && detail.api ? ` (API ${detail.api})` : ""}.</p>}
-        {status === "not-configured" && (
-          <div className="notice"><strong>Backend belum dikonfigurasi.</strong> Isi <code>NEXT_PUBLIC_API_URL</code> di <code>.env.local</code> atau Environment Variables Vercel dengan URL backend Python kamu. Halaman ini tetap bisa dibuka tanpa backend.</div>
-        )}
-        {status === "error" && <div className="error">Backend tidak dapat dihubungi: {String(detail)}</div>}
+      {/* ── 3. LIMA KONDISI KULIT (UNBOXED OPEN CANVAS) ── */}
+      <section id="kondisi" className="landing-section-unboxed">
+        <div className="content-canvas">
+          <div className="landing-section-head">
+            <span className="badge badge-amber" style={{ marginBottom: "12px" }}>
+              5 PILAR DIAGNOSIS
+            </span>
+            <h2>Kondisi Kulit yang Terdeteksi Presisi</h2>
+            <p>
+              Bukan sekadar perkiraan umum. Setiap indikator dianalisis dalam skala persentase objektif yang menentukan saran bahan aktif dan rutinitas harian.
+            </p>
+          </div>
+
+          <div className="conditions-fluid-grid">
+            {CONDITIONS.map((cond) => {
+              const Icon = cond.icon;
+              return (
+                <article key={cond.name} className="condition-fluid-item">
+                  <div className="condition-icon-badge" style={{ color: cond.color }}>
+                    <Icon size={22} aria-hidden="true" />
+                  </div>
+                  <div className="condition-body">
+                    <span className="condition-code-tag">{cond.sub}</span>
+                    <h3 className="condition-title">{cond.name}</h3>
+                    <p className="condition-desc">{cond.desc}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
       </section>
+
+      {/* ── 4. KENAPA LAOMERA BERBEDA ── */}
+      <section id="fitur" className="landing-section-unboxed" style={{ background: "rgba(255, 255, 255, 0.45)" }}>
+        <div className="content-canvas">
+          <div className="landing-section-head">
+            <span className="badge badge-navy" style={{ marginBottom: "12px" }}>
+              KEUNGGULAN SISTEM
+            </span>
+            <h2>Kenapa Laomera Terasa Berbeda</h2>
+            <p>Dirancang memadukan estetika holistik dengan teknologi visi komputer terkini.</p>
+          </div>
+
+          <div className="feature-fluid-grid">
+            {FEATURES.map((feat) => {
+              const Icon = feat.icon;
+              return (
+                <div key={feat.title} className="feature-fluid-card">
+                  <div className="feature-icon-bubble">
+                    <Icon size={22} aria-hidden="true" />
+                  </div>
+                  <h3>{feat.title}</h3>
+                  <p>{feat.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5. PUSAT BANTUAN & FAQ ── */}
+      <section id="faq" className="landing-section-unboxed">
+        <div className="content-canvas">
+          <div className="landing-section-head">
+            <span className="badge badge-navy" style={{ marginBottom: "12px" }}>
+              PUSAT BANTUAN
+            </span>
+            <h2>Pertanyaan yang Sering Diajukan</h2>
+            <p>Segala hal yang perlu kamu ketahui tentang pemindaian wajah, privasi, dan kecerdasan buatan kami.</p>
+          </div>
+
+          <div className="faq-fluid-stack">
+            {FAQS.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div key={faq.q} className={`faq-card-item ${isOpen ? "open" : ""}`}>
+                  <button
+                    type="button"
+                    className="faq-question-btn"
+                    onClick={() => setOpenFaq(isOpen ? -1 : idx)}
+                    aria-expanded={isOpen}
+                  >
+                    <span className="faq-q-text">{faq.q}</span>
+                    <ChevronDown size={18} className={`faq-chevron ${isOpen ? "rotate" : ""}`} />
+                  </button>
+                  {isOpen && (
+                    <div className="faq-answer-body">
+                      <p>{faq.a}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </div>
   );
 }
