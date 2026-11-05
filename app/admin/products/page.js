@@ -11,6 +11,7 @@ import {
 import { ErrorBox, Loading } from "../../../components/Notice";
 import AdminDenied from "../../../components/AdminDenied";
 import { useToast } from "../../../components/Toast";
+import { PRODUCT_CATEGORIES, normalizeCategory, categoryLabel } from "../../../lib/productCategories";
 
 const inputStyle = {
   width: "100%",
@@ -166,7 +167,11 @@ export default function AdminProductsPage() {
           <h3 style={{ margin: 0 }}>{form.id ? "Edit Produk" : "Tambah Produk"}</h3>
           <input style={inputStyle} placeholder="Brand" required value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} />
           <input style={inputStyle} placeholder="Nama produk" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          <input style={inputStyle} placeholder="Kategori (cleanser, toner, serum, moisturizer, sunscreen…)" required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+          <select style={inputStyle} required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+            {PRODUCT_CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
           <textarea style={{ ...inputStyle, minHeight: "70px" }} placeholder="Deskripsi" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           <input style={inputStyle} placeholder="Bahan aktif, pisahkan koma (mis. Niacinamide, Salicylic Acid)" value={form.ingredients} onChange={(e) => setForm({ ...form, ingredients: e.target.value })} />
           <input style={inputStyle} placeholder="Target kulit, pisahkan koma (mis. Acne, Dry Skin)" value={form.skin_concern} onChange={(e) => setForm({ ...form, skin_concern: e.target.value })} />
@@ -205,7 +210,7 @@ export default function AdminProductsPage() {
                     <strong>{p.name}</strong>
                     <div className="muted" style={{ fontSize: "12px" }}>{p.brand}</div>
                   </td>
-                  <td style={tdStyle}>{p.category}</td>
+                  <td style={tdStyle}>{categoryLabel(p.category)}</td>
                   <td style={tdStyle}>{joinList(p.skin_concern) || "—"}</td>
                   <td style={tdStyle}><span className="badge badge-navy">{p.status}</span></td>
                   <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
@@ -216,7 +221,7 @@ export default function AdminProductsPage() {
                         id: p.id,
                         brand: p.brand || "",
                         name: p.name || "",
-                        category: p.category || "",
+                        category: normalizeCategory(p.category) || "serum",
                         description: p.description || "",
                         ingredients: joinList(p.ingredients),
                         skin_concern: joinList(p.skin_concern),

@@ -11,6 +11,7 @@ import {
   Filter,
 } from "lucide-react";
 import { getProducts, pickArray } from "../../lib/api";
+import { PRODUCT_CATEGORIES, normalizeCategory, categoryLabel } from "../../lib/productCategories";
 import { ErrorBox, Loading } from "../../components/Notice";
 
 export default function MarketplacePage() {
@@ -37,13 +38,12 @@ export default function MarketplacePage() {
     };
   }, []);
 
-  const categories = useMemo(() => {
-    const s = new Set(items.map((p) => p.category).filter(Boolean));
-    return ["semua", ...Array.from(s)];
-  }, [items]);
+  // Filter kategori memakai daftar canonical (bukan nilai bebas dari data),
+  // supaya "cleanser" lama tetap masuk ke Face Wash.
+  const categories = useMemo(() => ["semua", ...PRODUCT_CATEGORIES.map((c) => c.value)], []);
 
   const shown = items.filter((p) => {
-    if (category !== "semua" && p.category !== category) return false;
+    if (category !== "semua" && normalizeCategory(p.category) !== category) return false;
     if (!query.trim()) return true;
     const hay = `${p.brand || ""} ${p.name || ""} ${p.category || ""} ${p.description || ""}`.toLowerCase();
     return hay.includes(query.trim().toLowerCase());
@@ -101,7 +101,7 @@ export default function MarketplacePage() {
                 textTransform: "capitalize",
               }}
             >
-              {c}
+              {c === "semua" ? "Semua" : categoryLabel(c)}
             </button>
           ))}
         </div>
@@ -125,7 +125,7 @@ export default function MarketplacePage() {
                 <span className="product-brand-tag">{p.brand || "Laomera Formula"}</span>
                 <h3>{p.name}</h3>
                 <span className="badge badge-navy" style={{ marginBottom: "12px", fontSize: "11px" }}>
-                  {p.category || "Skincare"}
+                  {categoryLabel(p.category)}
                 </span>
 
                 {p.description && (
