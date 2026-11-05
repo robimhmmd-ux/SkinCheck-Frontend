@@ -102,6 +102,11 @@ export default function AppShell({ children }) {
     (p) => pathname === p || pathname.startsWith(p + "/")
   );
 
+  // Tombol "Scan Baru" di stage topbar adalah navigasi customer — di
+  // halaman admin tombol itu ikut disembunyikan, sama seperti menu
+  // WORKSPACE di sidebar.
+  const isAdminPage = pathname === "/admin" || pathname.startsWith("/admin/");
+
   if (!isWorkspace) {
     return (
       <>
@@ -140,10 +145,12 @@ export default function AppShell({ children }) {
 
           <div className="dash-topbar-right">
             <span className="dash-date-pill">{fmtDateShort(new Date().toISOString())}</span>
-            <Link href="/scan" className="btn btn-amber btn-sm">
-              <Camera size={14} />
-              <span>Scan Baru</span>
-            </Link>
+            {!isAdminPage && (
+              <Link href="/scan" className="btn btn-amber btn-sm">
+                <Camera size={14} />
+                <span>Scan Baru</span>
+              </Link>
+            )}
           </div>
         </header>
 

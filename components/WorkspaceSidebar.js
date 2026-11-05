@@ -59,6 +59,11 @@ export default function WorkspaceSidebar({ open, onClose }) {
   const router = useRouter();
   const toast = useToast();
 
+  // Di halaman admin, sidebar hanya menampilkan navigasi ADMIN — tombol
+  // navigasi customer (WORKSPACE) dan kotak aksi "Mulai Scan" disembunyikan,
+  // karena itu navigasi milik pengguna, bukan admin.
+  const isAdminPage = pathname === "/admin" || pathname.startsWith("/admin/");
+
   useEffect(() => {
     let alive = true;
     getMe()
@@ -147,26 +152,28 @@ export default function WorkspaceSidebar({ open, onClose }) {
             </div>
           </div>
 
-          <nav className="side-slide-nav" aria-label="Navigasi Workspace">
-            <span className="side-nav-heading">WORKSPACE</span>
-            {SIDEBAR_LINKS.map(({ href, label, icon: Icon }) => {
-              const active =
-                pathname === href || (href !== "/dashboard" && pathname.startsWith(href + "/"));
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`side-nav-link ${active ? "active" : ""}`}
-                  aria-current={active ? "page" : undefined}
-                  onClick={(e) => handleNavClick(e, href)}
-                >
-                  <Icon size={18} aria-hidden="true" />
-                  <span className="side-nav-text">{label}</span>
-                  {active && <span className="side-nav-dot" aria-hidden="true" />}
-                </Link>
-              );
-            })}
-          </nav>
+          {!isAdminPage && (
+            <nav className="side-slide-nav" aria-label="Navigasi Workspace">
+              <span className="side-nav-heading">WORKSPACE</span>
+              {SIDEBAR_LINKS.map(({ href, label, icon: Icon }) => {
+                const active =
+                  pathname === href || (href !== "/dashboard" && pathname.startsWith(href + "/"));
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`side-nav-link ${active ? "active" : ""}`}
+                    aria-current={active ? "page" : undefined}
+                    onClick={(e) => handleNavClick(e, href)}
+                  >
+                    <Icon size={18} aria-hidden="true" />
+                    <span className="side-nav-text">{label}</span>
+                    {active && <span className="side-nav-dot" aria-hidden="true" />}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
 
           {user?.role === "admin" && (
             <nav className="side-slide-nav" aria-label="Navigasi Admin">
@@ -191,22 +198,24 @@ export default function WorkspaceSidebar({ open, onClose }) {
             </nav>
           )}
 
-          <div className="side-slide-action-box">
-            <div className="action-box-head">
-              <Sparkles size={14} color="var(--brand-amber)" />
-              <span>Analisis Baru</span>
+          {!isAdminPage && (
+            <div className="side-slide-action-box">
+              <div className="action-box-head">
+                <Sparkles size={14} color="var(--brand-amber)" />
+                <span>Analisis Baru</span>
+              </div>
+              <p>Ambil foto wajah untuk memperbarui skor kesehatan kulit.</p>
+              <Link
+                href="/scan"
+                className="btn btn-amber btn-sm"
+                style={{ width: "100%", justifyContent: "center" }}
+                onClick={(e) => handleNavClick(e, "/scan")}
+              >
+                <Camera size={15} />
+                <span>Mulai Scan</span>
+              </Link>
             </div>
-            <p>Ambil foto wajah untuk memperbarui skor kesehatan kulit.</p>
-            <Link
-              href="/scan"
-              className="btn btn-amber btn-sm"
-              style={{ width: "100%", justifyContent: "center" }}
-              onClick={(e) => handleNavClick(e, "/scan")}
-            >
-              <Camera size={15} />
-              <span>Mulai Scan</span>
-            </Link>
-          </div>
+          )}
 
           <div className="side-slide-footer">
             <Link href="/" className="side-slide-foot-link">
