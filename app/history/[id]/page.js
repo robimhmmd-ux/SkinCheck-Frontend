@@ -39,6 +39,43 @@ function MetricRow({ label, value, colorClass = "amber" }) {
   );
 }
 
+// ai_response di DB BUKAN kalimat manusia: backend menyimpannya sebagai
+// JSON hasil analisis lengkap (skor + frames + per_pose + statements).
+// Kartu ini dulu menampilkannya mentah-mentah sehingga user melihat
+// JSON. Parse dulu:
+//  - kalau ada `statements` (jalur multi-pose) -> tampilkan kalimat itu;
+//  - kalau tidak ada (foto tunggal) -> rangkum dari skornya;
+//  - kalau bukan JSON (teks biasa, mis. scan lama) -> tampilkan apa adanya.
+// Mengembalikan array baris kalimat; kosong kalau tidak ada catatan.
+function parseAiNote(analysis) {
+  const raw = analysis?.ai_response || analysis?.recommendation;
+  if (!raw) return [];
+  const text = String(raw).trim();
+  if (!text) return [];
+  let data = null;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = null;
+  }
+  if (data && typeof data === "object") {
+    const statements = Array.isArray(data.statements)
+      ? data.statements.filter((s) => typeof s === "string" && s.trim())
+      : [];
+    if (statements.length) return statements;
+    const overall = Number(data.overall_score);
+    const scored = SCORE_KEYS.filter(([key]) => key !== "overall_score")
+      .map(([key, label]) => ({ label, v: Number(data[key]) }))
+      .filter((s) => Number.isFinite(s.v));
+    const top = scored.sort((a, b) => b.v - a.v)[0];
+    const lines = [];
+    if (Number.isFinite(overall)) lines.push(`Skor keseluruhan ${fmtScore(overall)}%.`);
+    if (top) lines.push(`Kondisi paling menonjol: ${top.label.toLowerCase()} (${fmtScore(top.v)}%).`);
+    return lines;
+  }
+  return [text];
+}
+
 function LedgerCard({ title, subtitle, analysis, icon: Icon = Activity }) {
   const colorMap = {
     overall_score: "navy",
@@ -276,18 +313,26 @@ export default function ScanDetailPage({ params }) {
             icon={Sparkles}
           />
 
-          {/* AI Clinical Recommendation Note */}
-          {(analysis && (analysis.ai_response || analysis.recommendation)) && (
-            <div className="glass-panel detail-recommendation-card">
-              <div className="recommendation-header">
-                <Sparkles size={18} className="text-amber" />
-                <h4>Catatan Analisis Klinis AI</h4>
+          {/* AI Clinical Recommendation Note — ai_response diparse dulu
+              (lihat parseAiNote): JSON mentah tidak pernah ditampilkan
+              di sini; yang tampil kalimat statements atau rangkuman skor. */}
+          {(() => {
+            const noteLines = parseAiNote(analysis);
+            if (!noteLines.length) return null;
+            return (
+              <div className="glass-panel detail-recommendation-card">
+                <div className="recommendation-header">
+                  <Sparkles size={18} className="text-amber" />
+                  <h4>Catatan Analisis Klinis AI</h4>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {noteLines.map((line, i) => (
+                    <p key={i} className="recommendation-body">{line}</p>
+                  ))}
+                </div>
               </div>
-              <p className="recommendation-body">
-                {analysis.ai_response || analysis.recommendation}
-              </p>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ── Comparative Dual Columns ── */}
           <div className="detail-dual-grid">
