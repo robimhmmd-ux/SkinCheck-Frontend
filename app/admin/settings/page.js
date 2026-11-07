@@ -601,6 +601,31 @@ function SettingsContent() {
                 <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Pilih jalur pengiriman kode OTP ke pengguna</span>
               </label>
 
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "4px 0" }}>
+                <button
+                  type="button"
+                  className={`app-switch ${values.ALLOW_SAME_PHONE_NUMBER === "on" ? "active" : ""}`}
+                  role="switch"
+                  aria-checked={values.ALLOW_SAME_PHONE_NUMBER === "on"}
+                  aria-label="Boleh pakai nomor WhatsApp yang sama"
+                  onClick={() =>
+                    setValues((p) => ({ ...p, ALLOW_SAME_PHONE_NUMBER: p.ALLOW_SAME_PHONE_NUMBER === "on" ? "off" : "on" }))
+                  }
+                >
+                  <span className="switch-thumb" />
+                </button>
+                <span style={{ fontSize: "13px", lineHeight: "1.5" }}>
+                  <strong style={{ color: "var(--brand-navy)" }}>Boleh pakai nomor WhatsApp yang sama</strong>
+                  <span className="muted">
+                    {" "}— {values.ALLOW_SAME_PHONE_NUMBER === "on"
+                      ? "Boleh: satu nomor WA bisa dipakai beberapa akun (untuk demo)."
+                      : "Tidak boleh: satu nomor WA hanya untuk satu akun."}
+                  </span>
+                  <br />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Aturan ini ditegakkan saat pendaftaran akun baru.</span>
+                </span>
+              </div>
+
               <label style={{ display: "grid", gap: "6px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
                   FONNTE_TOKEN (Token API WhatsApp Fonnte)
@@ -674,7 +699,7 @@ function SettingsContent() {
                 type="button"
                 className="btn btn-primary"
                 disabled={savingSettings}
-                onClick={() => handleSaveSettings(["OTP_MODE", "REGISTRATION_OTP_MODE", "FONNTE_TOKEN", "WA_API_TOKEN", "MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_FROM_NAME"])}
+                onClick={() => handleSaveSettings(["ALLOW_SAME_PHONE_NUMBER", "OTP_MODE", "REGISTRATION_OTP_MODE", "FONNTE_TOKEN", "WA_API_TOKEN", "MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_FROM_NAME"])}
               >
                 <Save size={15} />
                 <span>{savingSettings ? "Menyimpan Konfigurasi OTP…" : "Simpan Konfigurasi OTP & Gateway"}</span>
