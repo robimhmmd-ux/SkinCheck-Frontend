@@ -5,10 +5,12 @@ import Link from "next/link";
 import { Mail, Lock, LogIn, ArrowRight, ShieldCheck } from "lucide-react";
 import { login, getMe, pickUser } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
+import { useToast } from "../../components/Toast";
 import AuthVisual from "../../components/AuthVisual";
 
 export default function LoginPage() {
   const router = useRouter();
+  const toast = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -25,6 +27,7 @@ export default function LoginPage() {
       if (!role) {
         try { role = pickUser(await getMe()).role; } catch {}
       }
+      toast.success("Anda berhasil login.", "Selamat datang");
       router.push(role === "admin" ? "/admin" : "/dashboard");
     } catch (err) {
       setError(err);

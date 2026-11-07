@@ -15,9 +15,9 @@ import {
   Sparkles,
   CheckCircle2
 } from "lucide-react";
-import { getMe, logout, pickUser } from "../../lib/api";
+import { getMe, logout, pickUser, updateMyProfile } from "../../lib/api";
 import { ErrorBox, Loading } from "../../components/Notice";
-import { useToast } from "../../components/Toast";
+import { useToast, ConfirmDialog } from "../../components/Toast";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -27,6 +27,9 @@ export default function ProfilePage() {
   const router = useRouter();
   const [reminder, setReminder] = useState(false);
   const [showPercent, setShowPercent] = useState(true);
+  const [name, setName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   useEffect(() => {
     try {
@@ -35,7 +38,12 @@ export default function ProfilePage() {
     } catch {}
     let alive = true;
     getMe()
-      .then((d) => { if (alive) setUser(pickUser(d)); })
+      .then((d) => {
+        if (!alive) return;
+        const u = pickUser(d);
+        setUser(u);
+        setName(u?.name || "");
+      })
       .catch((e) => { if (alive) setError(e); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
@@ -53,10 +61,33 @@ export default function ProfilePage() {
     toast.success("Format tampilan skor diperbarui.");
   }
 
+  async function onSaveName(e) {
+    e.preventDefault();
+    const next = name.trim();
+    if (!next) {
+      toast.error("Nama tidak boleh kosong.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const d = await updateMyProfile({ name: next });
+      const u = pickUser(d);
+      if (u) {
+        setUser(u);
+        setName(u.name || next);
+      }
+      toast.success("Nama pengguna diperbarui.");
+    } catch (err) {
+      toast.error(err.message || "Gagal memperbarui nama.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function onLogout() {
     try { 
       await logout(); 
-      toast.success("Berhasil keluar dari akun."); 
+      toast.success("Anda berhasil logout."); 
       setUser(null); 
       router.push("/login"); 
     } catch (e) { 
@@ -137,9 +168,34 @@ export default function ProfilePage() {
 
                 <div className="profile-info-footnote">
                   <p className="muted" style={{ margin: 0, fontSize: "12.5px" }}>
-                    Perubahan data profil utama (nama & email) dikelola melalui otoritas sistem backend.
+                    Nama pengguna dapat diubah di bawah ini. Email tidak dapat diubah.
                   </p>
                 </div>
+
+                <form onSubmit={onSaveName} style={{ display: "grid", gap: "10px", marginTop: "16px" }}>
+                  <label style={{ display: "grid", gap: "4px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 600 }}>Nama pengguna</span>
+                    <input
+                      value={name}
+                      required
+                      onChange={(e) => setName(e.target.value)}
+                      style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid var(--border-subtle)", background: "#fff", fontSize: "14px" }}
+                    />
+                  </label>
+                  <label style={{ display: "grid", gap: "4px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 600 }}>Email (tidak dapat diubah)</span>
+                    <input
+                      value={user.email || ""}
+                      disabled
+                      style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid var(--border-subtle)", background: "var(--sand-100)", fontSize: "14px", color: "var(--text-muted)" }}
+                    />
+                  </label>
+                  <div>
+                    <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
+                      {saving ? "Menyimpan…" : "Simpan Nama"}
+                    </button>
+                  </div>
+                </form>
               </div>
             ) : !loading && (
               <div className="profile-unauthenticated-box">
@@ -228,7 +284,7 @@ export default function ProfilePage() {
               Keluar akan mengosongkan token otentikasi aktif di peramban ini. Kamu perlu masuk kembali untuk mengakses riwayat dan dossier.
             </p>
             <div className="session-buttons-cluster">
-              <button className="btn btn-secondary" onClick={onLogout} style={{ color: "var(--crimson-500)", borderColor: "rgba(197, 48, 48, 0.25)" }}>
+              <button className="btn btn-secondary" onClick={() => setConfirmLogout(true)} style={{ color: "var(--crimson-500)", borderColor: "rgba(197, 48, 48, 0.25)" }}>
                 <LogOut size={16} /> Keluar dari Sesi
               </button>
               <Link href="/dashboard" className="btn btn-primary">
@@ -238,6 +294,17 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirmLogout}
+        title="Yakin mau keluar?"
+        message="Sesi kamu akan diakhiri dan kamu perlu masuk kembali untuk mengakses riwayat dan diagnosis."
+        confirmLabel="Ya, keluar"
+        onConfirm={() => {
+          setConfirmLogout(false);
+          onLogout();
+        }}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </div>
   );
 }

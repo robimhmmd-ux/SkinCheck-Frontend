@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { getScanDetail, getHistory, pickObject, pickArray } from "../../../lib/api";
 import { ErrorBox, Loading } from "../../../components/Notice";
-import { SCORE_KEYS, averageScores, latestAnalyzedScan, fmtScore, fmtDate } from "../../../lib/scores";
+import { SCORE_KEYS, averageScores, previousAnalyzedScan, compareScores, fmtScore, fmtDate } from "../../../lib/scores";
 
 function MetricRow({ label, value, colorClass = "amber" }) {
   const num = Number(value);
@@ -37,6 +37,43 @@ function MetricRow({ label, value, colorClass = "amber" }) {
       </div>
     </div>
   );
+}
+
+// ai_response di DB BUKAN kalimat manusia: backend menyimpannya sebagai
+// JSON hasil analisis lengkap (skor + frames + per_pose + statements).
+// Kartu ini dulu menampilkannya mentah-mentah sehingga user melihat
+// JSON. Parse dulu:
+//  - kalau ada `statements` (jalur multi-pose) -> tampilkan kalimat itu;
+//  - kalau tidak ada (foto tunggal) -> rangkum dari skornya;
+//  - kalau bukan JSON (teks biasa, mis. scan lama) -> tampilkan apa adanya.
+// Mengembalikan array baris kalimat; kosong kalau tidak ada catatan.
+function parseAiNote(analysis) {
+  const raw = analysis?.ai_response || analysis?.recommendation;
+  if (!raw) return [];
+  const text = String(raw).trim();
+  if (!text) return [];
+  let data = null;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = null;
+  }
+  if (data && typeof data === "object") {
+    const statements = Array.isArray(data.statements)
+      ? data.statements.filter((s) => typeof s === "string" && s.trim())
+      : [];
+    if (statements.length) return statements;
+    const overall = Number(data.overall_score);
+    const scored = SCORE_KEYS.filter(([key]) => key !== "overall_score")
+      .map(([key, label]) => ({ label, v: Number(data[key]) }))
+      .filter((s) => Number.isFinite(s.v));
+    const top = scored.sort((a, b) => b.v - a.v)[0];
+    const lines = [];
+    if (Number.isFinite(overall)) lines.push(`Skor keseluruhan ${fmtScore(overall)}%.`);
+    if (top) lines.push(`Kondisi paling menonjol: ${top.label.toLowerCase()} (${fmtScore(top.v)}%).`);
+    return lines;
+  }
+  return [text];
 }
 
 function LedgerCard({ title, subtitle, analysis, icon: Icon = Activity }) {
@@ -82,6 +119,77 @@ function LedgerCard({ title, subtitle, analysis, icon: Icon = Activity }) {
   );
 }
 
+function DeltaRow({ label, current, previous, delta, better, same }) {
+  const num = Number(current);
+  const prevNum = Number(previous);
+  const finite = current != null && Number.isFinite(num);
+  const color = same ? "var(--text-muted)" : better ? "#15803d" : "#b91c1c";
+  const sign = delta > 0 ? "+" : "";
+  return (
+    <div className="detail-metric-row">
+      <div className="detail-metric-labels">
+        <span className="metric-label-text">{label}</span>
+        <strong className="metric-value-text">{finite ? `${num}%` : "—"}</strong>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px" }}>
+        <span style={{ color: "var(--text-muted)" }}>
+          sebelumnya {Number.isFinite(prevNum) ? `${prevNum}%` : "—"}
+        </span>
+        <strong style={{ color, minWidth: "86px", textAlign: "right" }}>
+          {same ? "— sama" : `${sign}${delta} ${better ? "membaik" : "memburuk"}`}
+        </strong>
+      </div>
+    </div>
+  );
+}
+
+// Kartu perbandingan scan ini dengan scan teranalisis SEBELUMNYA
+// (lebih lama). Untuk overall_score naik = membaik; untuk 5 kondisi
+// naik = memburuk — lihat lib/scores.js compareScores.
+function ComparisonCard({ current, previous }) {
+  const cmp = compareScores(current, previous);
+  return (
+    <div className="glass-panel detail-card">
+      <div className="detail-card-head">
+        <div className="detail-card-icon-wrap">
+          <Activity size={18} />
+        </div>
+        <div>
+          <h3 className="detail-card-title">Perbandingan dengan Scan Sebelumnya</h3>
+          <p className="detail-card-subtitle">
+            {previous ? fmtDate(previous.created_at || previous.created) : "Belum ada scan sebelumnya"}
+          </p>
+        </div>
+      </div>
+
+      {!cmp ? (
+        <div className="detail-empty-state">
+          <Clock size={20} className="text-muted" />
+          <p className="muted">Ini scan teranalisis pertama — belum ada pembanding.</p>
+        </div>
+      ) : (
+        <div className="detail-ledger-stack">
+          {SCORE_KEYS.map(([key, label]) => {
+            const d = cmp[key];
+            if (!d) return null;
+            return (
+              <DeltaRow
+                key={key}
+                label={label}
+                current={d.current}
+                previous={d.previous}
+                delta={d.delta}
+                better={d.better}
+                same={d.same}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ScanDetailPage({ params }) {
   const [data, setData] = useState(null);
   const [history, setHistory] = useState([]);
@@ -120,8 +228,10 @@ export default function ScanDetailPage({ params }) {
   const result = data ? (data.result || data.analysis || data.analysis_result || scan) : null;
   const analysis = result && result.acne_score != null ? result : (scan.analysis || null);
   const avg = averageScores(history);
-  const latest = latestAnalyzedScan(history);
-  const latestAnalysis = latest ? (latest.analysis || latest.analysis_result || latest.result) : null;
+  // Pembanding = scan teranalisis sebelumnya (lebih lama), bukan scan
+  // terbaru — membandingkan scan ini dengan dirinya sendiri tidak ada
+  // artinya. history sudah diurutkan terbaru dulu oleh backend.
+  const prevScan = previousAnalyzedScan(history, scan);
 
   const statusLabel = { completed: "Selesai", processing: "Diproses", failed: "Gagal" }[scan.status] || scan.status || "—";
   const statusBadge = scan.status === "completed" ? "badge-success" : scan.status === "failed" ? "badge-danger" : "badge-warning";
@@ -137,8 +247,8 @@ export default function ScanDetailPage({ params }) {
           <Link href="/scan" className="btn btn-primary btn-sm">
             <Scan size={14} /> Scan Baru
           </Link>
-          <Link href="/output" className="btn btn-secondary btn-sm">
-            Dossier Laporan
+          <Link href="/history" className="btn btn-secondary btn-sm">
+            Riwayat &amp; Diagnosis
           </Link>
         </div>
       </div>
@@ -203,18 +313,26 @@ export default function ScanDetailPage({ params }) {
             icon={Sparkles}
           />
 
-          {/* AI Clinical Recommendation Note */}
-          {(analysis && (analysis.ai_response || analysis.recommendation)) && (
-            <div className="glass-panel detail-recommendation-card">
-              <div className="recommendation-header">
-                <Sparkles size={18} className="text-amber" />
-                <h4>Catatan Analisis Klinis AI</h4>
+          {/* AI Clinical Recommendation Note — ai_response diparse dulu
+              (lihat parseAiNote): JSON mentah tidak pernah ditampilkan
+              di sini; yang tampil kalimat statements atau rangkuman skor. */}
+          {(() => {
+            const noteLines = parseAiNote(analysis);
+            if (!noteLines.length) return null;
+            return (
+              <div className="glass-panel detail-recommendation-card">
+                <div className="recommendation-header">
+                  <Sparkles size={18} className="text-amber" />
+                  <h4>Catatan Analisis Klinis AI</h4>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {noteLines.map((line, i) => (
+                    <p key={i} className="recommendation-body">{line}</p>
+                  ))}
+                </div>
               </div>
-              <p className="recommendation-body">
-                {analysis.ai_response || analysis.recommendation}
-              </p>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ── Comparative Dual Columns ── */}
           <div className="detail-dual-grid">
@@ -224,12 +342,7 @@ export default function ScanDetailPage({ params }) {
               analysis={avg}
               icon={BarChart2}
             />
-            <LedgerCard 
-              title="Perbandingan Scan Terakhir"
-              subtitle={latest ? `Scan #${latest.id} • ${fmtDate(latest.created_at)}` : "Belum ada scan lain"}
-              analysis={latestAnalysis}
-              icon={Activity}
-            />
+            <ComparisonCard current={scan} previous={prevScan} />
           </div>
 
           {/* Technical Raw Payload Collapse */}

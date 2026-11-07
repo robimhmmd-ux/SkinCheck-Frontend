@@ -21,6 +21,8 @@ import {
   pickArray,
 } from "../lib/api";
 import { useToast } from "./Toast";
+import { renderChatInline } from "./ChatText";
+import { fmtTime } from "../lib/scores";
 
 const QUICK_INQUIRIES = [
   "🌟 Rutin Skincare Pagi & Malam",
@@ -28,6 +30,16 @@ const QUICK_INQUIRIES = [
   "✨ Rekomendasi Kandungan Jerawat",
   "☀️ Cara Mengurangi Dark Spots",
   "🔍 Panduan Membaca Skor Scan",
+];
+
+// Saran cepat khusus admin: skincare diganti pertanyaan soal database,
+// karena chatbot admin membaca seluruh data website (bukan data pribadi).
+const ADMIN_QUICK_INQUIRIES = [
+  "👥 Berapa total pengguna?",
+  "🔍 Scan terbaru dari siapa?",
+  "📦 Produk apa saja di katalog?",
+  "📈 Tren masalah kulit pengguna?",
+  "🕒 Aktivitas terakhir di website?",
 ];
 
 export default function FloatingChatWidget() {
@@ -119,7 +131,9 @@ export default function FloatingChatWidget() {
           list.map((m) => ({
             role: m.role || "assistant",
             content: m.content || m.text || "",
-            time: m.time || "",
+            // Jam dari created_at (UTC) yang dikonversi ke waktu lokal,
+            // bukan field time mentah backend yang masih jam UTC.
+            time: m.created_at ? fmtTime(m.created_at) : (m.time || ""),
           }))
         );
       } else {
@@ -160,6 +174,10 @@ export default function FloatingChatWidget() {
     try {
       const res = await assistantChat(text);
       const reply =
+        // Backend /assistant/chat mengembalikan { response }, bukan reply /
+        // message / content — field itu harus dibaca dulu, kalau tidak
+        // setiap balasan baru jatuh ke pesan fallback di bawah.
+        res?.response ||
         res?.reply ||
         res?.message ||
         res?.content ||
@@ -205,6 +223,8 @@ export default function FloatingChatWidget() {
   const isWorkspace = pathname && (pathname.startsWith("/dashboard") || pathname.startsWith("/scan") || pathname.startsWith("/output") || pathname.startsWith("/history") || pathname.startsWith("/marketplace"));
   
   const shouldRender = !isProfilePage && !isAuthPage && (Boolean(user) || isWorkspace);
+  const isAdmin = user?.role === "admin";
+  const quickInquiries = isAdmin ? ADMIN_QUICK_INQUIRIES : QUICK_INQUIRIES;
 
   if (!shouldRender) {
     return null;
@@ -228,7 +248,9 @@ export default function FloatingChatWidget() {
             </div>
             <div>
               <h3 className="chat-header-title">Laomera Asisten</h3>
-              <p className="chat-header-subtitle">Dermatologi AI Cerdas · Siap Membantu</p>
+              <p className="chat-header-subtitle">
+                {isAdmin ? "Asisten Admin · Data Website Siap Ditanya" : "Dermatologi AI Cerdas · Siap Membantu"}
+              </p>
             </div>
           </div>
 
@@ -294,7 +316,7 @@ export default function FloatingChatWidget() {
                   <div className="floating-msg-text">
                     {m.content.split("\n").map((line, lIdx) => (
                       <p key={lIdx} style={{ margin: "0 0 4px" }}>
-                        {line}
+                        {isBot ? renderChatInline(line, `m${idx}-${lIdx}`) : line}
                       </p>
                     ))}
                   </div>
@@ -323,7 +345,7 @@ export default function FloatingChatWidget() {
 
         {/* Quick Inquiry Chips */}
         <div className="floating-chat-chips-scroll" role="region" aria-label="Pertanyaan Cepat">
-          {QUICK_INQUIRIES.map((q) => (
+          {quickInquiries.map((q) => (
             <button
               key={q}
               type="button"
@@ -342,7 +364,7 @@ export default function FloatingChatWidget() {
             ref={inputRef}
             type="text"
             className="floating-chat-input"
-            placeholder="Tanyakan seputar kulit, skincare, skor scan..."
+            placeholder={isAdmin ? "Tanya soal pengguna, scan, produk, data website..." : "Tanyakan seputar kulit, skincare, skor scan..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}

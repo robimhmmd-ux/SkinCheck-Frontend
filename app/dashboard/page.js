@@ -27,7 +27,6 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   PanelLeft,
-  ShieldAlert,
 } from "lucide-react";
 import { getMe, getDashboard, getHistory, getProducts, logout, pickUser, pickObject, pickArray } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
@@ -57,8 +56,7 @@ function fmtDateShort(iso) {
 const DASH_SIDEBAR_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/scan", label: "Scan Kulit", icon: Camera },
-  { href: "/output", label: "Diagnosis Terkini", icon: Sparkles },
-  { href: "/history", label: "Riwayat Scan", icon: History },
+  { href: "/history", label: "Riwayat & Diagnosis", icon: History },
   { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   { href: "/assistant", label: "Laomera Asisten", icon: Bot },
   { href: "/profile", label: "Profil Akun", icon: User },
@@ -144,53 +142,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Side slide taskbar state
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [logoutBusy, setLogoutBusy] = useState(false);
-  const router = useRouter();
-  const toast = useToast();
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("skincheck_sidebar_open");
-      if (saved !== null) {
-        setSidebarOpen(saved === "true");
-      } else if (window.innerWidth < 1024) {
-        setSidebarOpen(false);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  function toggleSidebar() {
-    setSidebarOpen((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem("skincheck_sidebar_open", String(next));
-      } catch {
-        // ignore
-      }
-      return next;
-    });
-  }
-
-  async function handleLogout() {
-    if (logoutBusy) return;
-    setLogoutBusy(true);
-    try {
-      await logout();
-      toast.success("Berhasil keluar.");
-      router.push("/login");
-      router.refresh();
-    } catch {
-      toast.success("Berhasil keluar.");
-      router.push("/login");
-    } finally {
-      setLogoutBusy(false);
-    }
-  }
-
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -253,158 +204,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className={`dash-workspace-layout ${sidebarOpen ? "sidebar-expanded" : "sidebar-hidden"}`}>
-      {/* Mobile Drawer Overlay Backdrop */}
-      {sidebarOpen && (
-        <div
-          className="dash-sidebar-backdrop"
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* ── SIDE SLIDE TASKBAR (COLLAPSIBLE / HIDEABLE SIDEBAR) ── */}
-      <aside className={`dash-side-slide ${sidebarOpen ? "slide-in" : "slide-out"}`}>
-        <div className="dash-side-slide-inner">
-          {/* Brand & Slide Toggle Header */}
-          <div className="side-slide-header">
-            <Link href="/" className="side-slide-brand">
-              <div className="brand-emblem-icon" aria-hidden="true">L</div>
-              <span className="brand-title-text">Laomera</span>
-            </Link>
-            <button
-              type="button"
-              className="side-slide-close-trigger"
-              onClick={toggleSidebar}
-              title="Sembunyikan Navigasi (Hide)"
-              aria-label="Sembunyikan Navigasi"
-            >
-              <PanelLeftClose size={18} />
-            </button>
-          </div>
-
-          {/* User Profile Card */}
-          <div className="side-slide-user-card">
-            <div className="user-card-avatar" aria-hidden="true">
-              {user?.name ? user.name.charAt(0).toUpperCase() : <User size={18} />}
-            </div>
-            <div className="user-card-meta">
-              <strong className="user-card-name">{user?.name || "Pengguna Laomera"}</strong>
-              <div className="user-status-pill">
-                <span className="user-status-dot" />
-                <span>{user?.email || "Sesi Masuk Aktif"}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Nav Links Cluster */}
-          <nav className="side-slide-nav" aria-label="Navigasi Workspace Dashboard">
-            <span className="side-nav-heading">WORKSPACE</span>
-            {DASH_SIDEBAR_LINKS.map(({ href, label, icon: Icon }) => {
-              const active = href === "/dashboard";
-              const isChat = href === "/assistant";
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`side-nav-link ${active ? "active" : ""}`}
-                  onClick={(e) => {
-                    if (isChat) {
-                      e.preventDefault();
-                      if (typeof window !== "undefined") {
-                        window.dispatchEvent(new CustomEvent("open-laomera-chat"));
-                        window.dispatchEvent(new CustomEvent("open-skincheck-chat"));
-                      }
-                    }
-                  }}
-                >
-                  <Icon size={18} aria-hidden="true" />
-                  <span className="side-nav-text">{label}</span>
-                  {active && <span className="side-nav-dot" aria-hidden="true" />}
-                </Link>
-              );
-            })}
-                      {user?.role === "admin" && (
-              <Link
-                href="/admin"
-                className="side-nav-link"
-                style={{ color: "var(--brand-amber)" }}
-              >
-                <ShieldAlert size={18} aria-hidden="true" />
-                <span className="side-nav-text">Konsol Admin</span>
-              </Link>
-            )}
-          </nav>
-
-          {/* Quick Action Widget */}
-          <div className="side-slide-action-box">
-            <div className="action-box-head">
-              <Sparkles size={14} color="var(--brand-amber)" />
-              <span>Analisis Baru</span>
-            </div>
-            <p>Ambil foto wajah untuk memperbarui skor kesehatan kulit.</p>
-            <Link
-              href="/scan"
-              className="btn btn-amber btn-sm"
-              style={{ width: "100%", justifyContent: "center" }}
-            >
-              <Camera size={15} />
-              <span>Mulai Scan</span>
-            </Link>
-          </div>
-
-          {/* Sidebar Footer Controls */}
-          <div className="side-slide-footer">
-            <Link href="/" className="side-slide-foot-link">
-              <HomeIcon size={16} />
-              <span>Ke Beranda</span>
-            </Link>
-            <button
-              type="button"
-              className="side-slide-logout-btn"
-              onClick={handleLogout}
-              disabled={logoutBusy}
-            >
-              <LogOut size={16} />
-              <span>{logoutBusy ? "…" : "Keluar"}</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* ── MAIN WORKSPACE CONTENT AREA ── */}
-      <div className="dash-main-canvas-area">
-        {/* Workspace Topbar with Side Slide Toggle Trigger */}
-        <header className="dash-stage-topbar">
-          <div className="dash-topbar-left">
-            <button
-              type="button"
-              className="dash-slide-toggle-btn"
-              onClick={toggleSidebar}
-              title={sidebarOpen ? "Sembunyikan Navigasi" : "Buka Navigasi (Side Slide)"}
-              aria-expanded={sidebarOpen}
-            >
-              {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
-              <span className="dash-toggle-btn-label">
-                {sidebarOpen ? "Sembunyikan" : "Buka Navigasi"}
-              </span>
-            </button>
-            <span className="dash-breadcrumb-path">
-              Laomera / <strong>Dashboard</strong>
-            </span>
-          </div>
-
-          <div className="dash-topbar-right">
-            <span className="dash-date-pill">{fmtDateShort(new Date().toISOString())}</span>
-            <Link href="/scan" className="btn btn-amber btn-sm">
-              <Camera size={14} />
-              <span>Scan Baru</span>
-            </Link>
-          </div>
-        </header>
-
-        {/* Dashboard Content Flow */}
-        <div className="dashboard-fullscreen-flow">
+    <div className="dashboard-fullscreen-flow">
           {/* ── 1. HERO GREETING (UNBOXED & EXPANSIVE) ── */}
           <section className="dash-hero-unboxed">
             <div className="content-canvas dash-hero-canvas">
@@ -503,8 +303,8 @@ export default function DashboardPage() {
                   <h2 className="panel-title">Tingkat 5 Kondisi Wajah</h2>
                   <p className="panel-subtitle">Tingkat persentase kondisi kulit hasil deteksi neural terkini.</p>
                 </div>
-                <Link href="/output" className="panel-link">
-                  Lihat Dossier Lengkap <ChevronRight size={14} />
+                <Link href="/history" className="panel-link">
+                  Lihat Riwayat &amp; Diagnosis <ChevronRight size={14} />
                 </Link>
               </div>
 
@@ -598,8 +398,6 @@ export default function DashboardPage() {
               </div>
             </div>
           </section>
-        </div>
-      </div>
     </div>
   );
 }

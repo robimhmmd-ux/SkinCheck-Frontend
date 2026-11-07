@@ -18,7 +18,9 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { uploadScan, uploadMultiScan, pickObject, getMe } from "../../lib/api";
+import { fmtDate, fmtScore } from "../../lib/scores";
 import { ErrorBox } from "../../components/Notice";
+import { useToast } from "../../components/Toast";
 
 const SCORES = [
   ["acne_score", "Jerawat"],
@@ -297,6 +299,37 @@ export default function ScanPage() {
 
   const scanId = result && (result.scan_id || result.id);
   const analysis = result && (result.analysis || result.analysis_result || null);
+  // Status dari backend: "completed" / "failed" / "processing". Backend selalu
+  // membalas 201 bahkan saat analisis gagal (analysis = null) — jadi hasil
+  // gagal HARUS ditampilkan sendiri, bukan disembunyikan. Versi halaman ini
+  // sebelumnya hanya merender panel sukses (result && analysis), sehingga
+  // scan yang gagal tampak seperti "tidak ada loading dan tidak ada output".
+  const resultStatus = result && (result.status || "");
+  const resultFailed = Boolean(result) && !analysis;
+
+  // Toast + lonceng notifikasi saat satu scan selesai (sukses atau gagal).
+  // Dijaga per scan_id supaya toast tidak muncul dua kali saat komponen
+  // render ulang; status "processing" tidak di-toast (belum final).
+  const toast = useToast();
+  const toastedScanRef = useRef(null);
+  useEffect(() => {
+    if (!result) return;
+    const id = result.scan_id || result.id;
+    if (id != null && toastedScanRef.current === id) return;
+    if (analysis) {
+      toastedScanRef.current = id;
+      const overall = Number(analysis.overall_score);
+      toast.success(
+        Number.isFinite(overall)
+          ? `Skor keseluruhan ${fmtScore(overall)}%. Lihat detailnya di Riwayat & Diagnosis.`
+          : "Hasil analisis sudah tersedia di Riwayat & Diagnosis.",
+        "Scan selesai"
+      );
+    } else if (resultStatus === "failed") {
+      toastedScanRef.current = id;
+      toast.error(result.message || "Analisis AI gagal diproses.", "Scan gagal");
+    }
+  }, [result, analysis, resultStatus, toast]);
 
   return (
     <div className="scanner-stage-wrap">
@@ -484,6 +517,17 @@ export default function ScanPage() {
                 )}
               </div>
 
+              {/* Indikator upload: selama busy, tombol di bawah hanya
+                  nonaktif tanpa teks apa pun — inilah kenapa mode kamera
+                  terasa "tidak ada loading". Banner ini tampil selama
+                  upload/analisis berjalan. */}
+              {busy && (
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", background: "var(--sand-100)", border: "1px solid var(--border-subtle)", padding: "12px 16px", borderRadius: "var(--radius-md)", fontSize: "14px", color: "var(--brand-navy)" }}>
+                  <Activity className="animate-spin" size={18} />
+                  <span><strong>Menganalisis frame…</strong> Mohon tunggu, proses ini bisa memakan waktu beberapa detik.</span>
+                </div>
+              )}
+
               {/* Camera Controls */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
                 <button type="button" className="btn btn-secondary btn-sm" onClick={stopCamera}>
@@ -511,6 +555,43 @@ export default function ScanPage() {
         </div>
       )}
 
+      {/* ── 3b. HASIL GAGAL / MASIH DIPROSES (JANGAN DISEMBUNYIKAN) ── */}
+      {resultFailed && (
+        <div className="glass-panel" style={{ padding: "32px", border: "1.5px solid rgba(217, 136, 42, 0.5)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+            <AlertCircle size={24} color="#b45309" />
+            <h2 style={{ fontSize: "22px" }}>
+              {resultStatus === "processing" ? "Scan masih diproses" : "Analisis belum berhasil"}
+            </h2>
+          </div>
+          <p style={{ color: "var(--text-muted)", fontSize: "14.5px", marginBottom: "20px" }}>
+            {result.message || "Analisis AI gagal diproses."}
+          </p>
+          <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", marginBottom: "20px", fontSize: "14px" }}>
+            {result.frames_captured != null && (
+              <span>Frame direkam: <strong>{result.frames_captured}</strong></span>
+            )}
+            {result.frames_passed_yunet != null && (
+              <span>Lolos deteksi wajah: <strong>{result.frames_passed_yunet}</strong></span>
+            )}
+            {result.frames_used_vgg != null && (
+              <span>Dianalisis: <strong>{result.frames_used_vgg}</strong></span>
+            )}
+          </div>
+          <p style={{ fontSize: "13.5px", color: "var(--text-muted)" }}>
+            Silakan coba lagi dengan pencahayaan merata dan wajah menghadap kamera. Kalau pesan di atas menyebut wajah tidak terdeteksi, itu alasan aslinya dari backend, bukan sekadar tebakan.
+          </p>
+          {scanId && (
+            <div style={{ marginTop: "16px" }}>
+              <Link href={`/history/${scanId}`} className="btn btn-secondary">
+                <span>Lihat scan ini di Riwayat</span>
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── 3. HASIL ANALISIS REAL-TIME (JIKA SELESAI) ── */}
       {result && analysis && (
         <div className="glass-panel" style={{ padding: "36px", border: "1.5px solid var(--brand-amber)" }}>
@@ -525,7 +606,7 @@ export default function ScanPage() {
             </div>
             <div style={{ color: "var(--text-muted)", fontSize: "15px" }}>
               <strong>Skor Kesehatan Keseluruhan</strong>
-              <div>Scan #{scanId || "Baru"} telah selesai diproses.</div>
+              <div>Scan {fmtDate(new Date().toISOString())} telah selesai diproses.</div>
             </div>
           </div>
 
