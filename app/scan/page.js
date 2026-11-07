@@ -21,7 +21,6 @@ import { uploadScan, uploadMultiScan, pickObject, getMe } from "../../lib/api";
 import { fmtDate, fmtScore } from "../../lib/scores";
 import { ErrorBox } from "../../components/Notice";
 import { useToast } from "../../components/Toast";
-import { NOTIFICATIONS_REFRESH_EVENT } from "../../lib/notifications";
 
 const SCORES = [
   ["acne_score", "Jerawat"],
@@ -326,11 +325,9 @@ export default function ScanPage() {
           : "Hasil analisis sudah tersedia di Riwayat & Diagnosis.",
         "Scan selesai"
       );
-      window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     } else if (resultStatus === "failed") {
       toastedScanRef.current = id;
       toast.error(result.message || "Analisis AI gagal diproses.", "Scan gagal");
-      window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
     }
   }, [result, analysis, resultStatus, toast]);
 

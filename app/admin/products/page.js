@@ -10,7 +10,7 @@ import {
 } from "../../../lib/api";
 import { ErrorBox, Loading } from "../../../components/Notice";
 import AdminDenied from "../../../components/AdminDenied";
-import { useToast } from "../../../components/Toast";
+import { useToast, ConfirmDialog } from "../../../components/Toast";
 import { PRODUCT_CATEGORIES, normalizeCategory, categoryLabel } from "../../../lib/productCategories";
 
 const inputStyle = {
@@ -50,6 +50,7 @@ export default function AdminProductsPage() {
   const [error, setError] = useState(null);
   const [form, setForm] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [pendingDeactivate, setPendingDeactivate] = useState(null);
   const toast = useToast();
 
   async function load(p = page) {
@@ -120,7 +121,13 @@ export default function AdminProductsPage() {
   }
 
   async function onDeactivate(p) {
-    if (!window.confirm(`Nonaktifkan produk "${p.name}"? Produk tidak dihapus — status menjadi inactive dan tidak tampil di marketplace.`)) return;
+    setPendingDeactivate(p);
+  }
+
+  async function confirmDeactivate() {
+    const p = pendingDeactivate;
+    if (!p) return;
+    setPendingDeactivate(null);
     try {
       await deactivateAdminProduct(p.id);
       toast.success("Produk dinonaktifkan.");
@@ -249,6 +256,14 @@ export default function AdminProductsPage() {
         <span className="muted" style={{ fontSize: "13px" }}>Halaman {page} / {totalPages}</span>
         <button type="button" className="btn btn-secondary btn-sm" disabled={page >= totalPages} onClick={() => load(page + 1)}>Berikutnya →</button>
       </div>
+      <ConfirmDialog
+        open={!!pendingDeactivate}
+        title="Nonaktifkan produk?"
+        message={pendingDeactivate ? `Nonaktifkan produk "${pendingDeactivate.name}"? Produk tidak dihapus — status menjadi inactive dan tidak tampil di marketplace.` : ""}
+        confirmLabel="Ya, nonaktifkan"
+        onConfirm={confirmDeactivate}
+        onCancel={() => setPendingDeactivate(null)}
+      />
     </div>
   );
 }

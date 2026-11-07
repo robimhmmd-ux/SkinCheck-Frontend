@@ -11,7 +11,7 @@ import {
 import { fmtDate } from "../../../lib/scores";
 import { ErrorBox, Loading } from "../../../components/Notice";
 import AdminDenied from "../../../components/AdminDenied";
-import { useToast } from "../../../components/Toast";
+import { useToast, ConfirmDialog } from "../../../components/Toast";
 
 const inputStyle = {
   width: "100%",
@@ -37,6 +37,7 @@ export default function AdminUsersPage() {
   const [error, setError] = useState(null);
   const [form, setForm] = useState(null); // null | {id?, name, email, password, status}
   const [busy, setBusy] = useState(false);
+  const [pendingDeactivate, setPendingDeactivate] = useState(null);
   const toast = useToast();
 
   async function load(p = page) {
@@ -93,7 +94,13 @@ export default function AdminUsersPage() {
   }
 
   async function onDeactivate(u) {
-    if (!window.confirm(`Nonaktifkan akun ${u.name} (${u.email})? Akun tidak dihapus — status menjadi inactive dan riwayatnya tetap utuh.`)) return;
+    setPendingDeactivate(u);
+  }
+
+  async function confirmDeactivate() {
+    const u = pendingDeactivate;
+    if (!u) return;
+    setPendingDeactivate(null);
     try {
       await deactivateAdminUser(u.id);
       toast.success("Akun dinonaktifkan.");
@@ -208,6 +215,14 @@ export default function AdminUsersPage() {
         <span className="muted" style={{ fontSize: "13px" }}>Halaman {page} / {totalPages}</span>
         <button type="button" className="btn btn-secondary btn-sm" disabled={page >= totalPages} onClick={() => load(page + 1)}>Berikutnya →</button>
       </div>
+      <ConfirmDialog
+        open={!!pendingDeactivate}
+        title="Nonaktifkan akun?"
+        message={pendingDeactivate ? `Nonaktifkan akun ${pendingDeactivate.name} (${pendingDeactivate.email})? Akun tidak dihapus — status menjadi inactive dan riwayatnya tetap utuh.` : ""}
+        confirmLabel="Ya, nonaktifkan"
+        onConfirm={confirmDeactivate}
+        onCancel={() => setPendingDeactivate(null)}
+      />
     </div>
   );
 }

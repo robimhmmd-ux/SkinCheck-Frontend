@@ -8,7 +8,7 @@ import {
 } from "../../../lib/api";
 import { ErrorBox, Loading } from "../../../components/Notice";
 import AdminDenied from "../../../components/AdminDenied";
-import { useToast } from "../../../components/Toast";
+import { useToast, ConfirmDialog } from "../../../components/Toast";
 
 export default function AdminCopilotPage() {
   const [data, setData] = useState(null);
@@ -18,6 +18,7 @@ export default function AdminCopilotPage() {
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState(null);
   const [approving, setApproving] = useState(false);
+  const [pendingApprove, setPendingApprove] = useState(false);
   const toast = useToast();
 
   async function load() {
@@ -73,7 +74,13 @@ export default function AdminCopilotPage() {
   async function onApprove() {
     const p = data.proposal;
     if (!p) return;
-    if (!window.confirm(`Masukkan "${p.name}" ke katalog sebagai produk aktif?`)) return;
+    setPendingApprove(true);
+  }
+
+  async function confirmApprove() {
+    const p = data.proposal;
+    if (!p) return;
+    setPendingApprove(false);
     setApproving(true);
     try {
       await autoInsertAdminProduct({
@@ -203,6 +210,14 @@ export default function AdminCopilotPage() {
           </p>
         )}
       </div>
+      <ConfirmDialog
+        open={pendingApprove && !!data.proposal}
+        title="Masukkan ke katalog?"
+        message={data.proposal ? `Masukkan "${data.proposal.name}" ke katalog sebagai produk aktif?` : ""}
+        confirmLabel="Ya, masukkan"
+        onConfirm={confirmApprove}
+        onCancel={() => setPendingApprove(false)}
+      />
     </div>
   );
 }

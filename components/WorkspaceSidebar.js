@@ -29,7 +29,7 @@ import {
   UserCog,
 } from "lucide-react";
 import { getMe, logout, pickUser } from "../lib/api";
-import { useToast } from "./Toast";
+import { useToast, ConfirmDialog } from "./Toast";
 
 const SIDEBAR_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -56,6 +56,7 @@ const ADMIN_LINKS = [
 export default function WorkspaceSidebar({ open, onClose }) {
   const [user, setUser] = useState(null);
   const [logoutBusy, setLogoutBusy] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const toast = useToast();
@@ -84,11 +85,11 @@ export default function WorkspaceSidebar({ open, onClose }) {
     setLogoutBusy(true);
     try {
       await logout();
-      toast.success("Berhasil keluar.");
+      toast.success("Anda berhasil logout.");
       router.push("/login");
       router.refresh();
     } catch {
-      toast.success("Berhasil keluar.");
+      toast.success("Anda berhasil logout.");
       router.push("/login");
     } finally {
       setLogoutBusy(false);
@@ -226,7 +227,7 @@ export default function WorkspaceSidebar({ open, onClose }) {
             <button
               type="button"
               className="side-slide-logout-btn"
-              onClick={handleLogout}
+              onClick={() => setConfirmLogout(true)}
               disabled={logoutBusy}
             >
               <LogOut size={16} />
@@ -235,6 +236,17 @@ export default function WorkspaceSidebar({ open, onClose }) {
           </div>
         </div>
       </aside>
+      <ConfirmDialog
+        open={confirmLogout}
+        title="Yakin mau keluar?"
+        message="Sesi kamu akan diakhiri dan kamu perlu masuk kembali untuk mengakses riwayat dan diagnosis."
+        confirmLabel="Ya, keluar"
+        onConfirm={() => {
+          setConfirmLogout(false);
+          handleLogout();
+        }}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </>
   );
 }

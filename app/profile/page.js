@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { getMe, logout, pickUser, updateMyProfile } from "../../lib/api";
 import { ErrorBox, Loading } from "../../components/Notice";
-import { useToast } from "../../components/Toast";
+import { useToast, ConfirmDialog } from "../../components/Toast";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -29,6 +29,7 @@ export default function ProfilePage() {
   const [showPercent, setShowPercent] = useState(true);
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   useEffect(() => {
     try {
@@ -86,7 +87,7 @@ export default function ProfilePage() {
   async function onLogout() {
     try { 
       await logout(); 
-      toast.success("Berhasil keluar dari akun."); 
+      toast.success("Anda berhasil logout."); 
       setUser(null); 
       router.push("/login"); 
     } catch (e) { 
@@ -283,7 +284,7 @@ export default function ProfilePage() {
               Keluar akan mengosongkan token otentikasi aktif di peramban ini. Kamu perlu masuk kembali untuk mengakses riwayat dan dossier.
             </p>
             <div className="session-buttons-cluster">
-              <button className="btn btn-secondary" onClick={onLogout} style={{ color: "var(--crimson-500)", borderColor: "rgba(197, 48, 48, 0.25)" }}>
+              <button className="btn btn-secondary" onClick={() => setConfirmLogout(true)} style={{ color: "var(--crimson-500)", borderColor: "rgba(197, 48, 48, 0.25)" }}>
                 <LogOut size={16} /> Keluar dari Sesi
               </button>
               <Link href="/dashboard" className="btn btn-primary">
@@ -293,6 +294,17 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirmLogout}
+        title="Yakin mau keluar?"
+        message="Sesi kamu akan diakhiri dan kamu perlu masuk kembali untuk mengakses riwayat dan diagnosis."
+        confirmLabel="Ya, keluar"
+        onConfirm={() => {
+          setConfirmLogout(false);
+          onLogout();
+        }}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </div>
   );
 }

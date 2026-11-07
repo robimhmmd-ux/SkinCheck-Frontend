@@ -15,7 +15,6 @@ import { usePathname } from "next/navigation";
 import { Camera, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import SiteHeader from "./SiteHeader";
 import WorkspaceSidebar from "./WorkspaceSidebar";
-import NotificationBell from "./NotificationBell";
 import { fmtDateShort } from "../lib/scores";
 
 const WORKSPACE_PREFIXES = [
@@ -146,7 +145,6 @@ export default function AppShell({ children }) {
           </div>
 
           <div className="dash-topbar-right">
-            <NotificationBell />
             <span className="dash-date-pill">{fmtDateShort(new Date().toISOString())}</span>
             {!isAdminPage && (
               <Link href="/scan" className="btn btn-amber btn-sm">
