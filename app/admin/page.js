@@ -451,14 +451,17 @@ export default function AdminPage() {
                 <Link href="/admin/scans" className="btn btn-secondary btn-sm" style={{ justifyContent: "center" }}>
                   <Scan size={14} /> Audit Scan
                 </Link>
+                <Link href="/admin/ai-copilot" className="btn btn-secondary btn-sm" style={{ justifyContent: "center" }}>
+                  <Sparkles size={14} /> AI Copilot
+                </Link>
                 <Link href="/admin/trends" className="btn btn-secondary btn-sm" style={{ justifyContent: "center" }}>
                   <TrendingUp size={14} /> Tren Scan
                 </Link>
                 <Link href="/admin/settings" className="btn btn-ghost btn-sm" style={{ justifyContent: "center" }}>
-                  <Settings size={14} /> Konfigurasi Sistem
+                  <Settings size={14} /> Konfigurasi
                 </Link>
-                <Link href="/admin/logs" className="btn btn-ghost btn-sm" style={{ justifyContent: "center" }}>
-                  <ScrollText size={14} /> Log Aktivitas
+                <Link href="/admin/logs" className="btn btn-ghost btn-sm" style={{ justifyContent: "center", gridColumn: "span 2" }}>
+                  <ScrollText size={14} /> Log Aktivitas Sistem
                 </Link>
               </div>
             </div>

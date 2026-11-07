@@ -272,6 +272,61 @@ function SettingsContent() {
         </div>
       </div>
 
+      {/* ── KPI Telemetry Strip ── */}
+      <div className="admin-stat-strip">
+        <div className="admin-stat-card">
+          <div className="admin-stat-icon-wrap stat-amber">
+            <Cpu size={20} />
+          </div>
+          <div className="admin-stat-info">
+            <span className="admin-stat-label">Model AI Aktif</span>
+            <span className="admin-stat-value" style={{ fontSize: "17px" }}>
+              {values.AI_MODEL || "gemini-1.5-flash"}
+            </span>
+            <span className="admin-stat-meta">Mesin konsultasi</span>
+          </div>
+        </div>
+
+        <div className="admin-stat-card">
+          <div className="admin-stat-icon-wrap stat-blue">
+            <Key size={20} />
+          </div>
+          <div className="admin-stat-info">
+            <span className="admin-stat-label">Channel Pengiriman OTP</span>
+            <span className="admin-stat-value" style={{ fontSize: "18px" }}>
+              {(values.OTP_CHANNEL || "email").toUpperCase()}
+            </span>
+            <span className="admin-stat-meta">Gateway otentikasi</span>
+          </div>
+        </div>
+
+        <div className="admin-stat-card">
+          <div className="admin-stat-icon-wrap stat-emerald">
+            <UserCog size={20} />
+          </div>
+          <div className="admin-stat-info">
+            <span className="admin-stat-label">Akun Administrator</span>
+            <span className="admin-stat-value" style={{ fontSize: "17px" }}>
+              {adminName || "Superadmin"}
+            </span>
+            <span className="admin-stat-meta">Otoritas root sistem</span>
+          </div>
+        </div>
+
+        <div className="admin-stat-card">
+          <div className="admin-stat-icon-wrap stat-purple">
+            <ShieldCheck size={20} />
+          </div>
+          <div className="admin-stat-info">
+            <span className="admin-stat-label">Google Gemini API</span>
+            <span className="admin-stat-value" style={{ fontSize: "18px" }}>
+              {meta.GEMINI_API_KEY?.configured ? "Tersimpan" : "Belum Set"}
+            </span>
+            <span className="admin-stat-meta">Kunci keamanan backend</span>
+          </div>
+        </div>
+      </div>
+
       {/* ── 3 SELECTION CARDS (BILAH PEMILIHAN KONFIGURASI) ── */}
       <div className="config-selector-grid">
         {/* Pilihan 1: Model AI */}
