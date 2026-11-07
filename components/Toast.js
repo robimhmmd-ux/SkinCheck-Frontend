@@ -37,14 +37,17 @@ export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const idRef = useRef(0);
 
+  // Tutup sinematik: toast menghilang berangsur (fade + turun sedikit)
+  // selama 450ms sebelum benar-benar dihapus dari daftar.
   const dismiss = useCallback((id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts((prev) => prev.map((t) => (t.id === id ? { ...t, exiting: true } : t)));
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 450);
   }, []);
 
   const show = useCallback((type, message, title) => {
     const id = ++idRef.current;
     const duration = type === "error" ? 7000 : 5000;
-    setToasts((prev) => [...prev.slice(-2), { id, type, message, title }]);
+    setToasts((prev) => [...prev.slice(-2), { id, type, message, title, duration, exiting: false }]);
     if (duration > 0) {
       setTimeout(() => dismiss(id), duration);
     }
@@ -64,12 +67,13 @@ export function ToastProvider({ children }) {
       {children}
       <div className="ed-toast-viewport" aria-live="polite">
         {toasts.map((t) => (
-          <div key={t.id} className={`ed-toast ed-toast-${t.type}`} role={t.type === "error" ? "alert" : "status"}>
+          <div key={t.id} className={`ed-toast ed-toast-${t.type}${t.exiting ? " ed-toast-exiting" : ""}`} role={t.type === "error" ? "alert" : "status"}>
             <span className="ed-toast-icon"><ToastIcon type={t.type} /></span>
             <span className="ed-toast-text">
               <strong>{t.title}</strong>{" "}
               <span>{t.message}</span>
             </span>
+            <span className="ed-toast-progress" style={{ animationDuration: `${t.duration}ms` }} aria-hidden="true" />
             <button type="button" className="ed-toast-close" onClick={() => dismiss(t.id)} aria-label="Tutup notifikasi">×</button>
           </div>
         ))}

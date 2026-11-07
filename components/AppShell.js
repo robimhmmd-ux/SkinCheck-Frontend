@@ -7,6 +7,7 @@ import { Camera } from "lucide-react";
 import SiteHeader from "./SiteHeader";
 import WorkspaceSidebar from "./WorkspaceSidebar";
 import VerificationModal from "./VerificationModal";
+import NotificationBell from "./NotificationBell";
 import { fmtDateShort } from "../lib/scores";
 import { getMe, pickUser } from "../lib/api";
 
@@ -155,6 +156,10 @@ export default function AppShell({ children }) {
           </div>
 
           <div className="dash-topbar-right">
+            {/* Lonceng disembunyikan selama modal verifikasi tampil — modal
+                menutupi layar penuh, jadi lonceng di baliknya tidak bisa
+                diklik; sesudah terverifikasi lonceng muncul kembali. */}
+            {!needsVerification && <NotificationBell />}
             <span className="dash-date-pill">{fmtDateShort(new Date().toISOString())}</span>
             {!isAdminPage && (
               <Link href="/scan" className="btn btn-amber btn-sm">
