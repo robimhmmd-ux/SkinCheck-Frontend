@@ -18,8 +18,10 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { uploadScan, uploadMultiScan, pickObject, getMe } from "../../lib/api";
-import { fmtDate } from "../../lib/scores";
+import { fmtDate, fmtScore } from "../../lib/scores";
 import { ErrorBox } from "../../components/Notice";
+import { useToast } from "../../components/Toast";
+import { NOTIFICATIONS_REFRESH_EVENT } from "../../lib/notifications";
 
 const SCORES = [
   ["acne_score", "Jerawat"],
@@ -305,6 +307,32 @@ export default function ScanPage() {
   // scan yang gagal tampak seperti "tidak ada loading dan tidak ada output".
   const resultStatus = result && (result.status || "");
   const resultFailed = Boolean(result) && !analysis;
+
+  // Toast + lonceng notifikasi saat satu scan selesai (sukses atau gagal).
+  // Dijaga per scan_id supaya toast tidak muncul dua kali saat komponen
+  // render ulang; status "processing" tidak di-toast (belum final).
+  const toast = useToast();
+  const toastedScanRef = useRef(null);
+  useEffect(() => {
+    if (!result) return;
+    const id = result.scan_id || result.id;
+    if (id != null && toastedScanRef.current === id) return;
+    if (analysis) {
+      toastedScanRef.current = id;
+      const overall = Number(analysis.overall_score);
+      toast.success(
+        Number.isFinite(overall)
+          ? `Skor keseluruhan ${fmtScore(overall)}%. Lihat detailnya di Riwayat & Diagnosis.`
+          : "Hasil analisis sudah tersedia di Riwayat & Diagnosis.",
+        "Scan selesai"
+      );
+      window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
+    } else if (resultStatus === "failed") {
+      toastedScanRef.current = id;
+      toast.error(result.message || "Analisis AI gagal diproses.", "Scan gagal");
+      window.dispatchEvent(new Event(NOTIFICATIONS_REFRESH_EVENT));
+    }
+  }, [result, analysis, resultStatus, toast]);
 
   return (
     <div className="scanner-stage-wrap">
