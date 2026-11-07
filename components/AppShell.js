@@ -41,7 +41,7 @@ const PAGE_LABELS = [
   ["/admin/scans", "Admin • Audit Scan"],
   ["/admin/ai-copilot", "Admin • AI Copilot"],
   ["/admin/trends", "Admin • Tren Scan"],
-  ["/admin/settings", "Admin • Pengaturan"],
+  ["/admin/settings", "Admin • Konfigurasi"],
   ["/admin/logs", "Admin • Log Aktivitas"],
   ["/admin/profile", "Admin • Profil"],
   ["/admin", "Admin • Dashboard"],

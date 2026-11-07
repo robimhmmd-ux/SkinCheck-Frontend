@@ -48,9 +48,8 @@ const ADMIN_LINKS = [
   { href: "/admin/scans", label: "Audit Scan", icon: ScanSearch },
   { href: "/admin/ai-copilot", label: "AI Copilot", icon: BrainCircuit },
   { href: "/admin/trends", label: "Tren Scan", icon: TrendingUp },
-  { href: "/admin/settings", label: "Pengaturan", icon: Settings },
+  { href: "/admin/settings", label: "Konfigurasi", icon: Settings },
   { href: "/admin/logs", label: "Log Aktivitas", icon: ScrollText },
-  { href: "/admin/profile", label: "Profil Admin", icon: UserCog },
 ];
 
 export default function WorkspaceSidebar({ open, onClose }) {

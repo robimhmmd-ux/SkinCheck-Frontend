@@ -455,7 +455,7 @@ export default function AdminPage() {
                   <TrendingUp size={14} /> Tren Scan
                 </Link>
                 <Link href="/admin/settings" className="btn btn-ghost btn-sm" style={{ justifyContent: "center" }}>
-                  <Settings size={14} /> Pengaturan Hub
+                  <Settings size={14} /> Konfigurasi Sistem
                 </Link>
                 <Link href="/admin/logs" className="btn btn-ghost btn-sm" style={{ justifyContent: "center" }}>
                   <ScrollText size={14} /> Log Aktivitas
