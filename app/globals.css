@@ -4423,3 +4423,618 @@ a:hover {
     transition-duration: 0.01ms !important;
   }
  }
+\n
+/* ═════════════════════════════════════════════════════════════════
+   LAOMERA ADMIN CONSOLE (v2.5 High-Taste / Anti-Slop Architecture)
+   ═════════════════════════════════════════════════════════════════ */
+
+.admin-stage-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 28px 32px 64px;
+}
+
+@media (max-width: 768px) {
+  .admin-stage-container {
+    padding: 16px 16px 48px;
+  }
+}
+
+.admin-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.admin-title-group h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 700;
+  color: var(--brand-navy);
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.admin-title-group p {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Tab Switcher Pills ── */
+.admin-tab-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(23, 32, 51, 0.04);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-light);
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.admin-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-tab-btn:hover {
+  color: var(--brand-navy);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.admin-tab-btn.active {
+  color: var(--brand-navy);
+  background: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.admin-tab-btn .tab-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(23, 32, 51, 0.06);
+  font-family: var(--font-mono, monospace);
+}
+
+.admin-tab-btn.active .tab-badge {
+  background: var(--amber-100);
+  color: var(--amber-700);
+}
+
+/* ── Bento KPI Tiles ── */
+.admin-kpi-bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1080px) {
+  .admin-kpi-bento {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .admin-kpi-bento {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-kpi-tile {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-kpi-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(217, 136, 42, 0.35);
+  box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.06);
+}
+
+.admin-kpi-tile::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.admin-kpi-tile.kpi-navy::before { background: var(--brand-navy); }
+.admin-kpi-tile.kpi-amber::before { background: var(--brand-amber); }
+.admin-kpi-tile.kpi-blue::before { background: #3b82f6; }
+.admin-kpi-tile.kpi-emerald::before { background: #10b981; }
+
+.admin-kpi-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.admin-kpi-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-kpi-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.admin-kpi-num {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--brand-navy);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.admin-kpi-foot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.admin-kpi-foot.text-success { color: #059669; }
+.admin-kpi-foot.text-amber { color: #d97706; }
+
+/* ── Bento Grid 2 Columns ── */
+.admin-bento-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 960px) {
+  .admin-bento-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-glass-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.admin-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.admin-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--brand-navy);
+}
+
+.admin-card-badge {
+  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(23, 32, 51, 0.06);
+  color: var(--text-muted);
+  font-family: var(--font-mono, monospace);
+  font-weight: 500;
+}
+
+/* ── 5 Conditions Distribution Meters ── */
+.admin-meters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.admin-meter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-meter-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.admin-meter-name {
+  font-weight: 500;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-meter-name .meter-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.admin-meter-pct {
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+  color: var(--brand-navy);
+  font-size: 12.5px;
+}
+
+.admin-meter-track {
+  width: 100%;
+  height: 7px;
+  background: rgba(23, 32, 51, 0.06);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.admin-meter-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Pipeline Flow Nodes ── */
+.admin-pipeline-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 12px;
+  background: var(--surface-warm);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  margin-top: 18px;
+  overflow-x: auto;
+}
+
+.admin-pipeline-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 80px;
+}
+
+.node-icon-bubble {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  display: grid;
+  place-items: center;
+  margin-bottom: 6px;
+  color: var(--brand-amber);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.node-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--brand-navy);
+}
+
+.node-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.pipeline-arrow {
+  color: var(--text-muted);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* ── Telemetry Health Status Table ── */
+.admin-spec-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(23, 32, 51, 0.05);
+  font-size: 13px;
+}
+
+.admin-spec-row:last-child {
+  border-bottom: none;
+}
+
+.spec-key {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spec-val {
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+  color: var(--brand-navy);
+  background: rgba(23, 32, 51, 0.04);
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* ── Live Pulse Dot ── */
+.admin-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  background: #10b981;
+  box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+  animation: adminPulse 2s infinite;
+}
+
+@keyframes adminPulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* ── Catalog Filter & Table ── */
+.admin-toolbar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.admin-search-wrap {
+  position: relative;
+  min-width: 260px;
+  flex: 1;
+  max-width: 400px;
+}
+
+.admin-search-input {
+  width: 100%;
+  padding: 9px 14px 9px 38px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-light);
+  background: #ffffff;
+  font-size: 13px;
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-search-input:focus {
+  border-color: var(--brand-amber);
+  box-shadow: 0 0 0 3px rgba(217, 136, 42, 0.12);
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.admin-category-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.admin-filter-chip {
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border-light);
+  background: #ffffff;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-filter-chip:hover {
+  color: var(--brand-navy);
+  border-color: var(--border-medium);
+}
+
+.admin-filter-chip.active {
+  background: var(--brand-navy);
+  color: #ffffff;
+  border-color: var(--brand-navy);
+  font-weight: 600;
+}
+
+/* ── Catalog Data Table ── */
+.admin-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+}
+
+.admin-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.admin-data-table th {
+  background: var(--surface-warm);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+
+.admin-data-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(23, 32, 51, 0.05);
+  vertical-align: middle;
+  color: var(--text-main);
+}
+
+.admin-data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-data-table tr:hover td {
+  background: rgba(248, 250, 252, 0.7);
+}
+
+.product-cell-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-cell-name {
+  font-weight: 600;
+  color: var(--brand-navy);
+}
+
+.product-cell-brand {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: rgba(100, 130, 173, 0.12);
+  color: #3b5998;
+}
+
+.status-badge-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.concern-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(23, 32, 51, 0.05);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-right: 4px;
+  margin-bottom: 2px;
+}
+
+/* ── Benchmark Cards (AI Spec) ── */
+.admin-benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .admin-benchmark-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-benchmark-box {
+  background: var(--surface-warm);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  text-align: center;
+}
+
+.admin-benchmark-box .bm-val {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--brand-navy);
+  margin: 4px 0;
+}
+
+.admin-benchmark-box .bm-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}

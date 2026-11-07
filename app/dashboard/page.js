@@ -27,6 +27,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   PanelLeft,
+  ShieldAlert,
 } from "lucide-react";
 import { getMe, getDashboard, getHistory, getProducts, logout, pickUser, pickObject, pickArray } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
@@ -323,6 +324,16 @@ export default function DashboardPage() {
                 </Link>
               );
             })}
+                      {user?.role === "admin" && (
+              <Link
+                href="/admin"
+                className="side-nav-link"
+                style={{ color: "var(--brand-amber)" }}
+              >
+                <ShieldAlert size={18} aria-hidden="true" />
+                <span className="side-nav-text">Konsol Admin</span>
+              </Link>
+            )}
           </nav>
 
           {/* Quick Action Widget */}

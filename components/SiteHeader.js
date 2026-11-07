@@ -19,6 +19,7 @@ import {
   HelpCircle,
   Info,
   ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
 import LoginModal from "./LoginModal";
 import FeedbackModal from "./FeedbackModal";
@@ -48,6 +49,7 @@ export default function SiteHeader() {
 
   const isLandingPage = pathname === "/";
   const isDashboardPage = pathname === "/dashboard";
+  const isAdminPage = pathname === "/admin";
 
   useEffect(() => {
     let alive = true;
@@ -98,8 +100,8 @@ export default function SiteHeader() {
     }
   }
 
-  // On the dashboard page, navigation is handled exclusively by the side slide taskbar
-  if (isDashboardPage) {
+  // On dashboard and admin pages, navigation is handled exclusively by their dedicated side slide taskbar
+  if (isDashboardPage || isAdminPage) {
     return null;
   }
 
@@ -174,6 +176,16 @@ export default function SiteHeader() {
                   </Link>
                 );
               })}
+                          {user?.role === "admin" && (
+                <Link
+                  href="/admin"
+                  className={`nav-pill-item ${pathname === "/admin" ? "active" : ""}`}
+                  style={{ color: "var(--brand-amber)", fontWeight: 600 }}
+                >
+                  <ShieldAlert size={16} aria-hidden="true" />
+                  <span>Admin</span>
+                </Link>
+              )}
             </nav>
           )}
 
@@ -187,6 +199,12 @@ export default function SiteHeader() {
             {user ? (
               isLandingPage ? (
                 <>
+                  {user?.role === "admin" && (
+                    <Link href="/admin" className="btn btn-primary btn-sm nav-auth-btn">
+                      <ShieldAlert size={14} aria-hidden="true" />
+                      <span>Admin</span>
+                    </Link>
+                  )}
                   <Link href="/dashboard" className="btn btn-secondary btn-sm nav-auth-btn">
                     <LayoutDashboard size={15} aria-hidden="true" />
                     <span>Dashboard</span>
@@ -345,6 +363,20 @@ export default function SiteHeader() {
                         </Link>
                       );
                     })}
+                                      {user?.role === "admin" && (
+                      <Link
+                        href="/admin"
+                        className={`mobile-nav-item ${pathname === "/admin" ? "active" : ""}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        style={{ color: "var(--brand-amber)" }}
+                      >
+                        <div className="mobile-nav-icon-wrap">
+                          <ShieldAlert size={18} />
+                        </div>
+                        <span className="mobile-nav-label">Konsol Admin</span>
+                        {pathname === "/admin" && <span className="mobile-active-dot" />}
+                      </Link>
+                    )}
                   </nav>
                 )}
 
