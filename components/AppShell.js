@@ -1,18 +1,9 @@
 // Kerangka aplikasi: satu navigasi yang sama di semua halaman workspace.
-//
-// Masalah yang diperbaiki: sidebar dulu hanya ada di halaman dashboard
-// (SiteHeader mengembalikan null di /dashboard, dan sidebar dirender di
-// dalam page dashboard). Begitu pengguna klik "Scan Kulit", halaman
-// dashboard unmount, sidebar ikut hilang, dan navigasi mendadak berganti
-// jadi topbar. Sekarang sidebar + stage topbar dirender di sini, di atas
-// semua halaman workspace, sehingga navigasi tidak pernah berganti bentuk
-// saat pindah halaman. Halaman landing dan auth tetap memakai topbar
-// SiteHeader seperti sebelumnya.
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Camera, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Camera } from "lucide-react";
 import SiteHeader from "./SiteHeader";
 import WorkspaceSidebar from "./WorkspaceSidebar";
 import { fmtDateShort } from "../lib/scores";
@@ -72,15 +63,15 @@ function SiteFooter() {
 
 export default function AppShell({ children }) {
   const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("skincheck_sidebar_open");
+      const saved = localStorage.getItem("laomera_sidebar_collapsed");
       if (saved !== null) {
-        setSidebarOpen(saved === "true");
+        setSidebarCollapsed(saved === "true");
       } else if (window.innerWidth < 1024) {
-        setSidebarOpen(false);
+        setSidebarCollapsed(true);
       }
     } catch {
       // ignore
@@ -88,10 +79,10 @@ export default function AppShell({ children }) {
   }, []);
 
   function toggleSidebar() {
-    setSidebarOpen((prev) => {
+    setSidebarCollapsed((prev) => {
       const next = !prev;
       try {
-        localStorage.setItem("skincheck_sidebar_open", String(next));
+        localStorage.setItem("laomera_sidebar_collapsed", String(next));
       } catch {
         // ignore
       }
@@ -103,9 +94,6 @@ export default function AppShell({ children }) {
     (p) => pathname === p || pathname.startsWith(p + "/")
   );
 
-  // Tombol "Scan Baru" di stage topbar adalah navigasi customer — di
-  // halaman admin tombol itu ikut disembunyikan, sama seperti menu
-  // WORKSPACE di sidebar.
   const isAdminPage = pathname === "/admin" || pathname.startsWith("/admin/");
 
   if (!isWorkspace) {
@@ -121,24 +109,15 @@ export default function AppShell({ children }) {
   }
 
   return (
-    <div className={`dash-workspace-layout ${sidebarOpen ? "sidebar-expanded" : "sidebar-hidden"}`}>
-      <WorkspaceSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className={`dash-workspace-layout ${sidebarCollapsed ? "sidebar-collapsed" : "sidebar-expanded"}`}>
+      <WorkspaceSidebar
+        collapsed={sidebarCollapsed}
+        onToggle={toggleSidebar}
+      />
 
       <div className="dash-main-canvas-area">
         <header className="dash-stage-topbar">
           <div className="dash-topbar-left">
-            <button
-              type="button"
-              className="dash-slide-toggle-btn"
-              onClick={toggleSidebar}
-              title={sidebarOpen ? "Sembunyikan Navigasi" : "Buka Navigasi (Side Slide)"}
-              aria-expanded={sidebarOpen}
-            >
-              {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeftOpen size={18} />}
-              <span className="dash-toggle-btn-label">
-                {sidebarOpen ? "Sembunyikan" : "Buka Navigasi"}
-              </span>
-            </button>
             <span className="dash-breadcrumb-path">
               Laomera / <strong>{pageLabel(pathname)}</strong>
             </span>
