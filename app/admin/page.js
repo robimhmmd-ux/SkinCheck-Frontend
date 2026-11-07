@@ -191,6 +191,12 @@ export default function AdminPage() {
 
   const usersCount = data.users ?? "0";
   const activeUsersCount = data.active_users ?? "0";
+  const verification = data.verification || {};
+  const pendingAccounts = verification.pending_accounts || [];
+  const recentlyVerified = verification.recently_verified || [];
+  const pendingCount = verification.pending_count ?? 0;
+  const awaitingCount = verification.awaiting_biodata_count ?? 0;
+  const waitingVerificationCount = pendingCount + awaitingCount;
   const scansCount = data.total_scans ?? data.scans ?? "0";
   const scansTodayCount = data.scans_today ?? "0";
   const successRate = data.success_rate != null ? `${data.success_rate}%` : "94.8%";
@@ -463,6 +469,68 @@ export default function AdminPage() {
                 <Link href="/admin/logs" className="btn btn-ghost btn-sm" style={{ justifyContent: "center", gridColumn: "span 2" }}>
                   <ScrollText size={14} /> Log Aktivitas Sistem
                 </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Verifikasi Akun: pendaftar baru & yang baru selesai verifikasi */}
+          <div className="admin-glass-card" style={{ marginTop: "22px" }}>
+            <div className="admin-card-head">
+              <div className="admin-card-title">
+                <ShieldCheck size={18} color="var(--brand-amber)" />
+                <span>Verifikasi Akun</span>
+              </div>
+              <span className="admin-card-badge">NOTIFIKASI PENDAFTARAN</span>
+            </div>
+            <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "16px" }}>
+              Akun baru yang mendaftar muncul di sini sebelum verifikasinya selesai; sesudah
+              verifikasi OTP WhatsApp dan biodata lengkap, akun itu pindah ke daftar
+              terverifikasi di bawah.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
+              <div>
+                <h4 style={{ margin: "0 0 10px", fontSize: "14px" }}>
+                  Menunggu verifikasi ({waitingVerificationCount})
+                </h4>
+                {pendingAccounts.length === 0 ? (
+                  <p className="muted" style={{ fontSize: "13px" }}>Tidak ada akun yang menunggu verifikasi.</p>
+                ) : (
+                  <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "10px" }}>
+                    {pendingAccounts.map((a) => (
+                      <li key={a.id} style={{ border: "1px solid var(--border-subtle)", borderRadius: "10px", padding: "10px 12px" }}>
+                        <div style={{ fontWeight: 700, fontSize: "13.5px" }}>{a.name}</div>
+                        <div className="muted" style={{ fontSize: "12.5px" }}>{a.email}{a.phone ? ` • ${a.phone}` : ""}</div>
+                        <div style={{ fontSize: "12.5px", marginTop: "4px", color: "#b45309" }}>
+                          {a.status === "awaiting_biodata"
+                            ? "OTP terverifikasi, biodata belum lengkap"
+                            : "Mendaftar tapi belum verifikasi OTP"}
+                          {a.created_at ? ` • ${new Date(a.created_at).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}` : ""}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <h4 style={{ margin: "0 0 10px", fontSize: "14px" }}>Baru saja terverifikasi</h4>
+                {recentlyVerified.length === 0 ? (
+                  <p className="muted" style={{ fontSize: "13px" }}>Belum ada akun yang menyelesaikan verifikasi.</p>
+                ) : (
+                  <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "10px" }}>
+                    {recentlyVerified.map((v, i) => (
+                      <li key={`${v.user_id}-${i}`} style={{ border: "1px solid var(--border-subtle)", borderRadius: "10px", padding: "10px 12px" }}>
+                        <div style={{ fontWeight: 700, fontSize: "13.5px" }}>{v.name}</div>
+                        <div className="muted" style={{ fontSize: "12.5px" }}>{v.email}</div>
+                        <div style={{ fontSize: "12.5px", marginTop: "4px", color: "#15803d" }}>
+                          {v.activity === "Melengkapi biodata — verifikasi akun selesai"
+                            ? "Sudah verifikasi OTP WA dan menyelesaikan biodata"
+                            : "Sudah verifikasi kode OTP WA"}
+                          {v.created_at ? ` • ${new Date(v.created_at).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}` : ""}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           </div>

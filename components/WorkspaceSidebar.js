@@ -57,6 +57,11 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
 
   const isAdminPage = pathname === "/admin" || pathname.startsWith("/admin/");
 
+  // Akun customer yang belum verifikasi penuh (pending = OTP belum lolos,
+  // awaiting_biodata = biodata belum lengkap): fitur terkunci.
+  const isUnverified =
+    user?.role === "customer" && user?.status && user.status !== "active";
+
   useEffect(() => {
     let alive = true;
     getMe()
@@ -88,6 +93,13 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
   }
 
   function handleNavClick(e, href) {
+    // Akun belum terverifikasi: tautan fitur dikunci (modal verifikasi yang
+    // tampil di AppShell adalah jalurnya; ini pengaman kalau modal tidak
+    // terpasang).
+    if (isUnverified) {
+      e.preventDefault();
+      return;
+    }
     if (href === "/assistant") {
       e.preventDefault();
       if (typeof window !== "undefined") {
@@ -166,6 +178,24 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
             )}
           </div>
 
+          {/* Pemberitahuan verifikasi akun */}
+          {isUnverified && !collapsed && (
+            <div
+              style={{
+                margin: "10px 12px 0",
+                padding: "10px 12px",
+                borderRadius: "10px",
+                background: "var(--amber-100)",
+                color: "var(--amber-700)",
+                fontSize: "12.5px",
+                lineHeight: "1.5",
+              }}
+            >
+              <strong>Akun belum terverifikasi.</strong> Selesaikan verifikasi OTP WhatsApp
+              dan biodata untuk membuka semua fitur.
+            </div>
+          )}
+
           {/* Navigasi Workspace (Customer) */}
           {!isAdminPage && (
             <nav className="side-slide-nav" aria-label="Navigasi Workspace">
@@ -179,8 +209,10 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
                     href={href}
                     className={`side-nav-link ${active ? "active" : ""}`}
                     aria-current={active ? "page" : undefined}
-                    title={label}
+                    aria-disabled={isUnverified ? true : undefined}
+                    title={isUnverified ? "Selesaikan verifikasi akun dulu" : label}
                     onClick={(e) => handleNavClick(e, href)}
+                    style={isUnverified ? { opacity: 0.55 } : undefined}
                   >
                     <Icon size={18} aria-hidden="true" />
                     {!collapsed && <span className="side-nav-text">{label}</span>}

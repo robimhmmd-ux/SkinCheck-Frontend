@@ -67,7 +67,7 @@ export function ToastProvider({ children }) {
           <div key={t.id} className={`ed-toast ed-toast-${t.type}`} role={t.type === "error" ? "alert" : "status"}>
             <span className="ed-toast-icon"><ToastIcon type={t.type} /></span>
             <span className="ed-toast-text">
-              <strong>{t.title}</strong>
+              <strong>{t.title}</strong>{" "}
               <span>{t.message}</span>
             </span>
             <button type="button" className="ed-toast-close" onClick={() => dismiss(t.id)} aria-label="Tutup notifikasi">×</button>

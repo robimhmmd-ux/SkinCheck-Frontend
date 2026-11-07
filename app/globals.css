@@ -5887,3 +5887,76 @@ body::-webkit-scrollbar,
   margin: 0;
   line-height: 1.5;
 }
+
+/* ── Toast & dialog konfirmasi (komponen Toast.js) ── */
+/* Kelas-kelas ini sebelumnya tidak punya CSS sama sekali di file ini —
+   satu-satunya file CSS frontend — sehingga toast ("Anda berhasil
+   login/logout") dan dialog "Yakin mau keluar?" tampil tanpa posisi,
+   warna, atau latar gelap: nyaris tidak terlihat di layar. */
+.ed-toast-viewport {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 40px));
+}
+.ed-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #172033;
+  color: #fff;
+  font-size: 13.5px;
+  line-height: 1.5;
+  box-shadow: 0 12px 32px rgba(17, 20, 34, 0.28);
+  animation: edToastIn 240ms ease-out;
+}
+.ed-toast-success { background: #14532d; }
+.ed-toast-error { background: #7f1d1d; }
+.ed-toast-info { background: #172033; }
+.ed-toast-text { flex: 1; }
+.ed-toast-icon { flex-shrink: 0; margin-top: 1px; }
+.ed-toast-close {
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+}
+.ed-toast-close:hover { opacity: 1; }
+@keyframes edToastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ed-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(17, 20, 34, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  animation: fadeIn 200ms ease-out;
+}
+.ed-confirm {
+  width: 100%;
+  max-width: 420px;
+  padding: 28px 26px;
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  animation: modalScaleUp 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ed-confirm h2 { margin: 0 0 8px; font-size: 18px; font-family: var(--font-serif); }
+.ed-confirm p { margin: 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-muted); }
+.ed-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }

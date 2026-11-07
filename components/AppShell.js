@@ -6,7 +6,9 @@ import { usePathname } from "next/navigation";
 import { Camera } from "lucide-react";
 import SiteHeader from "./SiteHeader";
 import WorkspaceSidebar from "./WorkspaceSidebar";
+import VerificationModal from "./VerificationModal";
 import { fmtDateShort } from "../lib/scores";
+import { getMe, pickUser } from "../lib/api";
 
 const WORKSPACE_PREFIXES = [
   "/dashboard",
@@ -64,6 +66,19 @@ function SiteFooter() {
 export default function AppShell({ children }) {
   const pathname = usePathname();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Pengguna saat ini (untuk gerbang verifikasi akun). Sidebar mengambil
+  // datanya sendiri; AppShell mengambil sekali lagi khusus untuk modal —
+  // getMe hanya membaca sesi, tanpa akses database.
+  const [meUser, setMeUser] = useState(null);
+
+  async function refreshMe() {
+    try {
+      const d = await getMe();
+      setMeUser(pickUser(d));
+    } catch {
+      setMeUser(null);
+    }
+  }
 
   useEffect(() => {
     try {
@@ -95,6 +110,22 @@ export default function AppShell({ children }) {
   );
 
   const isAdminPage = pathname === "/admin" || pathname.startsWith("/admin/");
+
+  // Segarkan status akun tiap pindah halaman workspace (modal verifikasi
+  // mengikuti status terbaru).
+  useEffect(() => {
+    if (isWorkspace) refreshMe();
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Gerbang verifikasi: customer yang statusnya bukan active (pending =
+  // OTP belum lolos, awaiting_biodata = biodata belum lengkap) melihat
+  // modal verifikasi dan fiturnya terkunci.
+  const needsVerification =
+    isWorkspace &&
+    meUser &&
+    meUser.role === "customer" &&
+    meUser.status &&
+    meUser.status !== "active";
 
   if (!isWorkspace) {
     return (
@@ -139,6 +170,7 @@ export default function AppShell({ children }) {
         </main>
         <SiteFooter />
       </div>
+      {needsVerification && <VerificationModal user={meUser} onDone={refreshMe} />}
     </div>
   );
 }
