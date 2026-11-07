@@ -39,14 +39,15 @@ import { useToast } from "../../../components/Toast";
 
 const inputStyle = {
   width: "100%",
-  padding: "10px 14px",
-  borderRadius: "10px",
-  border: "1px solid var(--border-subtle, #e2e8f0)",
-  background: "#ffffff",
+  padding: "11px 18px",
+  borderRadius: "28px",
+  border: "1px solid rgba(0, 0, 0, 0.04)",
+  background: "#e0e0e0",
+  boxShadow: "inset 4px 4px 9px #bebebe, inset -4px -4px 9px #ffffff",
   fontSize: "13.5px",
   color: "var(--text-main, #172033)",
   outline: "none",
-  transition: "border-color 0.15s ease, box-shadow 0.15s ease"
+  transition: "all 0.18s ease"
 };
 
 function SettingsContent() {
@@ -201,7 +202,7 @@ function SettingsContent() {
   }
 
   const renderTestBox = (name, label, icon, fn) => (
-    <div style={{ padding: "14px", borderRadius: "var(--radius-lg)", background: "var(--surface-warm, #f8fafc)", border: "1px solid var(--border-light, #e2e8f0)" }}>
+    <div style={{ padding: "16px 20px", borderRadius: "32px", background: "#e0e0e0", boxShadow: "inset 4px 4px 9px #bebebe, inset -4px -4px 9px #ffffff", border: "none" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {icon}
@@ -262,68 +263,10 @@ function SettingsContent() {
       {/* ── Page Header ── */}
       <div className="admin-view-header">
         <div className="admin-title-group">
-          <div className="badge badge-amber" style={{ marginBottom: "6px" }}>
-            <Sliders size={12} /> PUSAT KONFIGURASI SISTEM & AKUN
-          </div>
-          <h1>Konfigurasi Terpusat</h1>
+          <h1>Pusat Konfigurasi Sistem</h1>
           <p>
-            Pilih modul konfigurasi yang ingin disetel: Model Kecerdasan Buatan (AI), Gateway OTP, atau Akun Administrator.
+            Pilih modul yang ingin disetel: Model Kecerdasan Buatan (AI), Gateway OTP, atau Akun Administrator.
           </p>
-        </div>
-      </div>
-
-      {/* ── KPI Telemetry Strip ── */}
-      <div className="admin-stat-strip">
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-amber">
-            <Cpu size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Model AI Aktif</span>
-            <span className="admin-stat-value" style={{ fontSize: "17px" }}>
-              {values.AI_MODEL || "gemini-1.5-flash"}
-            </span>
-            <span className="admin-stat-meta">Mesin konsultasi</span>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-blue">
-            <Key size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Channel Pengiriman OTP</span>
-            <span className="admin-stat-value" style={{ fontSize: "18px" }}>
-              {(values.OTP_CHANNEL || "email").toUpperCase()}
-            </span>
-            <span className="admin-stat-meta">Gateway otentikasi</span>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-emerald">
-            <UserCog size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Akun Administrator</span>
-            <span className="admin-stat-value" style={{ fontSize: "17px" }}>
-              {adminName || "Superadmin"}
-            </span>
-            <span className="admin-stat-meta">Otoritas root sistem</span>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-purple">
-            <ShieldCheck size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Google Gemini API</span>
-            <span className="admin-stat-value" style={{ fontSize: "18px" }}>
-              {meta.GEMINI_API_KEY?.configured ? "Tersimpan" : "Belum Set"}
-            </span>
-            <span className="admin-stat-meta">Kunci keamanan backend</span>
-          </div>
         </div>
       </div>
 

@@ -1,27 +1,17 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import Link from "next/link";
 import {
   Package,
-  PackageCheck,
   PackagePlus,
   Search,
-  Filter,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   Edit2,
   ExternalLink,
-  Layers,
   X,
   RefreshCw,
-  ShoppingBag,
-  SlidersHorizontal,
-  Droplets,
-  Flame,
-  Zap,
-  Sun
+  ShoppingBag
 } from "lucide-react";
 import {
   getAdminProducts,
@@ -93,14 +83,6 @@ export default function AdminProductsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, status]);
 
-  const activeCount = useMemo(() => {
-    return rows.filter((r) => r.status === "active").length;
-  }, [rows]);
-
-  const marketplaceLinksCount = useMemo(() => {
-    return rows.filter((r) => r.shopee_link || r.tokopedia_link).length;
-  }, [rows]);
-
   function toBody(f) {
     const split = (s) =>
       typeof s === "string"
@@ -170,15 +152,12 @@ export default function AdminProductsPage() {
 
   return (
     <div className="admin-stage-container">
-      {/* ── Header ── */}
+      {/* ── Page Header ── */}
       <div className="admin-view-header">
         <div className="admin-title-group">
-          <div className="badge badge-amber" style={{ marginBottom: "6px" }}>
-            <Package size={12} /> DIREKTORI FORMULASI SKINCARE
-          </div>
-          <h1>Katalog Produk & Rekomendasi Klinis</h1>
+          <h1>Katalog Produk & Formulasi</h1>
           <p>
-            Kelola formula skincare, target masalah kulit, bahan aktif, dan tautan marketplace yang dipetakan oleh mesin rekomendasi AI.
+            {total} formula skincare terdaftar • Direktori bahan aktif dan pemetaan produk rekomendasi AI.
           </p>
         </div>
 
@@ -196,66 +175,19 @@ export default function AdminProductsPage() {
             className="btn btn-primary btn-sm"
             onClick={() => setForm({ ...emptyForm })}
           >
-            <PackagePlus size={14} /> Tambah Formulasi Produk
+            <PackagePlus size={14} /> Tambah Produk
           </button>
-        </div>
-      </div>
-
-      {/* ── KPI Telemetry Strip ── */}
-      <div className="admin-stat-strip">
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-amber">
-            <Package size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Total Formula Terdaftar</span>
-            <span className="admin-stat-value">{total}</span>
-            <span className="admin-stat-meta">Katalog sistem</span>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-emerald">
-            <PackageCheck size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Produk Aktif Rekomendasi</span>
-            <span className="admin-stat-value">{activeCount}</span>
-            <span className="admin-stat-meta">Tampil di hasil scan AI</span>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-blue">
-            <ShoppingBag size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Terhubung Marketplace</span>
-            <span className="admin-stat-value">{marketplaceLinksCount}</span>
-            <span className="admin-stat-meta">Shopee / Tokopedia aktif</span>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-purple">
-            <Layers size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Total Kategori</span>
-            <span className="admin-stat-value">{PRODUCT_CATEGORIES.length}</span>
-            <span className="admin-stat-meta">Klasifikasi dermatologi</span>
-          </div>
         </div>
       </div>
 
       {error && <ErrorBox error={error} />}
 
-      {/* ── Form Create / Edit Modal Card ── */}
+      {/* ── Form Modal / Inline Card ── */}
       {form && (
         <form onSubmit={onSubmit} className="admin-form-card">
           <div className="admin-form-header">
             <h3 className="admin-form-title">
-              {form.id ? "Edit Spesifikasi Formulasi Produk" : "Tambah Produk & Bahan Aktif Baru"}
+              {form.id ? "Edit Formulasi Produk" : "Tambah Produk Baru"}
             </h3>
             <button
               type="button"
@@ -271,24 +203,22 @@ export default function AdminProductsPage() {
               <label className="admin-field-label">Nama Merek / Brand</label>
               <input
                 className="admin-input-styled"
-                placeholder="mis. Somethinc, Skintific, Avoskin"
+                placeholder="mis. Somethinc, Skintific"
                 required
                 value={form.brand}
                 onChange={(e) => setForm({ ...form, brand: e.target.value })}
               />
-              <span className="admin-field-helper">Produsen resmi atau label formulasi</span>
             </div>
 
             <div className="admin-field-group">
               <label className="admin-field-label">Nama Produk Lengkap</label>
               <input
                 className="admin-input-styled"
-                placeholder="mis. 5% Niacinamide + Moisture Sabi Beet Serum"
+                placeholder="mis. 5% Niacinamide Moisture Serum"
                 required
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
-              <span className="admin-field-helper">Nama komersial produk</span>
             </div>
 
             <div className="admin-field-group">
@@ -304,7 +234,6 @@ export default function AdminProductsPage() {
                   </option>
                 ))}
               </select>
-              <span className="admin-field-helper">Menentukan urutan tahapan pemakaian skincare</span>
             </div>
 
             <div className="admin-field-group">
@@ -314,40 +243,37 @@ export default function AdminProductsPage() {
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
               >
-                <option value="active">Active (Direkomendasikan AI & Marketplace)</option>
+                <option value="active">Active (Tampil di Rekomendasi)</option>
                 <option value="inactive">Inactive (Disembunyikan)</option>
               </select>
-              <span className="admin-field-helper">Mengontrol apakah muncul di saran rekomendasi</span>
             </div>
 
             <div className="admin-field-group col-span-2">
-              <label className="admin-field-label">Kandungan Bahan Aktif (Pisahkan Koma)</label>
+              <label className="admin-field-label">Bahan Aktif (Pisahkan Koma)</label>
               <input
                 className="admin-input-styled"
-                placeholder="mis. Niacinamide 5%, Centella Asiatica, Hyaluronic Acid, Ceramide NP"
+                placeholder="mis. Niacinamide 5%, Centella Asiatica, Ceramide NP"
                 value={form.ingredients}
                 onChange={(e) => setForm({ ...form, ingredients: e.target.value })}
               />
-              <span className="admin-field-helper">Bahan penting yang dianalisis oleh bot konsultasi Laomera</span>
             </div>
 
             <div className="admin-field-group col-span-2">
               <label className="admin-field-label">Target Masalah Kulit (Pisahkan Koma)</label>
               <input
                 className="admin-input-styled"
-                placeholder="mis. Jerawat, Kulit Kering, Kemerahan, Dark Spots"
+                placeholder="mis. Jerawat, Kulit Kering, Dark Spots"
                 value={form.skin_concern}
                 onChange={(e) => setForm({ ...form, skin_concern: e.target.value })}
               />
-              <span className="admin-field-helper">Dicocokkan dengan 5 detektor klinis VGG16</span>
             </div>
 
             <div className="admin-field-group col-span-2">
-              <label className="admin-field-label">Deskripsi Klinis & Karakteristik</label>
+              <label className="admin-field-label">Deskripsi & Karakteristik</label>
               <textarea
                 className="admin-input-styled"
-                style={{ minHeight: "75px" }}
-                placeholder="Jelaskan tekstur, keunggulan formula, atau target jenis kulit..."
+                style={{ minHeight: "70px" }}
+                placeholder="Karakteristik tekstur dan manfaat utama formula..."
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
@@ -357,15 +283,15 @@ export default function AdminProductsPage() {
               <label className="admin-field-label">Petunjuk Pemakaian</label>
               <textarea
                 className="admin-input-styled"
-                style={{ minHeight: "65px" }}
-                placeholder="mis. Oleskan 3-4 tetes pada wajah yang bersih di pagi dan malam hari sebelum pelembap..."
+                style={{ minHeight: "60px" }}
+                placeholder="mis. Oleskan 3 tetes di pagi dan malam hari..."
                 value={form.usage_guidance}
                 onChange={(e) => setForm({ ...form, usage_guidance: e.target.value })}
               />
             </div>
 
             <div className="admin-field-group">
-              <label className="admin-field-label">Tautan Toko Shopee (Opsional)</label>
+              <label className="admin-field-label">Tautan Shopee (Opsional)</label>
               <input
                 className="admin-input-styled"
                 placeholder="https://shopee.co.id/..."
@@ -375,7 +301,7 @@ export default function AdminProductsPage() {
             </div>
 
             <div className="admin-field-group">
-              <label className="admin-field-label">Tautan Toko Tokopedia (Opsional)</label>
+              <label className="admin-field-label">Tautan Tokopedia (Opsional)</label>
               <input
                 className="admin-input-styled"
                 placeholder="https://tokopedia.com/..."
@@ -387,116 +313,94 @@ export default function AdminProductsPage() {
 
           <div className="admin-form-actions">
             <button type="submit" className="btn btn-primary btn-sm" disabled={busy}>
-              {busy ? "Menyimpan ke Database…" : "Simpan Formulasi Produk"}
+              {busy ? "Menyimpan…" : "Simpan Produk"}
             </button>
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => setForm(null)}>
-              Batalkan
+              Batal
             </button>
           </div>
         </form>
       )}
 
-      {/* ── Filter & Search Toolbar ── */}
-      <div className="admin-toolbar-card">
-        <div className="admin-toolbar-left">
-          <div className="admin-search-box">
-            <Search size={15} className="search-icon" />
-            <input
-              placeholder="Cari nama produk, merek, atau bahan aktif…"
-              value={qDraft}
-              onChange={(e) => setQDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") setQ(qDraft);
-              }}
-            />
-          </div>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => setQ(qDraft)}
-          >
-            Terapkan
-          </button>
-
-          <select
-            className="admin-filter-select"
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            <option value="semua">Semua Kategori Produk</option>
-            {PRODUCT_CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="admin-filter-select"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="">Semua Status Visibilitas</option>
-            <option value="active">Active (Rekomendasi Aktif)</option>
-            <option value="inactive">Inactive (Disembunyikan)</option>
-          </select>
-        </div>
-
-        <div className="admin-toolbar-right">
-          <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-            Ditemukan <strong>{displayedRows.length}</strong> formula produk
-          </span>
-        </div>
-      </div>
-
-      {/* ── Data Table Card ── */}
+      {/* ── Unified Table Surface (Toolbar + Table + Pagination in ONE Card) ── */}
       <div className="admin-table-card">
+        {/* Seamless Integrated Toolbar */}
         <div className="admin-table-card-head">
-          <div className="admin-table-card-title">
-            <PackageCheck size={18} color="var(--brand-navy)" />
-            Direktori Katalog & Formulasi Aktif
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, maxWidth: "420px" }}>
+            <div className="admin-search-box" style={{ width: "100%", maxWidth: "100%" }}>
+              <Search size={14} className="search-icon" />
+              <input
+                placeholder="Cari produk, brand, bahan aktif..."
+                value={qDraft}
+                onChange={(e) => setQDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") setQ(qDraft);
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => setQ(qDraft)}
+            >
+              Cari
+            </button>
           </div>
-          <span className="admin-table-card-subtitle">
-            Halaman {page} dari {totalPages}
-          </span>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <select
+              className="admin-filter-select"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="semua">Semua Kategori</option>
+              {PRODUCT_CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="admin-filter-select"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="">Semua Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <span style={{ fontSize: "12.5px", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
+              Total <strong>{displayedRows.length}</strong> formula
+            </span>
+          </div>
         </div>
 
+        {/* Table Content */}
         {loading && rows.length === 0 ? (
           <div style={{ padding: "48px 24px", textAlign: "center" }}>
-            <Loading label="Mengambil katalog produk skincare..." />
+            <Loading label="Memuat produk..." />
           </div>
         ) : displayedRows.length === 0 ? (
           <div className="admin-empty-state">
             <div className="admin-empty-icon">
-              <Package size={24} />
+              <Package size={22} />
             </div>
             <h4 className="admin-empty-title">Tidak Ada Formulasi yang Cocok</h4>
             <p className="admin-empty-desc">
               Tidak ditemukan produk untuk kriteria filter atau pencarian saat ini.
             </p>
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() => {
-                setQDraft("");
-                setQ("");
-                setStatus("");
-                setCategoryFilter("semua");
-              }}
-            >
-              Reset Filter Pencarian
-            </button>
           </div>
         ) : (
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Produk & Label</th>
+                  <th>Produk & Merek</th>
                   <th>Kategori</th>
-                  <th>Bahan Aktif Utama</th>
+                  <th>Bahan Aktif</th>
                   <th>Target Masalah Kulit</th>
-                  <th>Marketplace</th>
+                  <th>Toko</th>
                   <th>Status</th>
                   <th style={{ textAlign: "right" }}>Aksi</th>
                 </tr>
@@ -521,11 +425,11 @@ export default function AdminProductsPage() {
                     <tr key={p.id}>
                       <td>
                         <div style={{ display: "flex", flexDirection: "column" }}>
-                          <span style={{ fontWeight: 600, color: "var(--brand-navy)", fontSize: "14px" }}>
+                          <span style={{ fontWeight: 600, color: "var(--brand-navy)", fontSize: "13.5px" }}>
                             {p.name}
                           </span>
                           <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-                            {p.brand || "Tanpa Brand"}
+                            {p.brand || "—"}
                           </span>
                         </div>
                       </td>
@@ -536,7 +440,7 @@ export default function AdminProductsPage() {
                       </td>
                       <td>
                         {ingredientsArr.length > 0 ? (
-                          <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", maxWidth: "260px" }}>
+                          <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", maxWidth: "240px" }}>
                             {ingredientsArr.slice(0, 3).map((ing, idx) => (
                               <span
                                 key={idx}
@@ -544,9 +448,8 @@ export default function AdminProductsPage() {
                                   padding: "2px 6px",
                                   borderRadius: "4px",
                                   fontSize: "11px",
-                                  background: "rgba(16, 185, 129, 0.08)",
-                                  color: "#047857",
-                                  border: "1px solid rgba(16, 185, 129, 0.15)"
+                                  background: "rgba(15, 23, 42, 0.04)",
+                                  color: "var(--brand-navy)"
                                 }}
                               >
                                 {ing}
@@ -564,7 +467,7 @@ export default function AdminProductsPage() {
                       </td>
                       <td>
                         {concernsArr.length > 0 ? (
-                          <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", maxWidth: "220px" }}>
+                          <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", maxWidth: "200px" }}>
                             {concernsArr.slice(0, 2).map((c, idx) => (
                               <span key={idx} className="concern-tag">
                                 {c}
@@ -590,16 +493,16 @@ export default function AdminProductsPage() {
                               style={{
                                 display: "inline-flex",
                                 alignItems: "center",
-                                gap: "3px",
-                                padding: "2px 7px",
+                                gap: "2px",
+                                padding: "2px 6px",
                                 borderRadius: "4px",
                                 fontSize: "11px",
-                                background: "rgba(238, 77, 45, 0.1)",
+                                background: "rgba(238, 77, 45, 0.08)",
                                 color: "#ee4d2d",
                                 textDecoration: "none"
                               }}
                             >
-                              Shopee <ExternalLink size={10} />
+                              Shopee <ExternalLink size={9} />
                             </a>
                           )}
                           {p.tokopedia_link && (
@@ -610,16 +513,16 @@ export default function AdminProductsPage() {
                               style={{
                                 display: "inline-flex",
                                 alignItems: "center",
-                                gap: "3px",
-                                padding: "2px 7px",
+                                gap: "2px",
+                                padding: "2px 6px",
                                 borderRadius: "4px",
                                 fontSize: "11px",
-                                background: "rgba(3, 172, 14, 0.1)",
+                                background: "rgba(3, 172, 14, 0.08)",
                                 color: "#03ac0e",
                                 textDecoration: "none"
                               }}
                             >
-                              Tokopedia <ExternalLink size={10} />
+                              Tokopedia <ExternalLink size={9} />
                             </a>
                           )}
                           {!p.shopee_link && !p.tokopedia_link && (
@@ -638,7 +541,7 @@ export default function AdminProductsPage() {
                           <button
                             type="button"
                             className="btn btn-secondary btn-sm"
-                            style={{ padding: "5px 10px", fontSize: "12px" }}
+                            style={{ padding: "4px 10px", fontSize: "12px" }}
                             onClick={() =>
                               setForm({
                                 id: p.id,
@@ -661,7 +564,7 @@ export default function AdminProductsPage() {
                             <button
                               type="button"
                               className="btn btn-ghost btn-sm"
-                              style={{ padding: "5px 10px", fontSize: "12px", color: "var(--crimson-500)" }}
+                              style={{ padding: "4px 10px", fontSize: "12px", color: "var(--crimson-500)" }}
                               onClick={() => setPendingDeactivate(p)}
                             >
                               Nonaktifkan
@@ -677,10 +580,10 @@ export default function AdminProductsPage() {
           </div>
         )}
 
-        {/* ── Pagination ── */}
+        {/* Seamless Integrated Pagination Footer */}
         <div className="admin-pagination-bar">
           <span className="admin-pagination-summary">
-            Menampilkan halaman <strong>{page}</strong> dari <strong>{totalPages}</strong> total lembar
+            Halaman <strong>{page}</strong> dari <strong>{totalPages}</strong>
           </span>
           <div className="admin-pagination-actions">
             <button
@@ -689,7 +592,7 @@ export default function AdminProductsPage() {
               disabled={page <= 1}
               onClick={() => load(page - 1)}
             >
-              <ChevronLeft size={14} /> Sebelumnya
+              <ChevronLeft size={13} /> Sebelumnya
             </button>
             <button
               type="button"
@@ -697,7 +600,7 @@ export default function AdminProductsPage() {
               disabled={page >= totalPages}
               onClick={() => load(page + 1)}
             >
-              Berikutnya <ChevronRight size={14} />
+              Berikutnya <ChevronRight size={13} />
             </button>
           </div>
         </div>
@@ -708,7 +611,7 @@ export default function AdminProductsPage() {
         title="Nonaktifkan produk katalog?"
         message={
           pendingDeactivate
-            ? `Nonaktifkan produk "${pendingDeactivate.name}"? Produk tidak dihapus dari basis data — status diubah menjadi inactive dan tidak akan muncul di rekomendasi maupun marketplace.`
+            ? `Nonaktifkan produk "${pendingDeactivate.name}"? Produk tidak akan muncul di rekomendasi maupun marketplace.`
             : ""
         }
         confirmLabel="Ya, Nonaktifkan Produk"

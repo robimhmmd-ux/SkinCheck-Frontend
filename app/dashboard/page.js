@@ -135,6 +135,7 @@ function ScoreMeterRow({ label, value }) {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [dashboard, setDashboard] = useState(null);
   const [history, setHistory] = useState([]);
@@ -155,7 +156,14 @@ export default function DashboardPage() {
 
         if (!alive) return;
 
-        if (meRes.status === "fulfilled") setUser(pickUser(meRes.value));
+        if (meRes.status === "fulfilled") {
+          const currentUser = pickUser(meRes.value);
+          setUser(currentUser);
+          if (currentUser?.role === "admin") {
+            router.replace("/admin");
+            return;
+          }
+        }
         if (dashRes.status === "fulfilled") setDashboard(pickObject(dashRes.value));
         if (histRes.status === "fulfilled") setHistory(pickArray(histRes.value));
         if (prodRes.status === "fulfilled") setProducts(pickArray(prodRes.value));

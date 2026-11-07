@@ -121,43 +121,21 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
         aria-label="Navigasi Sidebar"
       >
         <div className="dash-side-slide-inner">
-          {/* Header & Brand Emblem */}
+          {/* Header & Brand Emblem (Klik Logo L untuk Ciutkan/Buka Sidebar tanpa redirect) */}
           <div className="side-slide-header">
-            <Link href="/" className="side-slide-brand" title="Ke Beranda Laomera">
+            <button
+              type="button"
+              className="side-slide-brand"
+              onClick={onToggle}
+              title={collapsed ? "Buka Navigasi Penuh (Klik L)" : "Ciutkan Navigasi ke Icon Rail (Klik L)"}
+              aria-label={collapsed ? "Buka Navigasi Penuh" : "Ciutkan Navigasi"}
+            >
               <div className="brand-emblem-icon" aria-hidden="true">
                 L
               </div>
               {!collapsed && <span className="brand-title-text">Laomera</span>}
-            </Link>
-
-            {/* Tombol ciutkan (>) saat sidebar lebar */}
-            {!collapsed && onToggle && (
-              <button
-                type="button"
-                className="side-collapse-btn"
-                onClick={onToggle}
-                title="Ciutkan Sidebar ke Icon Rail (>)"
-                aria-label="Ciutkan Sidebar"
-              >
-                <span className="side-toggle-arrow">&gt;</span>
-              </button>
-            )}
+            </button>
           </div>
-
-          {/* Tombol buka (<) kecil saat sidebar dalam mode icon rail mini */}
-          {collapsed && onToggle && (
-            <div className="side-mini-toggle-wrap">
-              <button
-                type="button"
-                className="side-expand-mini-btn"
-                onClick={onToggle}
-                title="Buka Navigasi Penuh (<)"
-                aria-label="Buka Navigasi Penuh"
-              >
-                <span className="side-toggle-arrow">&lt;</span>
-              </button>
-            </div>
-          )}
 
           {/* User Profile Card */}
           <div
@@ -172,61 +150,16 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
                 <strong className="user-card-name">{user?.name || "Pengguna Laomera"}</strong>
                 <div className="user-status-pill">
                   <span className="user-status-dot" />
-                  <span>{user?.email || "Sesi Masuk Aktif"}</span>
+                  <span>{user?.role === "admin" ? "Administrator Sistem" : user?.email || "Sesi Masuk Aktif"}</span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Pemberitahuan verifikasi akun */}
-          {isUnverified && !collapsed && (
-            <div
-              style={{
-                margin: "10px 12px 0",
-                padding: "10px 12px",
-                borderRadius: "10px",
-                background: "var(--amber-100)",
-                color: "var(--amber-700)",
-                fontSize: "12.5px",
-                lineHeight: "1.5",
-              }}
-            >
-              <strong>Akun belum terverifikasi.</strong> Selesaikan verifikasi OTP WhatsApp
-              dan biodata untuk membuka semua fitur.
-            </div>
-          )}
-
-          {/* Navigasi Workspace (Customer) */}
-          {!isAdminPage && (
-            <nav className="side-slide-nav" aria-label="Navigasi Workspace">
-              {!collapsed && <span className="side-nav-heading">WORKSPACE</span>}
-              {SIDEBAR_LINKS.map(({ href, label, icon: Icon }) => {
-                const active =
-                  pathname === href || (href !== "/dashboard" && pathname.startsWith(href + "/"));
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`side-nav-link ${active ? "active" : ""}`}
-                    aria-current={active ? "page" : undefined}
-                    aria-disabled={isUnverified ? true : undefined}
-                    title={isUnverified ? "Selesaikan verifikasi akun dulu" : label}
-                    onClick={(e) => handleNavClick(e, href)}
-                    style={isUnverified ? { opacity: 0.55 } : undefined}
-                  >
-                    <Icon size={18} aria-hidden="true" />
-                    {!collapsed && <span className="side-nav-text">{label}</span>}
-                    {active && !collapsed && <span className="side-nav-dot" aria-hidden="true" />}
-                  </Link>
-                );
-              })}
-            </nav>
-          )}
-
-          {/* Navigasi Admin */}
-          {user?.role === "admin" && (
+          {/* Navigasi: Dipisahkan Berdasarkan Role */}
+          {user?.role === "admin" ? (
             <nav className="side-slide-nav" aria-label="Navigasi Admin">
-              {!collapsed && <span className="side-nav-heading">ADMIN</span>}
+              {!collapsed && <span className="side-nav-heading">ADMINISTRATOR</span>}
               {ADMIN_LINKS.map(({ href, label, icon: Icon }) => {
                 const active =
                   pathname === href || (href !== "/admin" && pathname.startsWith(href + "/"));
@@ -246,26 +179,70 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
                 );
               })}
             </nav>
-          )}
+          ) : (
+            <>
+              {/* Pemberitahuan verifikasi akun */}
+              {isUnverified && !collapsed && (
+                <div
+                  style={{
+                    margin: "10px 12px 0",
+                    padding: "10px 12px",
+                    borderRadius: "10px",
+                    background: "var(--amber-100)",
+                    color: "var(--amber-700)",
+                    fontSize: "12.5px",
+                    lineHeight: "1.5",
+                  }}
+                >
+                  <strong>Akun belum terverifikasi.</strong> Selesaikan verifikasi OTP WhatsApp
+                  dan biodata untuk membuka semua fitur.
+                </div>
+              )}
 
-          {/* Customer Action Box ("Mulai Scan") - hanya saat expanded */}
-          {!isAdminPage && !collapsed && (
-            <div className="side-slide-action-box">
-              <div className="action-box-head">
-                <Sparkles size={14} color="#f59e0b" />
-                <span>Analisis Baru</span>
-              </div>
-              <p>Ambil foto wajah untuk memperbarui skor kesehatan kulit.</p>
-              <Link
-                href="/scan"
-                className="btn btn-amber btn-sm"
-                style={{ width: "100%", justifyContent: "center" }}
-                onClick={(e) => handleNavClick(e, "/scan")}
-              >
-                <Camera size={15} />
-                <span>Mulai Scan</span>
-              </Link>
-            </div>
+              <nav className="side-slide-nav" aria-label="Navigasi Workspace">
+                {!collapsed && <span className="side-nav-heading">WORKSPACE</span>}
+                {SIDEBAR_LINKS.map(({ href, label, icon: Icon }) => {
+                  const active =
+                    pathname === href || (href !== "/dashboard" && pathname.startsWith(href + "/"));
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={`side-nav-link ${active ? "active" : ""}`}
+                      aria-current={active ? "page" : undefined}
+                      aria-disabled={isUnverified ? true : undefined}
+                      title={isUnverified ? "Selesaikan verifikasi akun dulu" : label}
+                      onClick={(e) => handleNavClick(e, href)}
+                      style={isUnverified ? { opacity: 0.55 } : undefined}
+                    >
+                      <Icon size={18} aria-hidden="true" />
+                      {!collapsed && <span className="side-nav-text">{label}</span>}
+                      {active && !collapsed && <span className="side-nav-dot" aria-hidden="true" />}
+                    </Link>
+                  );
+                })}
+              </nav>
+
+              {/* Customer Action Box ("Mulai Scan") - hanya saat expanded dan role customer */}
+              {!collapsed && (
+                <div className="side-slide-action-box">
+                  <div className="action-box-head">
+                    <Sparkles size={14} color="#f59e0b" />
+                    <span>Analisis Baru</span>
+                  </div>
+                  <p>Ambil foto wajah untuk memperbarui skor kesehatan kulit.</p>
+                  <Link
+                    href="/scan"
+                    className="btn btn-amber btn-sm"
+                    style={{ width: "100%", justifyContent: "center" }}
+                    onClick={(e) => handleNavClick(e, "/scan")}
+                  >
+                    <Camera size={15} />
+                    <span>Mulai Scan</span>
+                  </Link>
+                </div>
+              )}
+            </>
           )}
 
           {/* Footer Controls */}

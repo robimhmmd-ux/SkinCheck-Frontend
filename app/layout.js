@@ -1,11 +1,10 @@
-import { Playfair_Display, Fraunces, Instrument_Sans } from "next/font/google";
+import { Fraunces, Instrument_Sans } from "next/font/google";
 import AppShell from "../components/AppShell";
 import FloatingChatWidget from "../components/FloatingChatWidget";
 import { ToastProvider } from "../components/Toast";
 import "./globals.css";
 
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-playfair" });
-const fraunces = Fraunces({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-display" });
+const fraunces = Fraunces({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-display" });
 const instrument = Instrument_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-sans" });
 
 export const viewport = {
@@ -21,7 +20,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="id" className={`${playfair.variable} ${fraunces.variable} ${instrument.variable}`}>
+    <html lang="id" className={`${fraunces.variable} ${instrument.variable}`}>
       <body>
         <ToastProvider>
           <a

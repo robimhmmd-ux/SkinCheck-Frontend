@@ -209,9 +209,6 @@ export default function AdminPage() {
       {/* ── Admin Header & Quick Section Links ── */}
       <div className="admin-view-header">
         <div className="admin-title-group">
-          <div className="badge badge-amber" style={{ marginBottom: "6px" }}>
-            <ShieldAlert size={12} /> KONSOL ADMINISTRASI SISTEM LAOMERA
-          </div>
           <h1>
             {activeTab === "ringkasan" && "Pengawasan Sistem & AI Telemetry"}
             {activeTab === "katalog" && "Direktori Formulasi Skincare"}
@@ -219,47 +216,57 @@ export default function AdminPage() {
             {activeTab === "keamanan" && "Audit Keamanan & Kepatuhan Data"}
           </h1>
           <p>
-            <Clock size={13} /> Sinkronisasi data terakhir: {lastSyncTime || "Real-time"}
-            {" • "}Database: <span style={{ color: "#059669", fontWeight: 600 }}>TiDB Cloud ({dbLatency})</span>
+            Sinkronisasi terakhir: {lastSyncTime || "Real-time"} • Basis data: TiDB Cloud ({dbLatency})
           </p>
         </div>
 
-        {/* In-page Tab Navigation */}
-        <div className="admin-tab-nav">
+        <div className="admin-header-actions">
           <button
             type="button"
-            className={`admin-tab-btn ${activeTab === "ringkasan" ? "active" : ""}`}
-            onClick={() => setActiveTab("ringkasan")}
+            className="btn btn-secondary btn-sm"
+            onClick={handleManualRefresh}
+            disabled={refreshing}
           >
-            <Activity size={14} />
-            <span>Telemetri & KPI</span>
-          </button>
-          <button
-            type="button"
-            className={`admin-tab-btn ${activeTab === "katalog" ? "active" : ""}`}
-            onClick={() => setActiveTab("katalog")}
-          >
-            <Package size={14} />
-            <span>Katalog Produk</span>
-            <span className="tab-badge">{productsList.length}</span>
-          </button>
-          <button
-            type="button"
-            className={`admin-tab-btn ${activeTab === "arsitektur" ? "active" : ""}`}
-            onClick={() => setActiveTab("arsitektur")}
-          >
-            <Cpu size={14} />
-            <span>Model AI</span>
-          </button>
-          <button
-            type="button"
-            className={`admin-tab-btn ${activeTab === "keamanan" ? "active" : ""}`}
-            onClick={() => setActiveTab("keamanan")}
-          >
-            <Lock size={14} />
-            <span>Keamanan</span>
+            <RefreshCw size={13} className={refreshing ? "animate-spin" : ""} /> Segarkan
           </button>
         </div>
+      </div>
+
+      {/* In-page Tab Navigation */}
+      <div className="admin-tab-nav">
+        <button
+          type="button"
+          className={`admin-tab-btn ${activeTab === "ringkasan" ? "active" : ""}`}
+          onClick={() => setActiveTab("ringkasan")}
+        >
+          <Activity size={14} />
+          <span>Telemetri & KPI</span>
+        </button>
+        <button
+          type="button"
+          className={`admin-tab-btn ${activeTab === "katalog" ? "active" : ""}`}
+          onClick={() => setActiveTab("katalog")}
+        >
+          <Package size={14} />
+          <span>Katalog Produk</span>
+          <span className="tab-badge">{productsList.length}</span>
+        </button>
+        <button
+          type="button"
+          className={`admin-tab-btn ${activeTab === "arsitektur" ? "active" : ""}`}
+          onClick={() => setActiveTab("arsitektur")}
+        >
+          <Cpu size={14} />
+          <span>Model AI</span>
+        </button>
+        <button
+          type="button"
+          className={`admin-tab-btn ${activeTab === "keamanan" ? "active" : ""}`}
+          onClick={() => setActiveTab("keamanan")}
+        >
+          <Lock size={14} />
+          <span>Keamanan</span>
+        </button>
       </div>
 
       {/* ═════════════════════════════════════════════════════════

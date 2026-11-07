@@ -4,20 +4,11 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Scan,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
   ChevronLeft,
   ChevronRight,
   Eye,
   RefreshCw,
-  Info,
-  Layers,
-  Sparkles,
-  Flame,
-  Droplets,
-  Zap,
-  Sun
+  Info
 } from "lucide-react";
 import {
   getAdminScans,
@@ -67,21 +58,8 @@ export default function AdminScansPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  const completedCount = useMemo(() => {
-    return rows.filter((r) => r.status === "completed").length;
-  }, [rows]);
-
-  const processingCount = useMemo(() => {
-    return rows.filter((r) => r.status === "processing").length;
-  }, [rows]);
-
-  const failedCount = useMemo(() => {
-    return rows.filter((r) => r.status === "failed").length;
-  }, [rows]);
-
   if (denied) return <AdminDenied />;
 
-  // Helper to render score pill with clinical color coding
   const renderScorePill = (val) => {
     if (val === undefined || val === null) return <span style={{ color: "var(--text-muted)" }}>—</span>;
     const num = Number(val);
@@ -98,15 +76,12 @@ export default function AdminScansPage() {
 
   return (
     <div className="admin-stage-container">
-      {/* ── Header ── */}
+      {/* ── Page Header ── */}
       <div className="admin-view-header">
         <div className="admin-title-group">
-          <div className="badge badge-amber" style={{ marginBottom: "6px" }}>
-            <Scan size={12} /> AUDIT ANALISIS DERMATOLOGI
-          </div>
-          <h1>Audit Pemindaian & Deteksi Klinis AI</h1>
+          <h1>Audit Pemindaian Wajah</h1>
           <p>
-            Log verifikasi seluruh hasil inferensi pipeline VGG16 multi-output dari foto kulit pengguna secara real-time.
+            {total} pemindaian terekam • Log verifikasi inferensi 5 parameter kondisi kulit VGG16 dari seluruh customer.
           </p>
         </div>
 
@@ -122,120 +97,61 @@ export default function AdminScansPage() {
         </div>
       </div>
 
-      {/* ── KPI Telemetry Strip ── */}
-      <div className="admin-stat-strip">
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-purple">
-            <Scan size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Total Audit Scan</span>
-            <span className="admin-stat-value">{total}</span>
-            <span className="admin-stat-meta">Seluruh pemindaian</span>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-emerald">
-            <CheckCircle2 size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Selesai Dianalisis</span>
-            <span className="admin-stat-value">{completedCount}</span>
-            <span className="admin-stat-meta">Halaman saat ini</span>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-amber">
-            <Clock size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Dalam Pemrosesan</span>
-            <span className="admin-stat-value">{processingCount}</span>
-            <span className="admin-stat-meta">Pipeline komputasi</span>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div className="admin-stat-icon-wrap stat-blue">
-            <AlertTriangle size={20} />
-          </div>
-          <div className="admin-stat-info">
-            <span className="admin-stat-label">Gagal / Ditolak</span>
-            <span className="admin-stat-value">{failedCount}</span>
-            <span className="admin-stat-meta">Kualitas citra / timeout</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Clinical Integrity Banner ── */}
+      {/* ── Subtle Integrity Notice ── */}
       <div
         style={{
-          background: "rgba(23, 32, 51, 0.03)",
-          border: "1px solid var(--border-light, #e2e8f0)",
-          borderRadius: "var(--radius-lg, 16px)",
-          padding: "14px 18px",
+          background: "#ffffff",
+          border: "1px solid rgba(15, 23, 42, 0.08)",
+          borderRadius: "12px",
+          padding: "12px 18px",
           display: "flex",
           alignItems: "center",
-          gap: "12px",
-          marginBottom: "20px"
+          gap: "10px"
         }}
       >
-        <Info size={18} color="var(--brand-amber)" style={{ flexShrink: 0 }} />
-        <p style={{ margin: 0, fontSize: "13px", color: "var(--text-body)" }}>
-          <strong>Integritas Privasi Medis:</strong> Berkas foto wajah tidak disimpan secara publik demi kepatuhan regulasi data kesehatan. Backend menyajikan metadata, bobot output 5 kondisi, dan skor kesehatan kulit secara murni tanpa manipulasi koordinat.
-        </p>
+        <Info size={16} color="var(--brand-amber)" style={{ flexShrink: 0 }} />
+        <span style={{ fontSize: "13px", color: "var(--text-body)" }}>
+          <strong>Integritas Medis:</strong> Berkas foto wajah dilindungi privasi data kesehatan. Backend menyajikan metadata, bobot 5 model VGG, dan skor kesehatan kulit secara murni.
+        </span>
       </div>
 
       {error && <ErrorBox error={error} />}
 
-      {/* ── Filter & Search Toolbar ── */}
-      <div className="admin-toolbar-card">
-        <div className="admin-toolbar-left">
-          <select
-            className="admin-filter-select"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="">Semua Status Audit</option>
-            <option value="completed">Status: Selesai Dianalisis</option>
-            <option value="processing">Status: Dalam Pemrosesan</option>
-            <option value="failed">Status: Gagal / Anomali</option>
-          </select>
-        </div>
-
-        <div className="admin-toolbar-right">
-          <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-            Ditemukan <strong>{total}</strong> catatan audit
-          </span>
-        </div>
-      </div>
-
-      {/* ── Data Table Card ── */}
+      {/* ── Unified Table Surface ── */}
       <div className="admin-table-card">
+        {/* Seamless Toolbar */}
         <div className="admin-table-card-head">
-          <div className="admin-table-card-title">
-            <Scan size={18} color="var(--brand-navy)" />
-            Log Riwayat Pemindaian & Analisis VGG16
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <select
+              className="admin-filter-select"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="">Semua Status Audit</option>
+              <option value="completed">Status: Selesai</option>
+              <option value="processing">Status: Diproses</option>
+              <option value="failed">Status: Gagal</option>
+            </select>
           </div>
-          <span className="admin-table-card-subtitle">
-            Halaman {page} dari {totalPages}
+
+          <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>
+            Total <strong>{total}</strong> sesi scan
           </span>
         </div>
 
+        {/* Table Content */}
         {loading && rows.length === 0 ? (
           <div style={{ padding: "48px 24px", textAlign: "center" }}>
-            <Loading label="Mengambil catatan audit pemindaian..." />
+            <Loading label="Memuat audit pemindaian..." />
           </div>
         ) : rows.length === 0 ? (
           <div className="admin-empty-state">
             <div className="admin-empty-icon">
-              <Scan size={24} />
+              <Scan size={22} />
             </div>
             <h4 className="admin-empty-title">Belum Ada Riwayat Pemindaian</h4>
             <p className="admin-empty-desc">
-              Belum ditemukan data pemindaian untuk kriteria status yang dipilih saat ini.
+              Belum ditemukan data scan untuk kriteria status yang dipilih saat ini.
             </p>
           </div>
         ) : (
@@ -243,22 +159,22 @@ export default function AdminScansPage() {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Pemilik Scan</th>
-                  <th>Waktu Deteksi</th>
+                  <th>Customer</th>
+                  <th>Waktu Scan</th>
                   <th>Status</th>
-                  <th title="Tingkat Kerentanan Jerawat">Jerawat</th>
-                  <th title="Tingkat Dehidrasi Kulit">Kering</th>
-                  <th title="Tingkat Produksi Sebum">Minyak</th>
-                  <th title="Klaster Melanin & Noda Hitam">Dark Spots</th>
-                  <th title="Garis Halus & Elastisitas">Kerutan</th>
-                  <th>Skor Akhir</th>
-                  <th style={{ textAlign: "right" }}>Aksi</th>
+                  <th>Jerawat</th>
+                  <th>Kering</th>
+                  <th>Minyak</th>
+                  <th>Spots</th>
+                  <th>Kerutan</th>
+                  <th>Skor</th>
+                  <th style={{ textAlign: "right" }}>Detail</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((s) => {
                   const a = s.analysis || null;
-                  const ownerName = s.owner?.name || "Pengguna";
+                  const ownerName = s.owner?.name || "Customer";
                   const ownerEmail = s.owner?.email || "—";
                   const initial = ownerName.charAt(0).toUpperCase();
 
@@ -274,7 +190,7 @@ export default function AdminScansPage() {
                         </div>
                       </td>
                       <td>
-                        <span style={{ fontSize: "12.5px", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
+                        <span style={{ fontSize: "12.5px", color: "var(--text-muted)", fontVariantNumeric: "tabular-nums" }}>
                           {fmtDate(s.created_at)}
                         </span>
                       </td>
@@ -294,7 +210,7 @@ export default function AdminScansPage() {
                           <span
                             style={{
                               fontFamily: "var(--font-serif)",
-                              fontSize: "15px",
+                              fontSize: "14px",
                               fontWeight: 700,
                               color: "var(--brand-navy)"
                             }}
@@ -309,9 +225,9 @@ export default function AdminScansPage() {
                         <Link
                           href={`/history/${s.id}`}
                           className="btn btn-secondary btn-sm"
-                          style={{ padding: "5px 12px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                          style={{ padding: "4px 10px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "4px" }}
                         >
-                          <Eye size={12} /> Detail
+                          <Eye size={12} /> Buka
                         </Link>
                       </td>
                     </tr>
@@ -322,10 +238,10 @@ export default function AdminScansPage() {
           </div>
         )}
 
-        {/* ── Pagination ── */}
+        {/* Seamless Integrated Pagination Footer */}
         <div className="admin-pagination-bar">
           <span className="admin-pagination-summary">
-            Menampilkan halaman <strong>{page}</strong> dari <strong>{totalPages}</strong> total lembar
+            Halaman <strong>{page}</strong> dari <strong>{totalPages}</strong>
           </span>
           <div className="admin-pagination-actions">
             <button
@@ -334,7 +250,7 @@ export default function AdminScansPage() {
               disabled={page <= 1}
               onClick={() => load(page - 1)}
             >
-              <ChevronLeft size={14} /> Sebelumnya
+              <ChevronLeft size={13} /> Sebelumnya
             </button>
             <button
               type="button"
@@ -342,7 +258,7 @@ export default function AdminScansPage() {
               disabled={page >= totalPages}
               onClick={() => load(page + 1)}
             >
-              Berikutnya <ChevronRight size={14} />
+              Berikutnya <ChevronRight size={13} />
             </button>
           </div>
         </div>
