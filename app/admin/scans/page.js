@@ -17,6 +17,7 @@ import {
 } from "../../../lib/api";
 import { fmtDate, fmtScore } from "../../../lib/scores";
 import { ErrorBox, Loading } from "../../../components/Notice";
+import WorkspaceLoadingScreen from "../../../components/WorkspaceLoadingScreen";
 import AdminDenied from "../../../components/AdminDenied";
 
 const STATUS_LABEL = {
@@ -74,6 +75,10 @@ export default function AdminScansPage() {
     );
   };
 
+  if (loading && rows.length === 0) {
+    return <WorkspaceLoadingScreen caption="Memuat Audit Pemindaian…" />;
+  }
+
   return (
     <div className="admin-stage-container">
       {/* ── Page Header ── */}
@@ -100,17 +105,20 @@ export default function AdminScansPage() {
       {/* ── Subtle Integrity Notice ── */}
       <div
         style={{
-          background: "#ffffff",
-          border: "1px solid rgba(15, 23, 42, 0.08)",
-          borderRadius: "12px",
-          padding: "12px 18px",
+          background: "rgba(255, 255, 255, 0.28)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: "1px solid rgba(255, 255, 255, 0.45)",
+          borderRadius: "16px",
+          padding: "14px 20px",
           display: "flex",
           alignItems: "center",
-          gap: "10px"
+          gap: "12px",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.6)"
         }}
       >
-        <Info size={16} color="var(--brand-amber)" style={{ flexShrink: 0 }} />
-        <span style={{ fontSize: "13px", color: "var(--text-body)" }}>
+        <Info size={16} color="#ffffff" style={{ flexShrink: 0 }} />
+        <span style={{ fontSize: "13px", color: "#ffffff" }}>
           <strong>Integritas Medis:</strong> Berkas foto wajah dilindungi privasi data kesehatan. Backend menyajikan metadata, bobot 5 model VGG, dan skor kesehatan kulit secara murni.
         </span>
       </div>

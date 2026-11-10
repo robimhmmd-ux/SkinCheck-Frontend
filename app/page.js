@@ -303,7 +303,7 @@ export default function Home() {
       </section>
 
       {/* ── 4. KENAPA LAOMERA BERBEDA ── */}
-      <section id="fitur" className="landing-section-unboxed" style={{ background: "rgba(255, 255, 255, 0.45)" }}>
+      <section id="fitur" className="landing-section-unboxed">
         <div className="content-canvas">
           <div className="landing-section-head">
             <span className="badge badge-navy" style={{ marginBottom: "12px" }}>

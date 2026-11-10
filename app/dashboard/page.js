@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { getMe, getDashboard, getHistory, getProducts, logout, pickUser, pickObject, pickArray } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
+import WorkspaceLoadingScreen from "../../components/WorkspaceLoadingScreen";
 import { useToast } from "../../components/Toast";
 import { SCORE_KEYS, averageScores, latestAnalyzedScan, fmtScore, fmtDate, pickAnalysis } from "../../lib/scores";
 
@@ -202,17 +203,14 @@ export default function DashboardPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="content-canvas" style={{ padding: "80px 0", textAlign: "center" }} aria-busy="true">
-        <Activity className="animate-pulse" size={36} color="var(--brand-amber)" style={{ margin: "0 auto 12px" }} />
-        <p style={{ color: "var(--text-muted)", fontSize: "15px" }}>Memuat riwayat kesehatan kulitmu…</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="dashboard-fullscreen-flow">
+    <>
+      <WorkspaceLoadingScreen
+        active={loading}
+        caption="Memuat Riwayat Kesehatan Kulitmu…"
+        skeleton={true}
+      />
+      <div className="dashboard-fullscreen-flow">
           {/* ── 1. HERO GREETING (UNBOXED & EXPANSIVE) ── */}
           <section className="dash-hero-unboxed">
             <div className="content-canvas dash-hero-canvas">
@@ -407,5 +405,6 @@ export default function DashboardPage() {
             </div>
           </section>
     </div>
+    </>
   );
 }

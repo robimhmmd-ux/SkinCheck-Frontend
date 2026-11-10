@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Mail, Lock, LogIn, ArrowRight, ShieldCheck } from "lucide-react";
 import { login, getMe, pickUser } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
+import WorkspaceLoadingScreen from "../../components/WorkspaceLoadingScreen";
 import { useToast } from "../../components/Toast";
 import AuthVisual from "../../components/AuthVisual";
 
@@ -101,6 +102,13 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      <WorkspaceLoadingScreen
+        active={busy}
+        caption="Memverifikasi Akun…"
+        variant="overlay"
+        skeleton={false}
+      />
     </div>
   );
 }

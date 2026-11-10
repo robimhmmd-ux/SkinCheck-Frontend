@@ -22,6 +22,7 @@ import {
   pickArray
 } from "../../../lib/api";
 import { ErrorBox, Loading } from "../../../components/Notice";
+import WorkspaceLoadingScreen from "../../../components/WorkspaceLoadingScreen";
 import AdminDenied from "../../../components/AdminDenied";
 import { useToast, ConfirmDialog } from "../../../components/Toast";
 import {
@@ -149,6 +150,10 @@ export default function AdminProductsPage() {
   }, [rows, categoryFilter]);
 
   if (denied) return <AdminDenied />;
+
+  if (loading && rows.length === 0) {
+    return <WorkspaceLoadingScreen caption="Memuat Katalog Produk…" />;
+  }
 
   return (
     <div className="admin-stage-container">

@@ -100,8 +100,8 @@ export default function HistoryPage() {
           <History size={13} aria-hidden="true" />
           <span>REKAM MEDIS KULIT WAJAH</span>
         </div>
-        <h1>Riwayat &amp; Diagnosis</h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "14.5px", margin: "4px 0 0" }}>
+        <h1 style={{ color: "#ffffff", textShadow: "0 2px 10px rgba(0, 0, 0, 0.15)" }}>Riwayat &amp; Diagnosis</h1>
+        <p style={{ color: "rgba(255, 255, 255, 0.92)", fontSize: "15px", margin: "4px 0 0", lineHeight: 1.6 }}>
           Diagnosis terkini dari scan terbarumu di atas, diikuti arsip kronologis seluruh evaluasi kulit
           wajahmu. Setiap scan tersimpan dan dibandingkan dengan scan sebelumnya.
         </p>
@@ -112,10 +112,10 @@ export default function HistoryPage() {
       {loading ? (
         <Loading label="Memuat riwayat arsip scan kulit…" />
       ) : items.length === 0 ? (
-        <div className="glass-panel" style={{ textAlign: "center", padding: "64px 24px", color: "var(--text-muted)" }}>
+        <div className="glass-panel" style={{ textAlign: "center", padding: "64px 24px", color: "#111422" }}>
           <Camera size={36} color="var(--brand-amber)" style={{ margin: "0 auto 12px" }} />
-          <h2 style={{ fontSize: "20px", marginBottom: "8px" }}>Belum Ada Riwayat Pemeriksaan</h2>
-          <p style={{ fontSize: "14px", maxWidth: "420px", margin: "0 auto 20px" }}>
+          <h2 style={{ fontSize: "22px", marginBottom: "8px", color: "#111422", fontWeight: 700 }}>Belum Ada Riwayat Pemeriksaan</h2>
+          <p style={{ fontSize: "14.5px", maxWidth: "420px", margin: "0 auto 20px", color: "#334155", lineHeight: 1.6 }}>
             Lakukan scan pertama sekarang untuk mulai merekam kondisi kulit wajahmu.
           </p>
           <Link href="/scan" className="btn btn-amber">

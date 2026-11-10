@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Phone, KeyRound, CheckCircle2, Send, ArrowRight, ShieldCheck, Clock } from "lucide-react";
 import { requestFonnteOtp, verifyFonnteOtp } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
+import WorkspaceLoadingScreen from "../../components/WorkspaceLoadingScreen";
 import { useToast } from "../../components/Toast";
 import AuthVisual from "../../components/AuthVisual";
 
@@ -172,6 +173,13 @@ export default function VerifyOtpPage() {
           </div>
         </div>
       </div>
+
+      <WorkspaceLoadingScreen
+        active={busy}
+        caption="Memverifikasi Akun…"
+        variant="overlay"
+        skeleton={false}
+      />
     </div>
   );
 }

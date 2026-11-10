@@ -57,8 +57,8 @@ export default function MarketplacePage() {
           <ShoppingBag size={13} aria-hidden="true" />
           <span>DISPENSARI SKINCARE TERKURASI</span>
         </div>
-        <h1>Marketplace Produk Perawatan</h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "14.5px", margin: "4px 0 0" }}>
+        <h1 style={{ color: "#ffffff", textShadow: "0 2px 10px rgba(0, 0, 0, 0.15)" }}>Marketplace Produk Perawatan</h1>
+        <p style={{ color: "rgba(255, 255, 255, 0.92)", fontSize: "15px", margin: "4px 0 0", lineHeight: 1.6 }}>
           Katalog formula skincare terverifikasi. Link pembelian langsung mengarah ke toko resmi terdaftar.
         </p>
       </div>
@@ -76,18 +76,21 @@ export default function MarketplacePage() {
             placeholder="Cari brand, nama produk, atau bahan aktif…"
             style={{
               width: "100%",
-              padding: "10px 16px 10px 42px",
+              padding: "11px 16px 11px 42px",
               borderRadius: "var(--radius-pill)",
-              border: "1px solid var(--border-medium)",
-              background: "var(--sand-50)",
+              border: "1px solid rgba(130, 152, 181, 0.32)",
+              background: "rgba(4, 10, 32, 0.68)",
+              backdropFilter: "blur(12px)",
               fontSize: "14px",
-              color: "var(--text-main)",
+              color: "#ffffff",
+              boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.5)",
+              outline: "none",
             }}
           />
         </div>
 
         <div style={{ display: "flex", gap: "8px", overflowX: "auto", maxWidth: "100%", alignItems: "center" }}>
-          <Filter size={16} color="var(--brand-navy)" />
+          <Filter size={16} color="var(--sunflower-yellow)" />
           {categories.map((c) => (
             <button
               key={c}
@@ -95,9 +98,12 @@ export default function MarketplacePage() {
               onClick={() => setCategory(c)}
               className={`chip-btn ${category === c ? "btn-primary" : ""}`}
               style={{
-                background: category === c ? "var(--brand-navy)" : "#ffffff",
-                color: category === c ? "#ffffff" : "var(--ink-700)",
-                borderColor: category === c ? "var(--brand-navy)" : "var(--border-medium)",
+                background: category === c ? "var(--sunflower-yellow)" : "rgba(130, 152, 181, 0.18)",
+                color: category === c ? "#071236" : "#ffffff",
+                borderColor: category === c ? "var(--sunflower-yellow)" : "rgba(130, 152, 181, 0.32)",
+                backdropFilter: "blur(10px)",
+                fontWeight: category === c ? 700 : 500,
+                boxShadow: category === c ? "0 4px 14px rgba(255, 194, 13, 0.35)" : "none",
                 textTransform: "capitalize",
               }}
             >

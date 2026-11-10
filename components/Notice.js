@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { isBackendNotConfigured } from "../lib/api";
+import WorkspaceLoadingScreen from "./WorkspaceLoadingScreen";
 
 // Banner error inline yang dirapikan: panel kertas palet landing, ikon
 // SVG, animasi masuk yang halus, dan bisa ditutup manual. Ini untuk
@@ -43,5 +44,5 @@ export function ErrorBox({ error }) {
 }
 
 export function Loading({ label }) {
-  return <p className="muted">{label || "Memuat…"}</p>;
+  return <WorkspaceLoadingScreen caption={label || "Memuat Data..."} />;
 }

@@ -34,6 +34,7 @@ import {
   pickObject
 } from "../../../lib/api";
 import { ErrorBox, Loading } from "../../../components/Notice";
+import WorkspaceLoadingScreen from "../../../components/WorkspaceLoadingScreen";
 import AdminDenied from "../../../components/AdminDenied";
 import { useToast } from "../../../components/Toast";
 
@@ -235,11 +236,7 @@ function SettingsContent() {
   if (denied) return <AdminDenied />;
 
   if (loading) {
-    return (
-      <div className="admin-stage-container" style={{ textAlign: "center", padding: "64px 20px" }}>
-        <Loading label="Memuat Pusat Konfigurasi Laomera…" />
-      </div>
-    );
+    return <WorkspaceLoadingScreen caption="Memuat Pusat Konfigurasi Laomera…" />;
   }
 
   if (error) {
@@ -270,11 +267,12 @@ function SettingsContent() {
         </div>
       </div>
 
-      {/* ── 3 SELECTION CARDS (BILAH PEMILIHAN KONFIGURASI) ── */}
-      <div className="config-selector-grid">
+      {/* ── SELECTOR TABS: STANDALONE NEUMORPHIC CARDS (Tidak Bergabung) ── */}
+      <div className="config-selector-tabs-grid" role="tablist">
         {/* Pilihan 1: Model AI */}
-        <div
-          className={`config-selector-card ${activeConfigTab === "ai" ? "active" : ""}`}
+        <button
+          type="button"
+          className={`config-selector-tab ${activeConfigTab === "ai" ? "active" : ""}`}
           onClick={() => setActiveConfigTab("ai")}
         >
           <div className="config-selector-top">
@@ -289,11 +287,12 @@ function SettingsContent() {
           <p className="config-selector-desc">
             Parameter model LLM, batas token, suhu kreativitas, ambang inferensi VGG, dan mode simulasi.
           </p>
-        </div>
+        </button>
 
         {/* Pilihan 2: OTP & Gateway */}
-        <div
-          className={`config-selector-card ${activeConfigTab === "otp" ? "active" : ""}`}
+        <button
+          type="button"
+          className={`config-selector-tab ${activeConfigTab === "otp" ? "active" : ""}`}
           onClick={() => setActiveConfigTab("otp")}
         >
           <div className="config-selector-top">
@@ -308,11 +307,12 @@ function SettingsContent() {
           <p className="config-selector-desc">
             Alur pengiriman kode OTP verifikasi pengguna, token gateway WhatsApp Fonnte, dan server SMTP.
           </p>
-        </div>
+        </button>
 
-        {/* Pilihan 3: Akun Admin (Profil yang digabung) */}
-        <div
-          className={`config-selector-card ${activeConfigTab === "admin" ? "active" : ""}`}
+        {/* Pilihan 3: Akun Admin */}
+        <button
+          type="button"
+          className={`config-selector-tab ${activeConfigTab === "admin" ? "active" : ""}`}
           onClick={() => setActiveConfigTab("admin")}
         >
           <div className="config-selector-top">
@@ -327,400 +327,399 @@ function SettingsContent() {
           <p className="config-selector-desc">
             Profil identitas administrator, nama akun, level akses root sistem, dan pembaruan kata sandi.
           </p>
-        </div>
+        </button>
       </div>
 
-      {/* ═════════════════════════════════════════════════════════
-          TAB CONTENT 1: KONFIGURASI MODEL AI
-         ═════════════════════════════════════════════════════════ */}
-      {activeConfigTab === "ai" && (
-        <div style={{ display: "grid", gap: "22px" }}>
-          <div className="admin-glass-card">
-            <div className="admin-card-head">
-              <div className="admin-card-title">
-                <Cpu size={18} color="var(--brand-amber)" />
-                <span>Parameter Model AI & Output Engine</span>
+      {/* ── SETTINGS CARDS STACK (Jarak Antar-card Lebih Rapat & Animasi Jalan ke Atas) ── */}
+      <div className="settings-cards-stack" key={activeConfigTab}>
+        {activeConfigTab === "ai" && (
+          <>
+            <div className="standalone-config-card card-delay-1">
+              <div className="folder-section-head">
+                <div className="admin-card-title">
+                  <Cpu size={18} color="var(--brand-amber)" />
+                  <span>Parameter Model AI & Output Engine</span>
+                </div>
+                <span className="admin-card-badge">LLM & CHATBOT</span>
               </div>
-              <span className="admin-card-badge">LLM & CHATBOT</span>
-            </div>
 
-            <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "18px" }}>
-              Parameter berikut mengendalikan model bahasa yang digunakan oleh <strong>Laomera Asisten</strong> untuk membaca hasil diagnosis dan memberikan edukasi bahan aktif.
-            </p>
+              <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "18px" }}>
+                Parameter berikut mengendalikan model bahasa yang digunakan oleh <strong>Laomera Asisten</strong> untuk membaca hasil diagnosis dan memberikan edukasi bahan aktif.
+              </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_MODEL (Nama Model LLM)</span>
-                <input
-                  style={inputStyle}
-                  type="text"
-                  placeholder="gemini-1.5-flash"
-                  value={values.AI_MODEL ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, AI_MODEL: e.target.value }))}
-                />
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Default: gemini-1.5-flash</span>
-              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_MODEL (Nama Model LLM)</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    placeholder="gemini-1.5-flash"
+                    value={values.AI_MODEL ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, AI_MODEL: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Default: gemini-1.5-flash</span>
+                </label>
 
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_MAX_TOKENS (Batas Token)</span>
-                <input
-                  style={inputStyle}
-                  type="number"
-                  placeholder="1024"
-                  value={values.AI_MAX_TOKENS ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, AI_MAX_TOKENS: e.target.value }))}
-                />
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Maksimal token dalam satu respon chat</span>
-              </label>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_MAX_TOKENS (Batas Token)</span>
+                  <input
+                    style={inputStyle}
+                    type="number"
+                    placeholder="1024"
+                    value={values.AI_MAX_TOKENS ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, AI_MAX_TOKENS: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Maksimal token dalam satu respon chat</span>
+                </label>
 
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_TEMPERATURE (Kreativitas)</span>
-                <input
-                  style={inputStyle}
-                  type="text"
-                  placeholder="0.7"
-                  value={values.AI_TEMPERATURE ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, AI_TEMPERATURE: e.target.value }))}
-                />
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>0.0 (Sangat presisi) hingga 1.0 (Kreatif)</span>
-              </label>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_TEMPERATURE (Kreativitas)</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    placeholder="0.7"
+                    value={values.AI_TEMPERATURE ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, AI_TEMPERATURE: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>0.0 (Sangat presisi) hingga 1.0 (Kreatif)</span>
+                </label>
 
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_SIMULATION_MODE</span>
-                <select
-                  style={inputStyle}
-                  value={values.AI_SIMULATION_MODE ?? "0"}
-                  onChange={(e) => setValues((p) => ({ ...p, AI_SIMULATION_MODE: e.target.value }))}
-                >
-                  <option value="0">0 — Live AI API (Normal)</option>
-                  <option value="1">1 — Mode Simulasi (Fallback Mock)</option>
-                </select>
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Gunakan 1 jika kuota API habis</span>
-              </label>
-            </div>
-          </div>
-
-          <div className="admin-glass-card">
-            <div className="admin-card-head">
-              <div className="admin-card-title">
-                <Sliders size={18} color="var(--brand-amber)" />
-                <span>Ambang Batas Inferensi & Kuota Operasional</span>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_SIMULATION_MODE</span>
+                  <select
+                    style={inputStyle}
+                    value={values.AI_SIMULATION_MODE ?? "0"}
+                    onChange={(e) => setValues((p) => ({ ...p, AI_SIMULATION_MODE: e.target.value }))}
+                  >
+                    <option value="0">0 — Live AI API (Normal)</option>
+                    <option value="1">1 — Mode Simulasi (Fallback Mock)</option>
+                  </select>
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Gunakan 1 jika kuota API habis</span>
+                </label>
               </div>
-              <span className="admin-card-badge">VGG & LIMITS</span>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>VGG_THRESHOLD (%)</span>
-                <input
-                  style={inputStyle}
-                  type="text"
-                  placeholder="40"
-                  value={values.VGG_THRESHOLD ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, VGG_THRESHOLD: e.target.value }))}
-                />
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Ambang minimal klasifikasi kondisi wajah</span>
-              </label>
-
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>YOLO_CONFIDENCE</span>
-                <input
-                  style={inputStyle}
-                  type="text"
-                  placeholder="0.25"
-                  value={values.YOLO_CONFIDENCE ?? values.YOLO_THRESHOLD ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, YOLO_CONFIDENCE: e.target.value }))}
-                />
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Confidence score untuk modul deteksi objek</span>
-              </label>
-
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>SCAN_DAILY_QUOTA (Batas Scan Harian)</span>
-                <input
-                  style={inputStyle}
-                  type="text"
-                  placeholder="5"
-                  value={values.SCAN_DAILY_QUOTA ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, SCAN_DAILY_QUOTA: e.target.value }))}
-                />
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kosongkan untuk tanpa batas</span>
-              </label>
-
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>MAINTENANCE_MODE</span>
-                <select
-                  style={inputStyle}
-                  value={values.MAINTENANCE_MODE ?? "off"}
-                  onChange={(e) => setValues((p) => ({ ...p, MAINTENANCE_MODE: e.target.value }))}
-                >
-                  <option value="off">off — Sistem Beroperasi Normal</option>
-                  <option value="on">on — Mode Pemeliharaan (Blokir Scan Customer)</option>
-                </select>
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Admin tetap bisa melakukan scan</span>
-              </label>
-            </div>
-
-            <div style={{ marginTop: "18px" }}>
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
-                  GEMINI_API_KEY (Google AI Studio Key)
-                  {meta.GEMINI_API_KEY?.configured && (
-                    <span style={{ color: "#059669", fontWeight: 400, marginLeft: "8px" }}>
-                      • Kunci tersimpan di backend (Kosongkan jika tidak ingin mengubah)
-                    </span>
-                  )}
-                </span>
-                <input
-                  style={inputStyle}
-                  type="password"
-                  placeholder="••••••••••••••••••••••••••••••••"
-                  value={values.GEMINI_API_KEY ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, GEMINI_API_KEY: e.target.value }))}
-                />
-              </label>
-            </div>
-
-            <div style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={savingSettings}
-                onClick={() => handleSaveSettings(["AI_MODEL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "VGG_THRESHOLD", "YOLO_CONFIDENCE", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE", "GEMINI_API_KEY"])}
-              >
-                <Save size={15} />
-                <span>{savingSettings ? "Menyimpan Konfigurasi AI…" : "Simpan Konfigurasi AI"}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Testing Hub AI */}
-          <div className="admin-glass-card">
-            <div className="admin-card-head">
-              <div className="admin-card-title">
-                <Sparkles size={18} color="var(--brand-amber)" />
-                <span>Testing Hub: Inferensi & Basis Data</span>
+            {/* Card 2: Ambang Batas Inferensi & Kuota Operasional */}
+            <div className="standalone-config-card card-delay-2">
+              <div className="folder-section-head">
+                <div className="admin-card-title">
+                  <Sliders size={18} color="var(--brand-amber)" />
+                  <span>Ambang Batas Inferensi & Kuota Operasional</span>
+                </div>
+                <span className="admin-card-badge">VGG & LIMITS</span>
               </div>
-              <span className="admin-card-badge">CONNECTIVITY TEST</span>
-            </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
-              {renderTestBox("ai", "Uji Respon Gemini AI", <Cpu size={16} color="var(--brand-amber)" />, testAdminAi)}
-              {renderTestBox("db", "Uji Koneksi Database TiDB", <Database size={16} color="#2563eb" />, testAdminDb)}
-            </div>
-          </div>
-        </div>
-      )}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>VGG_THRESHOLD (%)</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    placeholder="40"
+                    value={values.VGG_THRESHOLD ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, VGG_THRESHOLD: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Ambang minimal klasifikasi kondisi wajah</span>
+                </label>
 
-      {/* ═════════════════════════════════════════════════════════
-          TAB CONTENT 2: KONFIGURASI OTP & GATEWAY
-         ═════════════════════════════════════════════════════════ */}
-      {activeConfigTab === "otp" && (
-        <div style={{ display: "grid", gap: "22px" }}>
-          <div className="admin-glass-card">
-            <div className="admin-card-head">
-              <div className="admin-card-title">
-                <Smartphone size={18} color="#2563eb" />
-                <span>Metode Verifikasi OTP & Gateway WhatsApp</span>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>YOLO_CONFIDENCE</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    placeholder="0.25"
+                    value={values.YOLO_CONFIDENCE ?? values.YOLO_THRESHOLD ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, YOLO_CONFIDENCE: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Confidence score untuk modul deteksi objek</span>
+                </label>
+
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>SCAN_DAILY_QUOTA (Batas Scan Harian)</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    placeholder="5"
+                    value={values.SCAN_DAILY_QUOTA ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, SCAN_DAILY_QUOTA: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kosongkan untuk tanpa batas</span>
+                </label>
+
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>MAINTENANCE_MODE</span>
+                  <select
+                    style={inputStyle}
+                    value={values.MAINTENANCE_MODE ?? "off"}
+                    onChange={(e) => setValues((p) => ({ ...p, MAINTENANCE_MODE: e.target.value }))}
+                  >
+                    <option value="off">off — Sistem Beroperasi Normal</option>
+                    <option value="on">on — Mode Pemeliharaan (Blokir Scan Customer)</option>
+                  </select>
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Admin tetap bisa melakukan scan</span>
+                </label>
               </div>
-              <span className="admin-card-badge">VERIFIKASI PENGGUNA</span>
-            </div>
 
-            <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "18px" }}>
-              Konfigurasikan alur verifikasi kode one-time password (OTP) untuk pendaftaran pengguna baru dan penghapusan akun.
-            </p>
+              <div style={{ marginTop: "18px" }}>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
+                    GEMINI_API_KEY (Google AI Studio Key)
+                    {meta.GEMINI_API_KEY?.configured && (
+                      <span style={{ color: "#059669", fontWeight: 400, marginLeft: "8px" }}>
+                        • Kunci tersimpan di backend (Kosongkan jika tidak ingin mengubah)
+                      </span>
+                    )}
+                  </span>
+                  <input
+                    style={inputStyle}
+                    type="password"
+                    placeholder="••••••••••••••••••••••••••••••••"
+                    value={values.GEMINI_API_KEY ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, GEMINI_API_KEY: e.target.value }))}
+                  />
+                </label>
+              </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>OTP_MODE (Kanal Verifikasi)</span>
-                <select
-                  style={inputStyle}
-                  value={values.OTP_MODE ?? values.REGISTRATION_OTP_MODE ?? "whatsapp"}
-                  onChange={(e) => setValues((p) => ({ ...p, OTP_MODE: e.target.value, REGISTRATION_OTP_MODE: e.target.value }))}
-                >
-                  <option value="whatsapp">WhatsApp Only (Fonnte API)</option>
-                  <option value="email">Email Only (SMTP)</option>
-                  <option value="dual">Dual (WhatsApp & Email)</option>
-                </select>
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Pilih jalur pengiriman kode OTP ke pengguna</span>
-              </label>
-
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "4px 0" }}>
+              <div style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
                 <button
                   type="button"
-                  className={`app-switch ${values.ALLOW_SAME_PHONE_NUMBER === "on" ? "active" : ""}`}
-                  role="switch"
-                  aria-checked={values.ALLOW_SAME_PHONE_NUMBER === "on"}
-                  aria-label="Boleh pakai nomor WhatsApp yang sama"
-                  onClick={() =>
-                    setValues((p) => ({ ...p, ALLOW_SAME_PHONE_NUMBER: p.ALLOW_SAME_PHONE_NUMBER === "on" ? "off" : "on" }))
-                  }
+                  className="btn btn-primary"
+                  disabled={savingSettings}
+                  onClick={() => handleSaveSettings(["AI_MODEL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "VGG_THRESHOLD", "YOLO_CONFIDENCE", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE", "GEMINI_API_KEY"])}
                 >
-                  <span className="switch-thumb" />
+                  <Save size={15} />
+                  <span>{savingSettings ? "Menyimpan Konfigurasi AI…" : "Simpan Konfigurasi AI"}</span>
                 </button>
-                <span style={{ fontSize: "13px", lineHeight: "1.5" }}>
-                  <strong style={{ color: "var(--brand-navy)" }}>Boleh pakai nomor WhatsApp yang sama</strong>
-                  <span className="muted">
-                    {" "}— {values.ALLOW_SAME_PHONE_NUMBER === "on"
-                      ? "Boleh: satu nomor WA bisa dipakai beberapa akun (untuk demo)."
-                      : "Tidak boleh: satu nomor WA hanya untuk satu akun."}
+              </div>
+            </div>
+
+            {/* Card 3: Testing Hub AI */}
+            <div className="standalone-config-card card-delay-3">
+              <div className="folder-section-head">
+                <div className="admin-card-title">
+                  <Sparkles size={18} color="var(--brand-amber)" />
+                  <span>Testing Hub: Inferensi & Basis Data</span>
+                </div>
+                <span className="admin-card-badge">CONNECTIVITY TEST</span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
+                {renderTestBox("ai", "Uji Respon Gemini AI", <Cpu size={16} color="var(--brand-amber)" />, testAdminAi)}
+                {renderTestBox("db", "Uji Koneksi Database TiDB", <Database size={16} color="#2563eb" />, testAdminDb)}
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeConfigTab === "otp" && (
+          <>
+            {/* Card 1: Alur Pengiriman Kode OTP */}
+            <div className="standalone-config-card card-delay-1">
+              <div className="folder-section-head">
+                <div className="admin-card-title">
+                  <Smartphone size={18} color="#2563eb" />
+                  <span>Metode Verifikasi OTP & Gateway WhatsApp</span>
+                </div>
+                <span className="admin-card-badge">VERIFIKASI PENGGUNA</span>
+              </div>
+
+              <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "18px" }}>
+                Konfigurasikan alur verifikasi kode one-time password (OTP) untuk pendaftaran pengguna baru dan penghapusan akun.
+              </p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>OTP_MODE (Kanal Verifikasi)</span>
+                  <select
+                    style={inputStyle}
+                    value={values.OTP_MODE ?? values.REGISTRATION_OTP_MODE ?? "whatsapp"}
+                    onChange={(e) => setValues((p) => ({ ...p, OTP_MODE: e.target.value, REGISTRATION_OTP_MODE: e.target.value }))}
+                  >
+                    <option value="whatsapp">WhatsApp Only (Fonnte API)</option>
+                    <option value="email">Email Only (SMTP)</option>
+                    <option value="dual">Dual (WhatsApp & Email)</option>
+                  </select>
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Pilih jalur pengiriman kode OTP ke pengguna</span>
+                </label>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "4px 0" }}>
+                  <button
+                    type="button"
+                    className={`app-switch ${values.ALLOW_SAME_PHONE_NUMBER === "on" ? "active" : ""}`}
+                    role="switch"
+                    aria-checked={values.ALLOW_SAME_PHONE_NUMBER === "on"}
+                    aria-label="Boleh pakai nomor WhatsApp yang sama"
+                    onClick={() =>
+                      setValues((p) => ({ ...p, ALLOW_SAME_PHONE_NUMBER: p.ALLOW_SAME_PHONE_NUMBER === "on" ? "off" : "on" }))
+                    }
+                  >
+                    <span className="switch-thumb" />
+                  </button>
+                  <span style={{ fontSize: "13px", lineHeight: "1.5" }}>
+                    <strong style={{ color: "var(--brand-navy)" }}>Boleh pakai nomor WhatsApp yang sama</strong>
+                    <span className="muted">
+                      {" "}— {values.ALLOW_SAME_PHONE_NUMBER === "on"
+                        ? "Boleh: satu nomor WA bisa dipakai beberapa akun (untuk demo)."
+                        : "Tidak boleh: satu nomor WA hanya untuk satu akun."}
+                    </span>
+                    <br />
+                    <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Aturan ini ditegakkan saat pendaftaran akun baru.</span>
                   </span>
-                  <br />
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Aturan ini ditegakkan saat pendaftaran akun baru.</span>
+                </div>
+
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
+                    FONNTE_TOKEN (Token API WhatsApp Fonnte)
+                    {meta.FONNTE_TOKEN?.configured && (
+                      <span style={{ color: "#059669", fontWeight: 400, marginLeft: "6px" }}>• Tersimpan</span>
+                    )}
+                  </span>
+                  <input
+                    style={inputStyle}
+                    type="password"
+                    placeholder="••••••••••••••••••••"
+                    value={values.FONNTE_TOKEN ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, FONNTE_TOKEN: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Token akun Fonnte untuk broadcast WhatsApp</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Card 2: Kredensial Server Email SMTP */}
+            <div className="standalone-config-card card-delay-2">
+              <div className="folder-section-head">
+                <div className="admin-card-title">
+                  <Mail size={18} color="#2563eb" />
+                  <span>Kredensial Server Email SMTP</span>
+                </div>
+                <span className="admin-card-badge">EMAIL GATEWAY</span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>MAIL_USERNAME (Email SMTP)</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    placeholder="admin@laomera.com"
+                    value={values.MAIL_USERNAME ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, MAIL_USERNAME: e.target.value }))}
+                  />
+                </label>
+
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
+                    MAIL_PASSWORD (Password SMTP)
+                    {meta.MAIL_PASSWORD?.configured && (
+                      <span style={{ color: "#059669", fontWeight: 400, marginLeft: "6px" }}>• Tersimpan</span>
+                    )}
+                  </span>
+                  <input
+                    style={inputStyle}
+                    type="password"
+                    placeholder="••••••••••••"
+                    value={values.MAIL_PASSWORD ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, MAIL_PASSWORD: e.target.value }))}
+                  />
+                </label>
+
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>MAIL_FROM_NAME (Nama Pengirim)</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    placeholder="Laomera Skin Intelligence"
+                    value={values.MAIL_FROM_NAME ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, MAIL_FROM_NAME: e.target.value }))}
+                  />
+                </label>
+              </div>
+
+              <div style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={savingSettings}
+                  onClick={() => handleSaveSettings(["ALLOW_SAME_PHONE_NUMBER", "OTP_MODE", "REGISTRATION_OTP_MODE", "FONNTE_TOKEN", "WA_API_TOKEN", "MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_FROM_NAME"])}
+                >
+                  <Save size={15} />
+                  <span>{savingSettings ? "Menyimpan Konfigurasi OTP…" : "Simpan Konfigurasi OTP & Gateway"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Card 3: Testing Hub Komunikasi */}
+            <div className="standalone-config-card card-delay-3">
+              <div className="folder-section-head">
+                <div className="admin-card-title">
+                  <Send size={18} color="#2563eb" />
+                  <span>Testing Hub: Gateway WhatsApp & Email</span>
+                </div>
+                <span className="admin-card-badge">GATEWAY TEST</span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
+                {renderTestBox("wa", "Uji Status Device WhatsApp Fonnte", <Smartphone size={16} color="#059669" />, testAdminWa)}
+                {renderTestBox("email", "Uji Autentikasi Login SMTP", <Mail size={16} color="#2563eb" />, testAdminEmail)}
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeConfigTab === "admin" && (
+          <>
+            {/* Card 1: Profil Identitas Administrator */}
+            <div className="standalone-config-card card-delay-1">
+              <div className="folder-section-head">
+                <div className="admin-card-title">
+                  <UserCog size={18} color="var(--brand-navy)" />
+                  <span>Profil Identitas Administrator</span>
+                </div>
+                <span className="admin-card-badge" style={{ background: "var(--amber-100)", color: "var(--amber-700)", fontWeight: 700 }}>
+                  ROOT SYSTEM ACCESS
                 </span>
               </div>
 
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
-                  FONNTE_TOKEN (Token API WhatsApp Fonnte)
-                  {meta.FONNTE_TOKEN?.configured && (
-                    <span style={{ color: "#059669", fontWeight: 400, marginLeft: "6px" }}>• Tersimpan</span>
-                  )}
-                </span>
-                <input
-                  style={inputStyle}
-                  type="password"
-                  placeholder="••••••••••••••••••••"
-                  value={values.FONNTE_TOKEN ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, FONNTE_TOKEN: e.target.value }))}
-                />
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Token akun Fonnte untuk broadcast WhatsApp</span>
-              </label>
-            </div>
-          </div>
+              <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "18px" }}>
+                Data kredensial administrator ini digunakan untuk otentikasi sesi konsol sistem Laomera dan audit aktivitas backend.
+              </p>
 
-          <div className="admin-glass-card">
-            <div className="admin-card-head">
-              <div className="admin-card-title">
-                <Mail size={18} color="#2563eb" />
-                <span>Kredensial Server Email SMTP</span>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>Nama Lengkap Administrator</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    required
+                    placeholder="Administrator"
+                    value={adminName}
+                    onChange={(e) => setAdminName(e.target.value)}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Nama yang tertera pada catatan sistem dan log audit</span>
+                </label>
+
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Lock size={12} color="var(--text-muted)" /> Alamat Email (Permanen)
+                  </span>
+                  <input
+                    style={{ ...inputStyle, background: "#f8fafc", cursor: "not-allowed", color: "#64748b" }}
+                    type="email"
+                    disabled
+                    value={adminEmail || "admin@laomera.com"}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Email root administrator tidak dapat diubah demi integritas sistem</span>
+                </label>
               </div>
-              <span className="admin-card-badge">EMAIL GATEWAY</span>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>MAIL_USERNAME (Email SMTP)</span>
-                <input
-                  style={inputStyle}
-                  type="text"
-                  placeholder="admin@laomera.com"
-                  value={values.MAIL_USERNAME ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, MAIL_USERNAME: e.target.value }))}
-                />
-              </label>
-
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
-                  MAIL_PASSWORD (Password SMTP)
-                  {meta.MAIL_PASSWORD?.configured && (
-                    <span style={{ color: "#059669", fontWeight: 400, marginLeft: "6px" }}>• Tersimpan</span>
-                  )}
-                </span>
-                <input
-                  style={inputStyle}
-                  type="password"
-                  placeholder="••••••••••••"
-                  value={values.MAIL_PASSWORD ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, MAIL_PASSWORD: e.target.value }))}
-                />
-              </label>
-
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>MAIL_FROM_NAME (Nama Pengirim)</span>
-                <input
-                  style={inputStyle}
-                  type="text"
-                  placeholder="Laomera Skin Intelligence"
-                  value={values.MAIL_FROM_NAME ?? ""}
-                  onChange={(e) => setValues((p) => ({ ...p, MAIL_FROM_NAME: e.target.value }))}
-                />
-              </label>
-            </div>
-
-            <div style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
-              <button
-                type="button"
-                className="btn btn-primary"
-                disabled={savingSettings}
-                onClick={() => handleSaveSettings(["ALLOW_SAME_PHONE_NUMBER", "OTP_MODE", "REGISTRATION_OTP_MODE", "FONNTE_TOKEN", "WA_API_TOKEN", "MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_FROM_NAME"])}
-              >
-                <Save size={15} />
-                <span>{savingSettings ? "Menyimpan Konfigurasi OTP…" : "Simpan Konfigurasi OTP & Gateway"}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Testing Hub Komunikasi */}
-          <div className="admin-glass-card">
-            <div className="admin-card-head">
-              <div className="admin-card-title">
-                <Send size={18} color="#2563eb" />
-                <span>Testing Hub: Gateway WhatsApp & Email</span>
-              </div>
-              <span className="admin-card-badge">GATEWAY TEST</span>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
-              {renderTestBox("wa", "Uji Status Device WhatsApp Fonnte", <Smartphone size={16} color="#059669" />, testAdminWa)}
-              {renderTestBox("email", "Uji Autentikasi Login SMTP", <Mail size={16} color="#2563eb" />, testAdminEmail)}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ═════════════════════════════════════════════════════════
-          TAB CONTENT 3: KONFIGURASI AKUN ADMIN (PROFIL TERPADU)
-         ═════════════════════════════════════════════════════════ */}
-      {activeConfigTab === "admin" && (
-        <form onSubmit={handleSaveAdminProfile} style={{ display: "grid", gap: "22px" }}>
-          {/* Identitas Administrator */}
-          <div className="admin-glass-card">
-            <div className="admin-card-head">
-              <div className="admin-card-title">
-                <UserCog size={18} color="var(--brand-navy)" />
-                <span>Profil Identitas Administrator</span>
-              </div>
-              <span className="admin-card-badge" style={{ background: "var(--amber-100)", color: "var(--amber-700)", fontWeight: 700 }}>
-                ROOT SYSTEM ACCESS
-              </span>
-            </div>
-
-            <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "18px" }}>
-              Data kredensial administrator ini digunakan untuk otentikasi sesi konsol sistem Laomera dan audit aktivitas backend.
-            </p>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>Nama Lengkap Administrator</span>
-                <input
-                  style={inputStyle}
-                  type="text"
-                  required
-                  placeholder="Administrator"
-                  value={adminName}
-                  onChange={(e) => setAdminName(e.target.value)}
-                />
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Nama yang tertera pada catatan sistem dan log audit</span>
-              </label>
-
-              <label style={{ display: "grid", gap: "6px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Lock size={12} color="var(--text-muted)" /> Alamat Email (Permanen)
-                </span>
-                <input
-                  style={{ ...inputStyle, background: "#f8fafc", cursor: "not-allowed", color: "#64748b" }}
-                  type="email"
-                  disabled
-                  value={adminEmail || "admin@laomera.com"}
-                />
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Email root administrator tidak dapat diubah demi integritas sistem</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Keamanan & Pembaruan Password */}
-          <div className="admin-glass-card">
-            <div className="admin-card-head">
+            {/* Card 2: Keamanan & Pembaruan Password */}
+            <form
+              onSubmit={handleSaveAdminProfile}
+              className="standalone-config-card card-delay-2"
+            >
+            <div className="folder-section-head">
               <div className="admin-card-title">
                 <ShieldCheck size={18} color="var(--brand-amber)" />
                 <span>Keamanan & Pembaruan Kata Sandi</span>
@@ -783,20 +782,17 @@ function SettingsContent() {
                 <span>{savingProfile ? "Menyimpan Perubahan Akun…" : "Simpan Perubahan Akun Administrator"}</span>
               </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </>
       )}
     </div>
+  </div>
   );
 }
 
 export default function AdminSettingsPage() {
   return (
-    <Suspense fallback={
-      <div className="admin-stage-container" style={{ textAlign: "center", padding: "64px 20px" }}>
-        <Loading label="Menyiapkan Bilah Konfigurasi…" />
-      </div>
-    }>
+    <Suspense fallback={<WorkspaceLoadingScreen caption="Menyiapkan Bilah Konfigurasi…" />}>
       <SettingsContent />
     </Suspense>
   );

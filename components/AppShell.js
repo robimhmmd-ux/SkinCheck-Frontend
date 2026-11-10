@@ -8,6 +8,7 @@ import SiteHeader from "./SiteHeader";
 import WorkspaceSidebar from "./WorkspaceSidebar";
 import VerificationModal from "./VerificationModal";
 import NotificationBell from "./NotificationBell";
+import WorkspaceLoadingScreen from "./WorkspaceLoadingScreen";
 import { fmtDateShort } from "../lib/scores";
 import { getMe, pickUser } from "../lib/api";
 
@@ -111,6 +112,33 @@ export default function AppShell({ children }) {
   );
 
   const isAdminPage = pathname === "/admin" || pathname.startsWith("/admin/");
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [navCaption, setNavCaption] = useState("Memuat Data…");
+
+  // Pantau perpindahan navigasi antar-halaman untuk memicu skeleton loading screen & 3D spinner
+  useEffect(() => {
+    function handleNavStart(e) {
+      if (e.detail?.href && e.detail.href !== pathname) {
+        if (e.detail.label) {
+          setNavCaption(`Memuat ${e.detail.label}…`);
+        } else {
+          setNavCaption("Memuat Halaman…");
+        }
+        setIsNavigating(true);
+      }
+    }
+    window.addEventListener("laomera-nav-start", handleNavStart);
+    return () => window.removeEventListener("laomera-nav-start", handleNavStart);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (isNavigating) {
+      const timer = setTimeout(() => {
+        setIsNavigating(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, isNavigating]);
 
   // Segarkan status akun tiap pindah halaman workspace (modal verifikasi
   // mengikuti status terbaru).
@@ -133,6 +161,12 @@ export default function AppShell({ children }) {
       <>
         <SiteHeader />
         <main id="main" className="app-main-viewport">
+          <WorkspaceLoadingScreen
+            active={isNavigating}
+            caption={navCaption}
+            variant="overlay"
+            skeleton={false}
+          />
           {children}
         </main>
         <SiteFooter />
@@ -150,9 +184,7 @@ export default function AppShell({ children }) {
       <div className="dash-main-canvas-area">
         <header className="dash-stage-topbar">
           <div className="dash-topbar-left">
-            <span className="dash-breadcrumb-path">
-              Laomera / <strong>{pageLabel(pathname)}</strong>
-            </span>
+            {/* Breadcrumb dihapus sesuai permintaan agar topbar bersih & fokus pada taskbar */}
           </div>
 
           <div className="dash-topbar-right">
@@ -171,6 +203,12 @@ export default function AppShell({ children }) {
         </header>
 
         <main id="main" className="app-main-viewport">
+          <WorkspaceLoadingScreen
+            active={isNavigating}
+            caption={navCaption}
+            variant="overlay"
+            skeleton={true}
+          />
           {children}
         </main>
         <SiteFooter />

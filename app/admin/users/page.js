@@ -24,6 +24,7 @@ import {
 } from "../../../lib/api";
 import { fmtDate } from "../../../lib/scores";
 import { ErrorBox, Loading } from "../../../components/Notice";
+import WorkspaceLoadingScreen from "../../../components/WorkspaceLoadingScreen";
 import AdminDenied from "../../../components/AdminDenied";
 import { useToast, ConfirmDialog } from "../../../components/Toast";
 
@@ -101,6 +102,10 @@ export default function AdminUsersPage() {
     } catch (err) {
       toast.error(err.message || "Gagal menonaktifkan akun.");
     }
+  }
+
+  if (loading && rows.length === 0) {
+    return <WorkspaceLoadingScreen caption="Memuat Data Pengguna…" />;
   }
 
   return (

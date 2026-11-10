@@ -18,6 +18,7 @@ import {
   submitBiodata,
 } from "../lib/api";
 import { useToast } from "./Toast";
+import WorkspaceLoadingScreen from "./WorkspaceLoadingScreen";
 
 const inputStyle = {
   width: "100%",
@@ -298,6 +299,13 @@ export default function VerificationModal({ user, onDone }) {
         >
           <LogOut size={14} /> Keluar dulu, verifikasi nanti
         </button>
+
+        <WorkspaceLoadingScreen
+          active={otpBusy || bioBusy}
+          caption={bioBusy ? "Menyimpan Biodata Akun…" : "Memverifikasi Akun…"}
+          variant="overlay"
+          skeleton={false}
+        />
       </div>
     </div>
   );

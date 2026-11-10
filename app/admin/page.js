@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import WorkspaceLoadingScreen from "../../components/WorkspaceLoadingScreen";
 import {
   ShieldAlert,
   ShieldCheck,
@@ -144,19 +145,9 @@ export default function AdminPage() {
     return ["semua", ...Array.from(set)];
   }, [productsList]);
 
-  // Loading Skeleton View
+  // Loading Unified View: Skeleton Card & 3D Spinner
   if (loading) {
-    return (
-      <div className="admin-stage-container" style={{ textAlign: "center", padding: "64px 20px" }}>
-        <Activity className="animate-pulse" size={38} color="var(--brand-amber)" style={{ margin: "0 auto 16px" }} />
-        <h3 style={{ fontFamily: "var(--font-serif)", color: "var(--brand-navy)", marginBottom: "6px" }}>
-          Menginisialisasi Konsol Administrasi
-        </h3>
-        <p className="muted" style={{ fontSize: "14px" }}>
-          Mengumpulkan telemetri sistem, agregasi data relasional, dan verifikasi otoritas...
-        </p>
-      </div>
-    );
+    return <WorkspaceLoadingScreen caption="Menginisialisasi Konsol Administrasi…" />;
   }
 
   // Unauthorized Access View (401 / 403)

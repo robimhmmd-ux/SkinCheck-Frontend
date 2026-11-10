@@ -16,6 +16,7 @@ import {
 } from "../../../lib/api";
 import { fmtDate } from "../../../lib/scores";
 import { ErrorBox, Loading } from "../../../components/Notice";
+import WorkspaceLoadingScreen from "../../../components/WorkspaceLoadingScreen";
 import AdminDenied from "../../../components/AdminDenied";
 
 export default function AdminLogsPage() {
@@ -87,6 +88,10 @@ export default function AdminLogsPage() {
       </span>
     );
   };
+
+  if (loading && rows.length === 0) {
+    return <WorkspaceLoadingScreen caption="Memuat Log Aktivitas…" />;
+  }
 
   return (
     <div className="admin-stage-container">

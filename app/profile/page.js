@@ -174,20 +174,21 @@ export default function ProfilePage() {
 
                 <form onSubmit={onSaveName} style={{ display: "grid", gap: "10px", marginTop: "16px" }}>
                   <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={{ fontSize: "13px", fontWeight: 600 }}>Nama pengguna</span>
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Nama pengguna</span>
                     <input
                       value={name}
                       required
+                      className="app-text-input"
                       onChange={(e) => setName(e.target.value)}
-                      style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid var(--border-subtle)", background: "#fff", fontSize: "14px" }}
                     />
                   </label>
                   <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={{ fontSize: "13px", fontWeight: 600 }}>Email (tidak dapat diubah)</span>
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Email (tidak dapat diubah)</span>
                     <input
                       value={user.email || ""}
                       disabled
-                      style={{ width: "100%", padding: "10px 12px", borderRadius: "10px", border: "1px solid var(--border-subtle)", background: "var(--sand-100)", fontSize: "14px", color: "var(--text-muted)" }}
+                      className="app-text-input"
+                      style={{ opacity: 0.65, cursor: "not-allowed" }}
                     />
                   </label>
                   <div>

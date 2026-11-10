@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { User, Mail, Phone, Lock, UserPlus, ArrowRight, CheckCircle2 } from "lucide-react";
 import { register, requestFonnteOtp } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
+import WorkspaceLoadingScreen from "../../components/WorkspaceLoadingScreen";
 import AuthVisual from "../../components/AuthVisual";
 
 export default function RegisterPage() {
@@ -161,6 +162,13 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
+
+      <WorkspaceLoadingScreen
+        active={busy}
+        caption="Memproses Pendaftaran…"
+        variant="overlay"
+        skeleton={false}
+      />
     </div>
   );
 }

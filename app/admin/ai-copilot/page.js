@@ -20,6 +20,7 @@ import {
   pickObject
 } from "../../../lib/api";
 import { ErrorBox, Loading } from "../../../components/Notice";
+import WorkspaceLoadingScreen from "../../../components/WorkspaceLoadingScreen";
 import AdminDenied from "../../../components/AdminDenied";
 import { useToast, ConfirmDialog } from "../../../components/Toast";
 
@@ -55,17 +56,7 @@ export default function AdminCopilotPage() {
   if (denied) return <AdminDenied />;
 
   if (loading) {
-    return (
-      <div className="admin-stage-container" style={{ textAlign: "center", padding: "64px 20px" }}>
-        <BrainCircuit className="animate-pulse" size={38} color="var(--brand-navy)" style={{ margin: "0 auto 16px" }} />
-        <h3 style={{ fontFamily: "var(--font-serif)", color: "var(--brand-navy)", marginBottom: "6px" }}>
-          Mengagregasi AI Copilot & Celah Pasar
-        </h3>
-        <p className="muted" style={{ fontSize: "14px" }}>
-          Menghitung korelasi keluhan customer dan kesiapan stok katalog...
-        </p>
-      </div>
-    );
+    return <WorkspaceLoadingScreen caption="Mengagregasi AI Copilot & Celah Pasar…" />;
   }
 
   if (error || !data) {
@@ -226,10 +217,13 @@ export default function AdminCopilotPage() {
                 <div
                   key={g.key}
                   style={{
-                    padding: "10px 14px",
-                    borderRadius: "10px",
-                    border: "1px solid rgba(15, 23, 42, 0.06)",
-                    background: g.gap ? "rgba(217, 136, 42, 0.04)" : "#ffffff",
+                    padding: "12px 16px",
+                    borderRadius: "14px",
+                    border: "1px solid rgba(255, 255, 255, 0.55)",
+                    background: g.gap ? "rgba(255, 255, 255, 0.22)" : "rgba(255, 255, 255, 0.38)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.6)",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center"
@@ -305,10 +299,13 @@ export default function AdminCopilotPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             <div
               style={{
-                background: "#FAF9F5",
-                border: "1px solid rgba(15, 23, 42, 0.08)",
-                borderRadius: "14px",
-                padding: "20px"
+                background: "rgba(255, 255, 255, 0.35)",
+                backdropFilter: "blur(18px)",
+                WebkitBackdropFilter: "blur(18px)",
+                border: "1px solid rgba(255, 255, 255, 0.5)",
+                borderRadius: "20px",
+                padding: "22px",
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.6)"
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "12px" }}>
@@ -316,7 +313,7 @@ export default function AdminCopilotPage() {
                   <span className="category-badge" style={{ marginBottom: "6px" }}>
                     {p.category ? p.category.toUpperCase() : "SERUM"}
                   </span>
-                  <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "19px", color: "var(--brand-navy)", margin: 0 }}>
+                  <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "19px", color: "#111422", margin: 0, fontWeight: 700 }}>
                     {p.brand} — {p.name}
                   </h3>
                 </div>
@@ -331,13 +328,13 @@ export default function AdminCopilotPage() {
                 </button>
               </div>
 
-              <p style={{ fontSize: "13.5px", color: "var(--text-body)", lineHeight: 1.6, marginBottom: "14px" }}>
+              <p style={{ fontSize: "13.5px", color: "#1e293b", lineHeight: 1.6, marginBottom: "14px" }}>
                 {p.description}
               </p>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "12px" }}>
                 <div>
-                  <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--brand-navy)", display: "block", marginBottom: "4px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#111422", display: "block", marginBottom: "4px" }}>
                     Bahan Aktif:
                   </span>
                   <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
@@ -346,10 +343,11 @@ export default function AdminCopilotPage() {
                         key={idx}
                         style={{
                           padding: "2px 7px",
-                          borderRadius: "4px",
+                          borderRadius: "6px",
                           fontSize: "11px",
-                          background: "rgba(15, 23, 42, 0.06)",
-                          color: "var(--brand-navy)"
+                          background: "rgba(255, 255, 255, 0.55)",
+                          color: "#111422",
+                          border: "1px solid rgba(255, 255, 255, 0.6)"
                         }}
                       >
                         {ing}
@@ -359,7 +357,7 @@ export default function AdminCopilotPage() {
                 </div>
 
                 <div>
-                  <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--brand-navy)", display: "block", marginBottom: "4px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: "#111422", display: "block", marginBottom: "4px" }}>
                     Target Keluhan:
                   </span>
                   <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
@@ -373,8 +371,8 @@ export default function AdminCopilotPage() {
               </div>
 
               {p.rationale && (
-                <div style={{ marginTop: "14px", padding: "10px 12px", borderRadius: "8px", background: "#ffffff", border: "1px solid rgba(15, 23, 42, 0.06)", fontSize: "12.5px", color: "var(--text-muted)" }}>
-                  <strong>Rasionalisasi Ilmiah:</strong> {p.rationale}
+                <div style={{ marginTop: "14px", padding: "12px 14px", borderRadius: "12px", background: "rgba(255, 255, 255, 0.45)", backdropFilter: "blur(10px)", border: "1px solid rgba(255, 255, 255, 0.55)", fontSize: "12.5px", color: "#1e293b" }}>
+                  <strong style={{ color: "#111422" }}>Rasionalisasi Ilmiah:</strong> {p.rationale}
                 </div>
               )}
             </div>

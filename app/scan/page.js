@@ -20,6 +20,7 @@ import {
 import { uploadScan, uploadMultiScan, pickObject, getMe } from "../../lib/api";
 import { fmtDate, fmtScore } from "../../lib/scores";
 import { ErrorBox } from "../../components/Notice";
+import WorkspaceLoadingScreen from "../../components/WorkspaceLoadingScreen";
 import { useToast } from "../../components/Toast";
 
 const SCORES = [
@@ -107,6 +108,7 @@ export default function ScanPage() {
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [busyCaption, setBusyCaption] = useState("Memproses Foto Kulit…");
   const [currentUser, setCurrentUser] = useState(null);
 
   // Webcam multi-pose capture state
@@ -259,9 +261,12 @@ export default function ScanPage() {
     }
 
     setBusy(true);
+    setBusyCaption("Mengompilasi Frame Multi-Angle…");
     setError(null);
     try {
+      setBusyCaption("Mengunggah File ke Model AI…");
       const res = await uploadMultiScan(validFrames, validPoses);
+      setBusyCaption("Menganalisis Kondisi Kulit…");
       setResult(pickObject(res));
     } catch (err) {
       setError(err);
@@ -286,9 +291,12 @@ export default function ScanPage() {
     }
     setError(null);
     setBusy(true);
+    setBusyCaption("Mengompresi & Memvalidasi File…");
     try {
       const readyFile = await compressImageForMobile(file);
+      setBusyCaption("Mengunggah File ke Model AI…");
       const res = await uploadScan(readyFile);
+      setBusyCaption("Menganalisis Kondisi Kulit…");
       setResult(pickObject(res));
     } catch (err) {
       setError(err);
@@ -333,29 +341,35 @@ export default function ScanPage() {
 
   return (
     <div className="scanner-stage-wrap">
+      <WorkspaceLoadingScreen
+        active={busy}
+        caption={busyCaption}
+        variant="overlay"
+        skeleton={true}
+      />
       {/* Header */}
       <div>
         <div className="badge badge-amber" style={{ marginBottom: "8px" }}>
           <Camera size={13} aria-hidden="true" />
           <span>PEMINDAI WAJAH AI</span>
         </div>
-        <h1>Scan Wajah & Deteksi Kondisi Kulit</h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "14.5px", margin: "4px 0 0" }}>
+        <h1 style={{ color: "#ffffff", textShadow: "0 2px 10px rgba(0, 0, 0, 0.15)" }}>Scan Wajah & Deteksi Kondisi Kulit</h1>
+        <p style={{ color: "rgba(255, 255, 255, 0.92)", fontSize: "15px", margin: "4px 0 0", lineHeight: 1.6 }}>
           Posisikan wajahmu tegak dengan pencahayaan merata. Sistem mendeteksi tanda jerawat, minyak, kekeringan, noda gelap, dan garis halus.
         </p>
       </div>
 
       {!currentUser && (
-        <div className="glass-panel" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: "12px", background: "var(--amber-100)", borderColor: "rgba(217, 136, 42, 0.3)" }}>
-          <Sparkles size={18} color="var(--amber-700)" />
-          <span style={{ fontSize: "13.5px", color: "var(--amber-700)" }}>
-            <strong>Mode Uji Coba Cepat:</strong> Kamu bisa langsung memindai tanpa login. Hasil akan langsung tampil di sini. <Link href="/login" style={{ textDecoration: "underline", fontWeight: 700 }}>Masuk</Link> jika ingin menyimpan ke riwayat akun.
+        <div className="glass-panel" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: "12px", background: "rgba(255, 255, 255, 0.28)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(255, 255, 255, 0.45)", color: "#ffffff" }}>
+          <Sparkles size={18} color="#ffffff" />
+          <span style={{ fontSize: "13.5px", color: "#ffffff" }}>
+            <strong>Mode Uji Coba Cepat:</strong> Kamu bisa langsung memindai tanpa login. Hasil akan langsung tampil di sini. <Link href="/login" style={{ textDecoration: "underline", fontWeight: 700, color: "#ffffff" }}>Masuk</Link> jika ingin menyimpan ke riwayat akun.
           </span>
         </div>
       )}
 
       {/* Mode Selector Tabs */}
-      <div style={{ display: "inline-flex", background: "var(--sand-200)", padding: "4px", borderRadius: "var(--radius-pill)", width: "fit-content", gap: "4px" }}>
+      <div style={{ display: "inline-flex", background: "rgba(255, 255, 255, 0.25)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid rgba(255, 255, 255, 0.4)", padding: "4px", borderRadius: "var(--radius-pill)", width: "fit-content", gap: "4px" }}>
         <button
           type="button"
           onClick={() => {

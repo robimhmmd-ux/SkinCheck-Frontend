@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { getAdminTrends, pickObject } from "../../../lib/api";
 import { ErrorBox, Loading } from "../../../components/Notice";
+import WorkspaceLoadingScreen from "../../../components/WorkspaceLoadingScreen";
 import AdminDenied from "../../../components/AdminDenied";
 
 export default function AdminTrendsPage() {
@@ -42,17 +43,7 @@ export default function AdminTrendsPage() {
   if (denied) return <AdminDenied />;
 
   if (loading) {
-    return (
-      <div className="admin-stage-container" style={{ textAlign: "center", padding: "64px 20px" }}>
-        <BarChart3 className="animate-pulse" size={38} color="var(--brand-navy)" style={{ margin: "0 auto 16px" }} />
-        <h3 style={{ fontFamily: "var(--font-serif)", color: "var(--brand-navy)", marginBottom: "6px" }}>
-          Mengalkulasi Distribusi Tren Dermatologi
-        </h3>
-        <p className="muted" style={{ fontSize: "14px" }}>
-          Mengagregasi rata-rata nilai 5 model detektor VGG16 dari seluruh pemindaian customer...
-        </p>
-      </div>
-    );
+    return <WorkspaceLoadingScreen caption="Mengalkulasi Distribusi Tren Dermatologi…" />;
   }
 
   if (error || !data) {
@@ -157,19 +148,22 @@ export default function AdminTrendsPage() {
           {dominant && (
             <div
               style={{
-                background: "#FAF9F5",
-                border: "1px solid rgba(217, 136, 42, 0.25)",
-                borderRadius: "14px",
-                padding: "18px 22px"
+                background: "rgba(255, 255, 255, 0.28)",
+                backdropFilter: "blur(18px)",
+                WebkitBackdropFilter: "blur(18px)",
+                border: "1px solid rgba(255, 255, 255, 0.45)",
+                borderRadius: "20px",
+                padding: "20px 24px",
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.6)"
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
                 <Award size={18} color="var(--brand-amber)" />
-                <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "17px", color: "var(--brand-navy)", margin: 0 }}>
+                <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "17px", color: "#111422", margin: 0, fontWeight: 700 }}>
                   Kondisi Paling Menonjol: {dominant.label}
                 </h3>
               </div>
-              <p style={{ margin: 0, fontSize: "13px", color: "var(--text-body)", lineHeight: 1.6 }}>
+              <p style={{ margin: 0, fontSize: "13.5px", color: "#1e293b", lineHeight: 1.6 }}>
                 Rata-rata skor {dominant.label.toLowerCase()} mencapai <strong>{dominant.avg_score}/100</strong>, tertinggi di antara 5 parameter uji dan muncul signifikan (skor ≥ 40) pada <strong>{dominant.pct_significant}%</strong> dari seluruh scan. Formula yang menargetkan kondisi ini disarankan diprioritaskan.
               </p>
             </div>
