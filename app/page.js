@@ -1,12 +1,10 @@
 "use client";
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   Camera,
   Bot,
   HeartPulse,
   Activity,
-  ArrowRight,
   Droplets,
   Sun,
   Flame,
@@ -194,6 +192,59 @@ export default function Home() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
 
+  // Animasi scroll: memunculkan card saat scroll ke bawah dan membuang card saat scroll ke atas
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const windowHeight = window.innerHeight;
+
+          // 1. Vision section cards (5 foto)
+          const visionEl = document.getElementById("visi");
+          if (visionEl) {
+            const rect = visionEl.getBoundingClientRect();
+            if (rect.top <= windowHeight * 0.85 && rect.bottom >= windowHeight * 0.15) {
+              visionEl.classList.add("cards-in-view");
+              visionEl.classList.remove("cards-discard-up", "cards-hidden-down");
+            } else if (rect.top > windowHeight * 0.85) {
+              visionEl.classList.remove("cards-in-view", "cards-discard-up");
+              visionEl.classList.add("cards-hidden-down");
+            } else if (rect.bottom < windowHeight * 0.15) {
+              visionEl.classList.remove("cards-in-view", "cards-hidden-down");
+              visionEl.classList.add("cards-discard-up");
+            }
+          }
+
+          // 2. Section cards lainnya (kondisi, fitur, faq)
+          const sections = ["kondisi", "fitur", "faq"];
+          sections.forEach((id) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= windowHeight * 0.88 && rect.bottom >= windowHeight * 0.12) {
+              el.classList.add("scroll-revealed");
+              el.classList.remove("scroll-discarded");
+            } else if (rect.bottom < windowHeight * 0.12) {
+              el.classList.add("scroll-discarded");
+              el.classList.remove("scroll-revealed");
+            } else {
+              el.classList.remove("scroll-revealed", "scroll-discarded");
+            }
+          });
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className="landing-fullscreen-flow">
       {/* ── 1. HERO SHOWCASE (EDITORIAL HIGH-FASHION MINIMALIST STAGE) ── */}
@@ -204,14 +255,6 @@ export default function Home() {
           <h1 className="hero-editorial-title">
             The Future of<br />Beauty is Automated
           </h1>
-
-          {/* Interactive capsule subscribe / launch pill */}
-          <Link href="/scan" className="hero-editorial-capsule" aria-label="Mulai scan kesehatan kulit wajah">
-            <span className="capsule-sub-text">Mulai scan kesehatan kulitmu sekarang</span>
-            <span className="capsule-sub-btn" aria-hidden="true">
-              <ArrowRight size={14} />
-            </span>
-          </Link>
         </div>
 
         {/* ── CINEMATIC 3D ORBITAL STAGE DENGAN ANIMASI ROTASI & FADE GRADASI TRANSPARAN ── */}

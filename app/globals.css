@@ -1024,7 +1024,15 @@ a:hover {
   margin: 0 auto 56px;
   padding: 20px 16px 50px;
   perspective: 1200px;
-  overflow-x: auto;
+  overflow: visible;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.vision-arc-track::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .vision-card {
@@ -1042,31 +1050,79 @@ a:hover {
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
   overflow: hidden;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   position: relative;
+  opacity: 0;
+  transform: translateY(140px) scale(0.65) rotate(0deg);
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
 }
 
-.vision-card:hover {
+/* ── Keadaan Muncul Saat Scroll ke Bawah (cards-in-view) ── */
+.landing-vision-section.cards-in-view .vision-card-1 {
+  opacity: 1;
+  transform: rotate(-14deg) translateY(42px);
+  transition-delay: 0.04s;
+}
+.landing-vision-section.cards-in-view .vision-card-2 {
+  opacity: 1;
+  transform: rotate(-7deg) translateY(12px);
+  transition-delay: 0.11s;
+}
+.landing-vision-section.cards-in-view .vision-card-3 {
+  opacity: 1;
+  transform: rotate(0deg) translateY(0px);
+  transition-delay: 0.18s;
+}
+.landing-vision-section.cards-in-view .vision-card-4 {
+  opacity: 1;
+  transform: rotate(7deg) translateY(12px);
+  transition-delay: 0.25s;
+}
+.landing-vision-section.cards-in-view .vision-card-5 {
+  opacity: 1;
+  transform: rotate(14deg) translateY(42px);
+  transition-delay: 0.32s;
+}
+
+/* ── Keadaan Terbuang Saat Scroll ke Atas (cards-discard-up) ── */
+.landing-vision-section.cards-discard-up .vision-card-1 {
+  opacity: 0;
+  transform: translateY(-110px) rotate(-22deg) scale(0.7);
+  transition-delay: 0.04s;
+}
+.landing-vision-section.cards-discard-up .vision-card-2 {
+  opacity: 0;
+  transform: translateY(-130px) rotate(-11deg) scale(0.7);
+  transition-delay: 0.08s;
+}
+.landing-vision-section.cards-discard-up .vision-card-3 {
+  opacity: 0;
+  transform: translateY(-150px) rotate(0deg) scale(0.7);
+  transition-delay: 0.12s;
+}
+.landing-vision-section.cards-discard-up .vision-card-4 {
+  opacity: 0;
+  transform: translateY(-130px) rotate(11deg) scale(0.7);
+  transition-delay: 0.08s;
+}
+.landing-vision-section.cards-discard-up .vision-card-5 {
+  opacity: 0;
+  transform: translateY(-110px) rotate(22deg) scale(0.7);
+  transition-delay: 0.04s;
+}
+
+/* ── Keadaan Terbuang/Tersembunyi ke Bawah (cards-hidden-down) ── */
+.landing-vision-section.cards-hidden-down .vision-card {
+  opacity: 0;
+  transform: translateY(140px) scale(0.6) rotate(0deg);
+}
+
+.landing-vision-section.cards-in-view .vision-card:hover {
   transform: translateY(-12px) scale(1.08) !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
   z-index: 10;
-}
-
-.vision-card-1 {
-  transform: rotate(-14deg) translateY(42px);
-}
-.vision-card-2 {
-  transform: rotate(-7deg) translateY(12px);
-}
-.vision-card-3 {
-  transform: rotate(0deg) translateY(0px);
-}
-.vision-card-4 {
-  transform: rotate(7deg) translateY(12px);
-}
-.vision-card-5 {
-  transform: rotate(14deg) translateY(42px);
+  transition-delay: 0s;
 }
 
 .vision-card-img {
@@ -1208,8 +1264,27 @@ a:hover {
   gap: 16px;
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+  opacity: 0;
+  transform: translateY(50px) scale(0.95);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, border-color 0.25s ease;
+  will-change: transform, opacity;
 }
+
+.scroll-revealed .condition-fluid-item {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.scroll-discarded .condition-fluid-item {
+  opacity: 0;
+  transform: translateY(-40px) scale(0.94);
+}
+
+.scroll-revealed .condition-fluid-item:nth-child(1) { transition-delay: 0.04s; }
+.scroll-revealed .condition-fluid-item:nth-child(2) { transition-delay: 0.10s; }
+.scroll-revealed .condition-fluid-item:nth-child(3) { transition-delay: 0.16s; }
+.scroll-revealed .condition-fluid-item:nth-child(4) { transition-delay: 0.22s; }
+.scroll-revealed .condition-fluid-item:nth-child(5) { transition-delay: 0.28s; }
+
 .condition-fluid-item:hover {
   transform: translateY(-4px);
   background: rgba(255, 255, 255, 0.55);
@@ -1275,8 +1350,26 @@ a:hover {
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
   position: relative;
   overflow: hidden;
-  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), background var(--transition-smooth), border-color var(--transition-smooth);
+  opacity: 0;
+  transform: translateY(50px) scale(0.95);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, border-color 0.25s ease;
+  will-change: transform, opacity;
 }
+
+.scroll-revealed .feature-fluid-card {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.scroll-discarded .feature-fluid-card {
+  opacity: 0;
+  transform: translateY(-40px) scale(0.94);
+}
+
+.scroll-revealed .feature-fluid-card:nth-child(1) { transition-delay: 0.05s; }
+.scroll-revealed .feature-fluid-card:nth-child(2) { transition-delay: 0.12s; }
+.scroll-revealed .feature-fluid-card:nth-child(3) { transition-delay: 0.19s; }
+.scroll-revealed .feature-fluid-card:nth-child(4) { transition-delay: 0.26s; }
+
 .feature-fluid-card:hover {
   transform: translateY(-4px);
   background: rgba(255, 255, 255, 0.55);
