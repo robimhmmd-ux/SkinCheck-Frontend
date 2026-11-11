@@ -142,7 +142,7 @@ export default function VerificationModal({ user, onDone }) {
     } catch {
       // tetap keluar walau panggilan logout gagal
     } finally {
-      router.push("/login");
+      router.push("/");
       router.refresh();
     }
   }

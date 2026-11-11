@@ -96,11 +96,12 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
     try {
       await logout();
       toast.success("Anda berhasil logout.");
-      router.push("/login");
+      router.push("/");
       router.refresh();
     } catch {
       toast.success("Anda berhasil logout.");
-      router.push("/login");
+      router.push("/");
+      router.refresh();
     } finally {
       setLogoutBusy(false);
     }

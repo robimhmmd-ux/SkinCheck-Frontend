@@ -89,7 +89,8 @@ export default function ProfilePage() {
       await logout(); 
       toast.success("Anda berhasil logout."); 
       setUser(null); 
-      router.push("/login"); 
+      router.push("/"); 
+      router.refresh();
     } catch (e) { 
       setError(e); 
     }

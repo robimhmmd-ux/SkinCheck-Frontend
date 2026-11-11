@@ -1812,7 +1812,8 @@ a:hover {
   background: rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(11px);
   -webkit-backdrop-filter: blur(11px);
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  border-right: none;
+  border: none;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
@@ -2242,22 +2243,22 @@ body::-webkit-scrollbar,
 
 .dash-side-slide.side-rail-expanded .magic-geroak-slider {
   left: 10px;
-  right: -28px;
+  right: -14px;
 }
 
 .dash-side-slide.side-rail-expanded .magic-geroak-slider::before,
 .dash-side-slide.side-rail-expanded .magic-geroak-slider::after {
-  right: 14px;
+  right: 0;
 }
 
 .dash-side-slide.side-rail-mini .magic-geroak-slider {
   left: 6px;
-  right: -16px;
+  right: 0;
 }
 
 .dash-side-slide.side-rail-mini .magic-geroak-slider::before,
 .dash-side-slide.side-rail-mini .magic-geroak-slider::after {
-  right: 16px;
+  right: 0;
 }
 
 /* ═════════════════════════════════════════════════════════════════
@@ -2509,7 +2510,8 @@ body::-webkit-scrollbar,
   background: rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(11px);
   -webkit-backdrop-filter: blur(11px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: none;
+  border: none;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;

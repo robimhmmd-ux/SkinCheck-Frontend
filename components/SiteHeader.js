@@ -85,12 +85,13 @@ export default function SiteHeader() {
       await logout();
       setUser(null);
       toast.success("Berhasil keluar.");
-      router.push("/login");
+      router.push("/");
       router.refresh();
     } catch {
       setUser(null);
       toast.success("Berhasil keluar.");
-      router.push("/login");
+      router.push("/");
+      router.refresh();
     } finally {
       setBusy(false);
     }
