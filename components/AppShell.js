@@ -9,6 +9,7 @@ import WorkspaceSidebar from "./WorkspaceSidebar";
 import VerificationModal from "./VerificationModal";
 import NotificationBell from "./NotificationBell";
 import WorkspaceLoadingScreen from "./WorkspaceLoadingScreen";
+import MobileBottomNav from "./MobileBottomNav";
 import { fmtDateShort } from "../lib/scores";
 import { getMe, pickUser } from "../lib/api";
 
@@ -213,6 +214,9 @@ export default function AppShell({ children }) {
         </main>
         <SiteFooter />
       </div>
+      {/* Navigasi bawah HP (hanya tampil ≤767px, diatur CSS) — di HP
+          sidebar tersembunyi, jadi bar ini yang jadi navigasi utama. */}
+      <MobileBottomNav />
       {needsVerification && <VerificationModal user={meUser} onDone={refreshMe} />}
     </div>
   );

@@ -204,13 +204,13 @@ a:hover {
 /* ── Distinctive Glassmorphism Surface (Frosted Blur Glass #acc8ec 20px) ── */
 .glass-panel,
 .glass-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -315,7 +315,7 @@ a:hover {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.55);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 16px 40px rgba(7, 18, 54, 0.12),
     0 0 20px rgba(255, 194, 13, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
@@ -2092,12 +2092,20 @@ a:hover {
 
 .dash-side-slide {
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  /* Kaca iOS: putih 0.5 + blur 20px + saturate(180%) — resep kaca iOS
+     (blur kuat + saturasi dijaga supaya warna dasar tetap hidup di balik
+     kaca). Tanpa border & shadow: tepinya hanya batas kaca yang lembut. */
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-right: none;
   border: none;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  /* Bayangan dicabut: shadow hitam 0 8px 32px ini yang menggambar garis
+     gelap di sepanjang tepi kanan sidebar sampai ke topbar — padahal
+     border-nya sudah dicabut. Tanpa shadow, kaca sidebar dan kaca topbar
+     (bahannya sama persis) menyatu tanpa garis. Mode drawer mobile tetap
+     punya shadow sendiri di media query bawah, jadi drawer tetap kebaca. */
+  box-shadow: none;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -2780,6 +2788,14 @@ body::-webkit-scrollbar,
   width: 100%;
   display: flex;
   flex-direction: column;
+  /* Dasar kembali powder blue polos. Dulu area konten sempat dibuat kaca
+     juga supaya garis di tepi sidebar hilang — garisnya memang hilang,
+     tapi sidebar jadi kehilangan warnanya (semua jadi satu permukaan
+     kaca datar, tidak seperti awal). Kini sidebar & kartu kembali tampil
+     sebagai panel kaca iOS di atas dasar biru, seperti awal — bedanya,
+     kacanya kini lebih kuat (blur 20px + saturate) dan garis gelapnya
+     sudah dicabut (shadow hitam dihapus), jadi tepinya hanya batas
+     kaca yang lembut, bukan garis hitam. */
   background: var(--bg-app);
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -2790,12 +2806,18 @@ body::-webkit-scrollbar,
   align-items: center;
   justify-content: space-between;
   padding: 12px clamp(20px, 3.2vw, 44px);
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  /* Kaca iOS — bahan SAMA PERSIS dengan sidebar (putih 0.5 + blur 20px +
+     saturate 180%), supaya sidebar & topbar terbaca sebagai satu
+     permukaan kaca yang menyatu, tanpa garis di pertemuannya. Dasar
+     konten kini powder blue lagi (bukan kaca), jadi topbar tidak lagi
+     dobel kaca. Tanpa border & shadow (bayangan hitam yang dulu
+     menggambar garis di bawah topbar sudah dicabut). */
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: none;
   border: none;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   position: sticky;
   top: 0;
   z-index: 30;
@@ -2955,12 +2977,12 @@ body::-webkit-scrollbar,
 .dash-hero-score-stat {
   padding: 32px 28px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3075,12 +3097,12 @@ body::-webkit-scrollbar,
 .dash-kpi-pillar {
   padding: 24px 22px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3094,7 +3116,7 @@ body::-webkit-scrollbar,
 .dash-kpi-pillar:hover {
   transform: translateY(-3px);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 16px 40px rgba(7, 18, 54, 0.12),
     0 0 20px rgba(255, 194, 13, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
@@ -3122,16 +3144,16 @@ body::-webkit-scrollbar,
 
 .kpi-strip-item {
   padding: 20px 24px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
   gap: 16px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3188,13 +3210,13 @@ body::-webkit-scrollbar,
 
 .dash-workspace-panel {
   padding: 30px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3367,17 +3389,17 @@ body::-webkit-scrollbar,
 
 .dash-product-item {
   padding: 24px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 10px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3390,7 +3412,7 @@ body::-webkit-scrollbar,
   background: rgba(255, 255, 255, 0.55);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 16px 40px rgba(7, 18, 54, 0.12),
     0 0 20px rgba(255, 194, 13, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
@@ -3826,17 +3848,17 @@ body::-webkit-scrollbar,
 }
 
 .product-dispensary-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3849,7 +3871,7 @@ body::-webkit-scrollbar,
   background: rgba(255, 255, 255, 0.55);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 16px 40px rgba(7, 18, 54, 0.12),
     0 0 20px rgba(255, 194, 13, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
@@ -4440,12 +4462,12 @@ select option {
   gap: 14px;
   padding: 18px 24px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -4505,12 +4527,12 @@ select option {
 .detail-card {
   padding: 28px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -4600,13 +4622,13 @@ select option {
 
 .detail-recommendation-card {
   padding: 24px 28px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -4699,13 +4721,13 @@ select option {
 
 .profile-section-card {
   padding: 30px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -5109,13 +5131,13 @@ select option {
 }
 
 .auth-form-panel {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -5183,13 +5205,13 @@ select option {
   width: 100%;
   max-width: 460px;
   padding: 36px 32px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -5423,13 +5445,13 @@ select option {
   right: 28px;
   width: min(420px, calc(100vw - 32px));
   height: min(600px, calc(100vh - 120px));
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -5996,10 +6018,10 @@ select option {
 }
 
 .admin-kpi-tile {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   padding: 24px 28px;
   display: flex;
@@ -6008,7 +6030,7 @@ select option {
   position: relative;
   overflow: hidden;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -6021,7 +6043,7 @@ select option {
   background: rgba(255, 255, 255, 0.55);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 16px 40px rgba(7, 18, 54, 0.12),
     0 0 20px rgba(255, 194, 13, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
@@ -6031,7 +6053,7 @@ select option {
   border-color: var(--sunflower-yellow);
   box-shadow: 
     0 0 30px 4px rgba(255, 194, 13, 0.35),
-    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 16px 40px rgba(7, 18, 54, 0.12),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
 }
 
@@ -6110,14 +6132,14 @@ select option {
 }
 
 .admin-glass-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   padding: 30px 34px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -6132,7 +6154,7 @@ select option {
   background: rgba(255, 255, 255, 0.55);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 16px 40px rgba(7, 18, 54, 0.12),
     0 0 20px rgba(255, 194, 13, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
@@ -6855,17 +6877,17 @@ select option {
 }
 
 .admin-stat-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   padding: 22px 26px;
   display: flex;
   align-items: center;
   gap: 16px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -6879,7 +6901,7 @@ select option {
   background: rgba(255, 255, 255, 0.55);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 16px 40px rgba(7, 18, 54, 0.12),
     0 0 20px rgba(255, 194, 13, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
@@ -6961,10 +6983,10 @@ select option {
 
 /* ── Unified Admin Toolbar ── */
 .admin-toolbar-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   padding: 16px 24px;
   display: flex;
@@ -6974,7 +6996,7 @@ select option {
   flex-wrap: wrap;
   margin-bottom: 22px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -7061,14 +7083,14 @@ select option {
 
 /* ── Modern Admin Data Table Card ── */
 .admin-table-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -7313,15 +7335,15 @@ select option {
 
 /* ── Form Card & Fieldset Layout ── */
 .admin-form-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 20px;
   padding: 30px 36px;
   margin-bottom: 24px;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -7416,12 +7438,12 @@ select option {
 .card,
 .admin-glass-card {
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(7, 18, 54, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -7436,7 +7458,7 @@ select option {
   background: rgba(255, 255, 255, 0.55);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.15),
+    0 16px 40px rgba(7, 18, 54, 0.12),
     0 0 20px rgba(255, 194, 13, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
@@ -7525,8 +7547,8 @@ select option {
   padding: 14px 18px 16px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.45);
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.12),
@@ -7627,8 +7649,8 @@ select option {
   max-width: 440px;
   padding: 32px 28px;
   background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 20px;
   box-shadow: 
@@ -7695,8 +7717,8 @@ select option {
   top: calc(100% + 10px);
   width: min(380px, calc(100vw - 32px));
   background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 20px;
   box-shadow: 
@@ -8208,5 +8230,122 @@ select option {
 
   to {
     transform: rotateX(240deg) rotateY(45deg) rotateZ(360deg);
+  }
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   NAVIGASI BAWAH HP (mobile bottom nav) — bar pill navy dengan tab
+   aktif berupa lingkaran kuning yang menonjol ke atas, dikelilingi
+   lekukan (scoop) di tepi atas bar. Warna mengikuti project:
+   navy #071236 (bar), kuning #FFC20D (lingkaran aktif), ikon putih.
+   Hanya tampil di HP (≤767px); di desktop/tablet sidebar yang dipakai.
+   ═════════════════════════════════════════════════════════════════ */
+
+/* Daftarkan --scoop-x supaya nilainya bisa dianimasikan (tanpa ini,
+   perpindahan lekukan & lingkaran aktif akan loncat, bukan meluncur). */
+@property --scoop-x {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 10%;
+}
+
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  z-index: 60;
+  /* --scoop-x dianimasikan di sini; bar & lingkaran mewarisi nilainya,
+     jadi lekukan & lingkaran meluncur berbarengan saat tab aktif pindah. */
+  transition: --scoop-x 0.35s cubic-bezier(0.34, 1.25, 0.64, 1);
+}
+
+/* Bar: pill navy. Lekukan (scoop) dipotong dari tepi atas bar lewat mask:
+   lingkaran transparan 36px di posisi tab aktif — di balik potongan itu
+   terlihat konten halaman, jadi bar tampak melengkung ke dalam
+   mengelilingi lingkaran aktif. Mask hanya dipasang kalau ada tab aktif. */
+.mobile-bottom-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  height: 64px;
+  border-radius: 32px;
+  background: #071236;
+  box-shadow: 0 8px 24px rgba(7, 18, 54, 0.35);
+}
+
+.mobile-bottom-bar.has-scoop {
+  mask-image: radial-gradient(circle 36px at var(--scoop-x) 0px, transparent 34px, black 36px);
+  -webkit-mask-image: radial-gradient(circle 36px at var(--scoop-x) 0px, transparent 34px, black 36px);
+}
+
+.mobile-bottom-tab {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s ease;
+}
+
+.mobile-bottom-tab:active {
+  color: #ffffff;
+}
+
+/* Ikon tab aktif disembunyikan di dalam bar — ia tampil di lingkaran
+   kuning yang menonjol di atas (supaya tidak ada ikon ganda). */
+.mobile-bottom-tab.is-active {
+  color: rgba(255, 255, 255, 0);
+}
+
+.mobile-bottom-tab.is-active svg {
+  opacity: 0;
+}
+
+/* Lingkaran aktif: kuning, 56px, titik tengahnya tepat di tepi atas bar
+   (menonjol 28px ke atas, 28px ke dalam bar) — posisinya mengikuti
+   --scoop-x yang sama dengan lekukan, jadi selalu tepat di tengah
+   lekukan. */
+.mobile-bottom-raised {
+  position: absolute;
+  left: var(--scoop-x);
+  top: -28px;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--sunflower-yellow);
+  color: #071236;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 8px 20px rgba(255, 194, 13, 0.45), 0 2px 8px rgba(7, 18, 54, 0.25);
+}
+
+@media (max-width: 767px) {
+  .mobile-bottom-nav {
+    display: block;
+  }
+
+  /* Beri ruang di bawah konten supaya footer tidak tertutup bar bawah. */
+  .dash-main-canvas-area {
+    padding-bottom: 96px;
+  }
+
+  /* Tombol chat mengambang diangkat ke atas bar bawah (bar + lingkaran
+     aktif mencapai ~106px dari bawah layar; tombol chat di 116px supaya
+     tidak bertabrakan, jendela chat ikut naik). */
+  .floating-chat-trigger {
+    bottom: 116px;
+  }
+
+  .floating-chat-window {
+    bottom: 178px;
+    height: min(520px, calc(100vh - 200px));
   }
 }
