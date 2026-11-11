@@ -731,12 +731,30 @@ a:hover {
   font-family: var(--font-display), "Playfair Display", Georgia, serif;
   font-size: clamp(38px, 5.6vw, 76px);
   font-weight: 600;
-  color: #ffffff;
+  color: #071236;
   line-height: 1.06;
   letter-spacing: -0.025em;
   margin: 0 auto 20px;
   text-align: center;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  text-shadow: none;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.landing-hero-fullscreen.scroll-discarded .hero-editorial-title {
+  opacity: 0;
+  transform: translateY(-35px) scale(0.96);
+}
+
+.landing-hero-fullscreen.scroll-discarded .hero-stage-canvas {
+  opacity: 0;
+  transform: translateY(-40px) scale(0.96);
+  pointer-events: none;
+}
+
+.landing-hero-fullscreen.scroll-discarded .orbit-mobile-grid {
+  opacity: 0;
+  transform: translateY(-30px);
 }
 
 .hero-editorial-capsule {
@@ -803,6 +821,8 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
 }
 
 .hero-glow-backplate {
@@ -1012,6 +1032,25 @@ a:hover {
   color: var(--sunflower-yellow);
   margin-bottom: 36px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(28px) scale(0.92);
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.landing-vision-section.cards-in-view .vision-pill-badge {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.landing-vision-section.cards-discard-up .vision-pill-badge {
+  opacity: 0;
+  transform: translateY(-28px);
+}
+
+.landing-vision-section.cards-hidden-down .vision-pill-badge {
+  opacity: 0;
+  transform: translateY(28px) scale(0.92);
 }
 
 .vision-arc-track {
@@ -1142,34 +1181,94 @@ a:hover {
   margin-bottom: 24px;
   display: grid;
   place-items: center;
+  opacity: 0;
+  transform: scale(0.6) rotate(-25deg);
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.landing-vision-section.cards-in-view .vision-center-glyph {
   opacity: 0.95;
+  transform: scale(1) rotate(0deg);
+  transition-delay: 0.20s;
+}
+
+.landing-vision-section.cards-discard-up .vision-center-glyph {
+  opacity: 0;
+  transform: translateY(-30px) scale(0.65);
+}
+
+.landing-vision-section.cards-hidden-down .vision-center-glyph {
+  opacity: 0;
+  transform: translateY(30px) scale(0.65);
 }
 
 .vision-statement-serif {
   font-family: var(--font-display), "Playfair Display", Georgia, serif;
   font-size: clamp(26px, 3.8vw, 48px);
-  font-weight: 500;
-  color: #ffffff;
-  line-height: 1.2;
+  font-weight: 600;
+  color: #071236;
+  line-height: 1.25;
   max-width: 820px;
   margin: 0 auto 16px;
   letter-spacing: -0.015em;
   padding: 0 16px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(36px);
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.landing-vision-section.cards-in-view .vision-statement-serif {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.28s;
+}
+
+.landing-vision-section.cards-discard-up .vision-statement-serif {
+  opacity: 0;
+  transform: translateY(-35px);
+}
+
+.landing-vision-section.cards-hidden-down .vision-statement-serif {
+  opacity: 0;
+  transform: translateY(36px);
 }
 
 .vision-statement-sub {
   font-size: clamp(14px, 1.4vw, 16px);
-  color: #E2E8F0;
+  color: rgba(7, 18, 54, 0.85);
   max-width: 660px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.65;
   padding: 0 16px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+
+.landing-vision-section.cards-in-view .vision-statement-sub {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.38s;
+}
+
+.landing-vision-section.cards-discard-up .vision-statement-sub {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.landing-vision-section.cards-hidden-down .vision-statement-sub {
+  opacity: 0;
+  transform: translateY(30px);
 }
 
 /* Orbit Satellites for Mobile (Smartphones) */
 .orbit-mobile-grid {
   display: none;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
 }
 
 .orbit-mobile-card {
@@ -1230,6 +1329,44 @@ a:hover {
   max-width: 720px;
   margin: 0 auto 40px;
 }
+.landing-section-head .badge,
+.landing-section-head h2,
+.landing-section-head p {
+  opacity: 0;
+  transform: translateY(35px);
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+.scroll-revealed .landing-section-head .badge {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition-delay: 0.02s;
+}
+.scroll-revealed .landing-section-head h2 {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.09s;
+}
+.scroll-revealed .landing-section-head p {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.16s;
+}
+
+.scroll-discarded .landing-section-head .badge,
+.scroll-discarded .landing-section-head h2,
+.scroll-discarded .landing-section-head p {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.scroll-hidden-down .landing-section-head .badge,
+.scroll-hidden-down .landing-section-head h2,
+.scroll-hidden-down .landing-section-head p {
+  opacity: 0;
+  transform: translateY(35px);
+}
+
 .landing-section-head h2 {
   font-size: clamp(28px, 4vw, 42px);
   color: #071236;
@@ -1277,6 +1414,10 @@ a:hover {
 .scroll-discarded .condition-fluid-item {
   opacity: 0;
   transform: translateY(-40px) scale(0.94);
+}
+.scroll-hidden-down .condition-fluid-item {
+  opacity: 0;
+  transform: translateY(50px) scale(0.95);
 }
 
 .scroll-revealed .condition-fluid-item:nth-child(1) { transition-delay: 0.04s; }
@@ -1363,6 +1504,10 @@ a:hover {
 .scroll-discarded .feature-fluid-card {
   opacity: 0;
   transform: translateY(-40px) scale(0.94);
+}
+.scroll-hidden-down .feature-fluid-card {
+  opacity: 0;
+  transform: translateY(50px) scale(0.95);
 }
 
 .scroll-revealed .feature-fluid-card:nth-child(1) { transition-delay: 0.05s; }
@@ -1640,8 +1785,29 @@ a:hover {
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
-  transition: all var(--transition-fast);
+  opacity: 0;
+  transform: translateY(40px) scale(0.97);
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  will-change: transform, opacity;
 }
+
+.scroll-revealed .faq-card-item {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.scroll-discarded .faq-card-item {
+  opacity: 0;
+  transform: translateY(-35px) scale(0.95);
+}
+.scroll-hidden-down .faq-card-item {
+  opacity: 0;
+  transform: translateY(40px) scale(0.97);
+}
+
+.scroll-revealed .faq-card-item:nth-child(1) { transition-delay: 0.05s; }
+.scroll-revealed .faq-card-item:nth-child(2) { transition-delay: 0.12s; }
+.scroll-revealed .faq-card-item:nth-child(3) { transition-delay: 0.19s; }
+.scroll-revealed .faq-card-item:nth-child(4) { transition-delay: 0.26s; }
 .faq-card-item:hover {
   background: rgba(255, 255, 255, 0.55);
   border-color: rgba(255, 194, 13, 0.6);

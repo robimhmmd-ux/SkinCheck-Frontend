@@ -201,7 +201,18 @@ export default function Home() {
         window.requestAnimationFrame(() => {
           const windowHeight = window.innerHeight;
 
-          // 1. Vision section cards (5 foto)
+          // 0. Hero section elements (#tentang)
+          const heroEl = document.getElementById("tentang");
+          if (heroEl) {
+            const rect = heroEl.getBoundingClientRect();
+            if (rect.bottom < windowHeight * 0.4) {
+              heroEl.classList.add("scroll-discarded");
+            } else {
+              heroEl.classList.remove("scroll-discarded");
+            }
+          }
+
+          // 1. Vision section cards & texts (#visi)
           const visionEl = document.getElementById("visi");
           if (visionEl) {
             const rect = visionEl.getBoundingClientRect();
@@ -225,11 +236,12 @@ export default function Home() {
             const rect = el.getBoundingClientRect();
             if (rect.top <= windowHeight * 0.88 && rect.bottom >= windowHeight * 0.12) {
               el.classList.add("scroll-revealed");
-              el.classList.remove("scroll-discarded");
+              el.classList.remove("scroll-discarded", "scroll-hidden-down");
             } else if (rect.bottom < windowHeight * 0.12) {
               el.classList.add("scroll-discarded");
-              el.classList.remove("scroll-revealed");
+              el.classList.remove("scroll-revealed", "scroll-hidden-down");
             } else {
+              el.classList.add("scroll-hidden-down");
               el.classList.remove("scroll-revealed", "scroll-discarded");
             }
           });
