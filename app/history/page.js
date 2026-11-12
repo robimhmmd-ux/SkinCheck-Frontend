@@ -100,8 +100,10 @@ export default function HistoryPage() {
           <History size={13} aria-hidden="true" />
           <span>REKAM MEDIS KULIT WAJAH</span>
         </div>
-        <h1 style={{ color: "#ffffff", textShadow: "0 2px 10px rgba(0, 0, 0, 0.15)" }}>Riwayat &amp; Diagnosis</h1>
-        <p style={{ color: "rgba(255, 255, 255, 0.92)", fontSize: "15px", margin: "4px 0 0", lineHeight: 1.6 }}>
+        {/* Judul + deskripsi navy (roboy 2026-11-12, desain.md §1.3):
+            tadinya putih di atas base terang sehingga tidak terbaca. */}
+        <h1 style={{ color: "var(--text-main)" }}>Riwayat &amp; Diagnosis</h1>
+        <p style={{ color: "var(--text-main)", fontWeight: 600, fontSize: "15px", margin: "4px 0 0", lineHeight: 1.6 }}>
           Diagnosis terkini dari scan terbarumu di atas, diikuti arsip kronologis seluruh evaluasi kulit
           wajahmu. Setiap scan tersimpan dan dibandingkan dengan scan sebelumnya.
         </p>

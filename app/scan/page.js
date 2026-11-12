@@ -353,17 +353,21 @@ export default function ScanPage() {
           <Camera size={13} aria-hidden="true" />
           <span>PEMINDAI WAJAH AI</span>
         </div>
-        <h1 style={{ color: "#ffffff", textShadow: "0 2px 10px rgba(0, 0, 0, 0.15)" }}>Scan Wajah & Deteksi Kondisi Kulit</h1>
-        <p style={{ color: "rgba(255, 255, 255, 0.92)", fontSize: "15px", margin: "4px 0 0", lineHeight: 1.6 }}>
+        {/* Judul + deskripsi navy (roboy 2026-11-12, desain.md §1.3):
+            tadinya putih di atas base terang sehingga tidak terbaca. */}
+        <h1 style={{ color: "var(--text-main)" }}>Scan Wajah & Deteksi Kondisi Kulit</h1>
+        <p style={{ color: "var(--text-main)", fontWeight: 600, fontSize: "15px", margin: "4px 0 0", lineHeight: 1.6 }}>
           Posisikan wajahmu tegak dengan pencahayaan merata. Sistem mendeteksi tanda jerawat, minyak, kekeringan, noda gelap, dan garis halus.
         </p>
       </div>
 
+      {/* Banner tamu: teks navy (roboy 2026-11-12, desain.md §1.3) —
+          tadinya putih di atas kaca terang (0.28) sehingga tidak terbaca. */}
       {!currentUser && (
-        <div className="glass-panel" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: "12px", background: "rgba(255, 255, 255, 0.28)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(255, 255, 255, 0.45)", color: "#ffffff" }}>
-          <Sparkles size={18} color="#ffffff" />
-          <span style={{ fontSize: "13.5px", color: "#ffffff" }}>
-            <strong>Mode Uji Coba Cepat:</strong> Kamu bisa langsung memindai tanpa login. Hasil akan langsung tampil di sini. <Link href="/login" style={{ textDecoration: "underline", fontWeight: 700, color: "#ffffff" }}>Masuk</Link> jika ingin menyimpan ke riwayat akun.
+        <div className="glass-panel" style={{ padding: "16px 20px", display: "flex", alignItems: "center", gap: "12px", background: "rgba(255, 255, 255, 0.28)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(255, 255, 255, 0.45)", color: "var(--text-main)" }}>
+          <Sparkles size={18} color="var(--text-main)" />
+          <span style={{ fontSize: "13.5px", fontWeight: 600, color: "var(--text-main)" }}>
+            <strong>Mode Uji Coba Cepat:</strong> Kamu bisa langsung memindai tanpa login. Hasil akan langsung tampil di sini. <Link href="/login" style={{ textDecoration: "underline", fontWeight: 700, color: "var(--text-main)" }}>Masuk</Link> jika ingin menyimpan ke riwayat akun.
           </span>
         </div>
       )}

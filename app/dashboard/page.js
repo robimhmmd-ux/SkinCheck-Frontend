@@ -388,7 +388,9 @@ export default function DashboardPage() {
               <div className="dash-products-scroll-row">
                 {products.slice(0, 6).map((p) => (
                   <div key={p.id} className="dash-product-item">
-                    <span className="dash-product-brand">{p.brand || "Laomera Lab"}</span>
+                    {/* Brand tampil hanya kalau ada di DB (roboy 2026-11-12):
+                        fallback "Laomera Lab" dihapus. */}
+                    {p.brand && <span className="dash-product-brand">{p.brand}</span>}
                     <h3 className="dash-product-name">{p.name}</h3>
                     <p className="dash-product-concern">{p.target_concern || "Semua jenis kulit"}</p>
                     <div className="dash-product-foot">

@@ -138,7 +138,8 @@ export default function ProfilePage() {
                     {(user.name || "U").charAt(0).toUpperCase()}
                   </div>
                   <div className="user-name-role">
-                    <h3 className="user-name-display">{user.name || "Pengguna Laomera"}</h3>
+                    {/* Fallback nama tanpa "Laomera" (roboy 2026-11-12). */}
+                    <h3 className="user-name-display">{user.name || "Pengguna"}</h3>
                     <div className="user-role-tags">
                       <span className="badge badge-amber">
                         <ShieldCheck size={12} /> {user.role || "Customer"}
@@ -175,7 +176,8 @@ export default function ProfilePage() {
 
                 <form onSubmit={onSaveName} style={{ display: "grid", gap: "10px", marginTop: "16px" }}>
                   <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Nama pengguna</span>
+                    {/* Label navy (roboy 2026-11-12, desain.md §1.3): tadinya putih di atas kartu terang. */}
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-main)" }}>Nama pengguna</span>
                     <input
                       value={name}
                       required
@@ -184,7 +186,7 @@ export default function ProfilePage() {
                     />
                   </label>
                   <label style={{ display: "grid", gap: "4px" }}>
-                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#ffffff" }}>Email (tidak dapat diubah)</span>
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-main)" }}>Email (tidak dapat diubah)</span>
                     <input
                       value={user.email || ""}
                       disabled

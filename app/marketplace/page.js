@@ -57,8 +57,10 @@ export default function MarketplacePage() {
           <ShoppingBag size={13} aria-hidden="true" />
           <span>DISPENSARI SKINCARE TERKURASI</span>
         </div>
-        <h1 style={{ color: "#ffffff", textShadow: "0 2px 10px rgba(0, 0, 0, 0.15)" }}>Marketplace Produk Perawatan</h1>
-        <p style={{ color: "rgba(255, 255, 255, 0.92)", fontSize: "15px", margin: "4px 0 0", lineHeight: 1.6 }}>
+        {/* Judul + deskripsi navy (roboy 2026-11-12, desain.md §1.3):
+            tadinya putih di atas base terang sehingga tidak terbaca. */}
+        <h1 style={{ color: "var(--text-main)" }}>Marketplace Produk Perawatan</h1>
+        <p style={{ color: "var(--text-main)", fontWeight: 600, fontSize: "15px", margin: "4px 0 0", lineHeight: 1.6 }}>
           Katalog formula skincare terverifikasi. Link pembelian langsung mengarah ke toko resmi terdaftar.
         </p>
       </div>
@@ -128,7 +130,10 @@ export default function MarketplacePage() {
           {shown.map((p, i) => (
             <article key={p.id || i} className="product-dispensary-card">
               <div>
-                <span className="product-brand-tag">{p.brand || "Laomera Formula"}</span>
+                {/* Brand tampil hanya kalau ada di DB (roboy 2026-11-12):
+                    fallback "Laomera Formula" dihapus — kartu tanpa brand
+                    tidak lagi menampilkan kata "Laomera". */}
+                {p.brand && <span className="product-brand-tag">{p.brand}</span>}
                 <h3>{p.name}</h3>
                 <span className="badge badge-navy" style={{ marginBottom: "12px", fontSize: "11px" }}>
                   {categoryLabel(p.category)}
