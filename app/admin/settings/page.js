@@ -212,7 +212,7 @@ function SettingsContent() {
   // blur 20px saturate 180% + border putih 0.6 + radius 20px + bayangan
   // navy + shine dalam, sama seperti kartu lainnya.
   const renderTestBox = (name, label, icon, fn) => (
-    <div style={{ padding: "16px 20px", borderRadius: "20px", background: "rgba(255, 255, 255, 0.5)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", boxShadow: "0 8px 32px rgba(7, 18, 54, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.1), inset 0 0 16px 8px rgba(255, 255, 255, 0.8)", border: "1px solid rgba(255, 255, 255, 0.6)" }}>
+    <div style={{ padding: "16px 20px", borderRadius: "20px", background: "rgba(255, 255, 255, 0.6)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", boxShadow: "0 8px 32px rgba(7, 18, 54, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.1), inset 0 0 16px 8px rgba(255, 255, 255, 0.8)", border: "1px solid rgba(255, 255, 255, 0.85)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {icon}

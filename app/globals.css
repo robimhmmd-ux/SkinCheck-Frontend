@@ -217,13 +217,13 @@ a:hover {
 /* ── Distinctive Glassmorphism Surface (Frosted Blur Glass #acc8ec 20px) ── */
 .glass-panel,
 .glass-card {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3015,12 +3015,12 @@ body::-webkit-scrollbar,
 .dash-hero-score-stat {
   padding: 32px 28px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3135,12 +3135,12 @@ body::-webkit-scrollbar,
 .dash-kpi-pillar {
   padding: 24px 22px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3158,7 +3158,7 @@ body::-webkit-scrollbar,
     0 0 20px rgba(255, 194, 13, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.65);
   border-color: rgba(255, 194, 13, 0.6);
 }
 .dash-kpi-pillar .kpi-label {
@@ -3182,16 +3182,16 @@ body::-webkit-scrollbar,
 
 .kpi-strip-item {
   padding: 20px 24px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   display: flex;
   align-items: center;
   gap: 16px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3201,7 +3201,7 @@ body::-webkit-scrollbar,
 }
 .kpi-strip-item:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.65);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
     0 14px 36px rgba(0, 0, 0, 0.15),
@@ -3248,13 +3248,13 @@ body::-webkit-scrollbar,
 
 .dash-workspace-panel {
   padding: 30px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3427,17 +3427,17 @@ body::-webkit-scrollbar,
 
 .dash-product-item {
   padding: 24px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 10px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3447,7 +3447,7 @@ body::-webkit-scrollbar,
 }
 .dash-product-item:hover {
   transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.65);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
     0 16px 40px rgba(7, 18, 54, 0.12),
@@ -3886,17 +3886,17 @@ body::-webkit-scrollbar,
 }
 
 .product-dispensary-card {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -3906,7 +3906,7 @@ body::-webkit-scrollbar,
 }
 .product-dispensary-card:hover {
   transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.65);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
     0 16px 40px rgba(7, 18, 54, 0.12),
@@ -4397,11 +4397,14 @@ select option {
 
 .audit-stat-card {
   padding: 20px;
-  background: rgba(130, 152, 181, 0.18);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(130, 152, 181, 0.32);
+  /* Resep kartu standar desain.md §2.1 (2026-11-12): tadinya tint
+     biru-abu yang "nyaru" dengan base. Kini kaca putih standar. */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 32px rgba(7, 18, 54, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.15), inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -4595,12 +4598,12 @@ select option {
 .detail-card {
   padding: 28px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -4690,13 +4693,13 @@ select option {
 
 .detail-recommendation-card {
   padding: 24px 28px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -4789,13 +4792,13 @@ select option {
 
 .profile-section-card {
   padding: 30px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -5199,13 +5202,13 @@ select option {
 }
 
 .auth-form-panel {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -5273,13 +5276,13 @@ select option {
   width: 100%;
   max-width: 460px;
   padding: 36px 32px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -6086,10 +6089,10 @@ select option {
 }
 
 .admin-kpi-tile {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   padding: 24px 28px;
   display: flex;
@@ -6098,7 +6101,7 @@ select option {
   position: relative;
   overflow: hidden;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -6108,7 +6111,7 @@ select option {
 
 .admin-kpi-tile:hover {
   transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.65);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
     0 16px 40px rgba(7, 18, 54, 0.12),
@@ -6200,14 +6203,14 @@ select option {
 }
 
 .admin-glass-card {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   padding: 30px 34px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -6219,7 +6222,7 @@ select option {
 
 .admin-glass-card:hover {
   transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.65);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
     0 16px 40px rgba(7, 18, 54, 0.12),
@@ -6659,11 +6662,15 @@ select option {
 }
 
 .config-selector-tab {
-  background: rgba(130, 152, 181, 0.18);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(130, 152, 181, 0.32);
-  border-radius: 24px;
+  /* Resep kartu standar desain.md §2.1 (2026-11-12): tadinya tint
+     biru-abu rgba(130,152,181,0.18) yang "nyaru" dengan base.
+     Kini kaca putih standar. */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(7, 18, 54, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.15), inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
   padding: 22px 24px;
   display: flex;
   flex-direction: column;
@@ -6684,11 +6691,11 @@ select option {
 }
 
 .config-selector-tab.active {
-  background: rgba(130, 152, 181, 0.3);
+  background: rgba(255, 255, 255, 0.65);
   border-color: var(--sunflower-yellow);
   box-shadow: 
     0 0 32px 3px rgba(255, 194, 13, 0.35),
-    0 12px 32px rgba(0, 0, 0, 0.35);
+    0 12px 32px rgba(7, 18, 54, 0.14);
   transform: translateY(-1px);
 }
 
@@ -6714,32 +6721,42 @@ select option {
     transform: translateY(-4px) scale(1.008);
     box-shadow: 
       0 0 30px 2px rgba(255, 194, 13, 0.35),
-      0 16px 40px rgba(0, 0, 0, 0.35);
+      0 16px 40px rgba(7, 18, 54, 0.2);
   }
   82% {
     transform: translateY(2px) scale(0.998);
     box-shadow: 
       0 0 16px 1px rgba(255, 194, 13, 0.2),
-      0 12px 32px rgba(0, 0, 0, 0.25);
+      0 12px 32px rgba(7, 18, 54, 0.14);
   }
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+    /* Samakan dengan resep kartu standar desain.md §2.1: keyframe akhir
+       ini bertahan setelah animasi (fill mode both) sehingga harus sama
+       dengan bayangan dasar kartu, bukan bayangan hitam lama. */
     box-shadow: 
-      0 12px 36px rgba(0, 0, 0, 0.25),
-      inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      0 8px 32px rgba(7, 18, 54, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+      inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
   }
 }
 
 /* ── Standalone Glassmorphic Card dengan Animasi Jalan ke Atas ── */
 .standalone-config-card {
-  background: rgba(130, 152, 181, 0.18);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-radius: 24px;
+  /* Resep kartu standar desain.md §2.1 (2026-11-12): tadinya memakai
+     tint biru-abu rgba(130,152,181,0.18) yang setelah digabung hampir
+     sama persis dengan base powder blue #acc8ec (jarak ~16) sehingga
+     kartu "nyaru" / menyatu dengan base di halaman Konfigurasi.
+     Kini memakai kaca putih standar supaya kartu terlihat sebagai kartu. */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 20px;
   padding: clamp(22px, 3.4vw, 36px);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-  border: 1.5px solid rgba(130, 152, 181, 0.32);
+  box-shadow: 0 8px 32px rgba(7, 18, 54, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.15), inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -6763,10 +6780,10 @@ select option {
 
 .standalone-config-card:hover {
   border-color: rgba(255, 194, 13, 0.5);
-  background: rgba(130, 152, 181, 0.24);
+  background: rgba(255, 255, 255, 0.65);
   box-shadow: 
     0 0 24px 2px rgba(255, 194, 13, 0.25),
-    0 18px 44px rgba(0, 0, 0, 0.35);
+    0 18px 44px rgba(7, 18, 54, 0.14);
 }
 
 .detached-card-delay-1 {
@@ -6811,11 +6828,15 @@ select option {
 }
 
 .config-selector-card {
-  background: rgba(130, 152, 181, 0.18);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(130, 152, 181, 0.32);
-  border-radius: 24px;
+  /* Resep kartu standar desain.md §2.1 (2026-11-12): tadinya tint
+     biru-abu rgba(130,152,181,0.18) yang "nyaru" dengan base.
+     Kini kaca putih standar. */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(7, 18, 54, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.15), inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
   padding: 24px 26px;
   display: flex;
   flex-direction: column;
@@ -6836,11 +6857,11 @@ select option {
 }
 
 .config-selector-card.active {
-  background: rgba(130, 152, 181, 0.3);
+  background: rgba(255, 255, 255, 0.65);
   border: 1.5px solid var(--sunflower-yellow);
   box-shadow: 
     0 0 32px 3px rgba(255, 194, 13, 0.35),
-    0 12px 32px rgba(0, 0, 0, 0.35);
+    0 12px 32px rgba(7, 18, 54, 0.14);
   transform: translateY(-2px);
 }
 
@@ -6945,17 +6966,17 @@ select option {
 }
 
 .admin-stat-card {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   padding: 22px 26px;
   display: flex;
   align-items: center;
   gap: 16px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -6966,7 +6987,7 @@ select option {
 
 .admin-stat-card:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.65);
   border-color: rgba(255, 194, 13, 0.6);
   box-shadow: 
     0 16px 40px rgba(7, 18, 54, 0.12),
@@ -7051,10 +7072,10 @@ select option {
 
 /* ── Unified Admin Toolbar ── */
 .admin-toolbar-card {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   padding: 16px 24px;
   display: flex;
@@ -7064,7 +7085,7 @@ select option {
   flex-wrap: wrap;
   margin-bottom: 22px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -7151,14 +7172,14 @@ select option {
 
 /* ── Modern Admin Data Table Card ── */
 .admin-table-card {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -7403,15 +7424,15 @@ select option {
 
 /* ── Form Card & Fieldset Layout ── */
 .admin-form-card {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 20px;
   padding: 30px 36px;
   margin-bottom: 24px;
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
@@ -7506,12 +7527,12 @@ select option {
 .card,
 .admin-glass-card {
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow: 
-    0 8px 32px rgba(7, 18, 54, 0.08),
+    0 8px 32px rgba(7, 18, 54, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
     inset 0 0 16px 8px rgba(255, 255, 255, 0.8);
