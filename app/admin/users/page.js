@@ -266,7 +266,7 @@ export default function AdminUsersPage() {
             >
               <option value="">Semua Status</option>
               <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="inactive">Inactive (termasuk belum verifikasi)</option>
               <option value="suspended">Suspended</option>
             </select>
             <span style={{ fontSize: "12.5px", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
@@ -335,9 +335,14 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td>
-                        <span className={`status-pill status-${u.status || "active"}`}>
+                        <span className={`status-pill status-${u.status === "awaiting_biodata" ? "pending" : u.status || "active"}`}>
                           <span className="status-dot" />
-                          {u.status === "active" ? "Aktif" : u.status === "inactive" ? "Nonaktif" : u.status}
+                          {u.status === "active" ? "Aktif"
+                            : u.status === "inactive" ? "Nonaktif"
+                            : u.status === "pending" ? "Belum verifikasi"
+                            : u.status === "awaiting_biodata" ? "Biodata belum lengkap"
+                            : u.status === "suspended" ? "Ditangguhkan"
+                            : u.status}
                         </span>
                       </td>
                       <td>
