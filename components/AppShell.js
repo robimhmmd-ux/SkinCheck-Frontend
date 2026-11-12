@@ -202,7 +202,11 @@ export default function AppShell({ children }) {
           />
           {children}
         </main>
-        <SiteFooter />
+        {/* Footer navy + "Laomera" DIHAPUS dari workspace (roboy 2026-11-12):
+            footer itu (SiteFooter, bar navy + judul "Laomera") muncul di
+            semua halaman customer (Dashboard, Scan, Riwayat, Marketplace,
+            Profil) dan diminta dihapus termasuk warna navy + kata-katanya.
+            SiteFooter tetap dipakai halaman publik (landing/login/register). */}
       </div>
       {/* Navigasi bawah HP (hanya tampil ≤767px, diatur CSS) — di HP
           sidebar tersembunyi, jadi bar ini yang jadi navigasi utama. */}
