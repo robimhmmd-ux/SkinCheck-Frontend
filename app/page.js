@@ -10,142 +10,170 @@ import {
   Flame,
   Zap,
   Sparkles,
-  ChevronDown,
+  X,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 import FeedbackModal from "../components/FeedbackModal";
 import CinematicOrbitStage from "../components/CinematicOrbitStage";
+import CinematicFooter from "../components/CinematicFooter";
+import AuroraWaves from "../components/AuroraWaves";
 
+// ── 1. LIMA OUTPUT KLASIFIKASI VGG UNTUK ORBIT HERO STAGE ──
 const ORBIT_NODES = [
   {
-    id: "node-1",
-    title: "FULL-STACK INNOVATION",
-    subtitle: "Hardware + AI-powered software",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <circle cx="12" cy="4.5" r="2.8" />
-        <circle cx="4.5" cy="12" r="2.8" />
-        <circle cx="19.5" cy="12" r="2.8" />
-        <circle cx="12" cy="19.5" r="2.8" />
-      </svg>
-    ),
-  },
-  {
-    id: "node-2",
-    title: "DAILY RITUAL REIMAGINED",
-    subtitle: "Save time, unlock pro-level results",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <rect x="4.5" y="7" width="3.5" height="10" rx="1.75" />
-        <rect x="10.25" y="4" width="3.5" height="16" rx="1.75" />
-        <rect x="16" y="7" width="3.5" height="10" rx="1.75" />
-      </svg>
-    ),
-  },
-  {
-    id: "node-3",
-    title: "BEAUTY + TECH",
-    subtitle: "Premium industrial design meets personalization",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3.5 2.5" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-    ),
-  },
-  {
-    id: "node-4",
-    title: "SAFE & EFFORTLESS",
-    subtitle: "Designed for the face, built with care",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M12 2.5L13.5 7.5L18.5 6L16.5 10.5L21.5 12L16.5 13.5L18.5 18L13.5 16.5L12 21.5L10.5 16.5L5.5 18L7.5 13.5L2.5 12L7.5 10.5L5.5 6L10.5 7.5Z" />
-      </svg>
-    ),
-  },
-];
-
-const HISTORICAL_CARDS = [
-  {
-    id: "hist-1",
-    era: "PRASEJARAH",
-    title: "Pigmen Ochre Alami",
-    desc: "Perlindungan kulit mineral tertua",
-    img: "/history/1-indigenous.jpg",
-    cardClass: "vision-card-1",
-  },
-  {
-    id: "hist-2",
-    era: "MESIR KUNO",
-    title: "Kohl & Minyak Teratai",
-    desc: "Simbol keagungan dan pelindung mata dari debu gurun",
-    img: "/history/2-egyptian.jpg",
-    cardClass: "vision-card-2",
-  },
-  {
-    id: "hist-3",
-    era: "UPACARA TRADISI",
-    title: "Tanah Liat & Skinguard",
-    desc: "Perlindungan mikrobiom berbasis lempung putih kaolin",
-    img: "/history/3-tribal.jpg",
-    cardClass: "vision-card-3",
-  },
-  {
-    id: "hist-4",
-    era: "RENAISANS",
-    title: "Air Mawar & Cermin Kaca",
-    desc: "Awal mula ritual perawatan estetik personal",
-    img: "/history/4-renaissance.jpg",
-    cardClass: "vision-card-4",
-  },
-  {
-    id: "hist-5",
-    era: "YUNANI KLASIK",
-    title: "Ekstrak Minyak Murni",
-    desc: "Formulasi herbal dan minyak zaitun untuk elastisitas",
-    img: "/history/5-classical.jpg",
-    cardClass: "vision-card-5",
-  },
-];
-
-const CONDITIONS = [
-  {
-    name: "Jerawat",
-    sub: "Acne Vulgaris",
-    desc: "Deteksi inflamasi, komedo, dan pustula pada zona wajah.",
-    icon: Flame,
+    id: "orbit-acne",
+    outputIndex: "01",
+    title: "Acne Vulgaris",
+    subtitle: "Jerawat & Inflamasi",
     color: "#e9957d",
   },
   {
-    name: "Kulit Kering",
-    sub: "Dehydration",
-    desc: "Tingkat kelembapan epidermis dan tanda kekeringan lapisan pelindung.",
-    icon: Droplets,
+    id: "orbit-dry",
+    outputIndex: "02",
+    title: "Dehydration",
+    subtitle: "Kulit Kering & Barrier",
     color: "#3a8a6d",
   },
   {
-    name: "Berminyak",
-    sub: "Excess Sebum",
-    desc: "Kelebihan produksi sebum pada area T-Zone dan pipi.",
-    icon: Zap,
+    id: "orbit-oily",
+    outputIndex: "03",
+    title: "Excess Sebum",
+    subtitle: "Minyak T-Zone Berlebih",
     color: "#d9882a",
   },
   {
-    name: "Dark Spots",
-    sub: "Hyperpigmentation",
-    desc: "Bercak bekas jerawat, paparan UV, dan hiperpigmentasi melanin.",
-    icon: Sun,
+    id: "orbit-pigment",
+    outputIndex: "04",
+    title: "Hyperpigmentation",
+    subtitle: "Dark Spots & Flek UV",
     color: "#68758e",
   },
   {
-    name: "Kerutan",
-    sub: "Fine Lines",
-    desc: "Garis halus ekspresi dan elastisitas kolagen kulit.",
-    icon: Sparkles,
+    id: "orbit-wrinkle",
+    outputIndex: "05",
+    title: "Fine Lines",
+    subtitle: "Garis Halus & Penuaan",
     color: "#c53030",
   },
 ];
 
+// ── 2. LIMA KARTU KLASIFIKASI VGG DENGAN DETAIL POPUP DI SECTION VISION (#visi) ──
+const VGG_OUTPUT_CARDS = [
+  {
+    id: "vgg-acne",
+    outputIndex: "01",
+    title: "Jerawat",
+    sub: "Acne Vulgaris",
+    shortDesc: "Deteksi inflamasi papula, pustula, dan komedo pada epidermis wajah.",
+    fullDesc:
+      "Arsitektur deep learning VGG mengekstraksi representasi fitur konvolusional multi-skala untuk membedakan eritema aktif (kemerahan peradangan), komedo terbuka/tertutup, dan kolonisasi Cutibacterium acnes dengan presisi tinggi.",
+    symptoms: [
+      "Peradangan merah dan benjolan sensitif pada zona T maupun pipi",
+      "Penyumbatan pori akibat tumpukan keratin dan sebum",
+      "Potensi timbul bekas noda pasca-inflamasi jika tidak ditangani tepat",
+    ],
+    recommendations: [
+      "Salicylic Acid (BHA 1-2%) untuk penetrasi eksfoliasi ke dalam pori",
+      "Niacinamide (4-5%) guna menenangkan inflamasi dan mengontrol sebum",
+      "Pembersih gel ber-pH seimbang (5.5) bebas sulfat dan non-komedogenik",
+    ],
+    img: "/history/1-indigenous.jpg",
+    cardClass: "vision-card-1",
+    badgeColor: "#e9957d",
+  },
+  {
+    id: "vgg-dry",
+    outputIndex: "02",
+    title: "Kulit Kering",
+    sub: "Dehydration & Barrier Impairment",
+    shortDesc: "Tingkat kelembapan epidermis dan tanda kekeringan stratum korneum.",
+    fullDesc:
+      "Model menganalisis hilangnya pantulan difus cahaya dan pola deskuamasi mikro epidermis. VGG mendeteksi defisiensi Natural Moisturizing Factor (NMF) serta kelemahan sawar pelindung kulit (skin barrier).",
+    symptoms: [
+      "Sensasi kulit tertarik kencang dan kaku setelah mencuci wajah",
+      "Tekstur permukaan bersisik mikro dan kehilangan kilau sehat",
+      "Garis-garis dehidrasi halus tampak jelas di area pipi dan bawah mata",
+    ],
+    recommendations: [
+      "Hyaluronic Acid multi-molekul untuk hidrasi lintas lapisan epidermis",
+      "Ceramide NP, AP, EOP untuk mereparasi matriks lipid pelindung",
+      "Pelembap beremolien kaya squalane untuk mencegah Transepidermal Water Loss (TEWL)",
+    ],
+    img: "/history/2-egyptian.jpg",
+    cardClass: "vision-card-2",
+    badgeColor: "#3a8a6d",
+  },
+  {
+    id: "vgg-oily",
+    outputIndex: "03",
+    title: "Berminyak",
+    sub: "Excess Sebum Production",
+    shortDesc: "Kuantifikasi hipersekresi kelenjar sebasea pada area T-Zone dan pipi.",
+    fullDesc:
+      "Jaringan saraf tiruan mendeteksi specular reflection (kilau pantulan cahaya berlebih) dan dilatasi folikel pori. Sistem mengukur persentase keaktifan kelenjar minyak secara objektif tanpa bias pencahayaan.",
+    symptoms: [
+      "Kilap berminyak berlebih muncul kembali dalam waktu 1-2 jam setelah dibersihkan",
+      "Pori-pori tampak membesar dan rentan tersumbat kotoran",
+      "Lapisan foundation atau sunscreen mudah teroksidasi dan bergeser",
+    ],
+    recommendations: [
+      "Zinc PCA untuk regulasi fisiologis laju sekresi kelenjar sebasea",
+      "Clay mask (Kaolin/Bentonite) berkala 1-2 kali seminggu untuk detoksifikasi pori",
+      "Moisturizer oil-free berbahan dasar air (water-gel) yang cepat meresap",
+    ],
+    img: "/history/3-tribal.jpg",
+    cardClass: "vision-card-3",
+    badgeColor: "#d9882a",
+  },
+  {
+    id: "vgg-pigment",
+    outputIndex: "04",
+    title: "Dark Spots",
+    sub: "Hyperpigmentation & Melanin Deposition",
+    shortDesc: "Pemetaan noda bekas jerawat (PIH/PIE) dan deposisi pigmen melanin.",
+    fullDesc:
+      "Lapisan konvolusi dalam mendeteksi kontras kromatik pada lapisan basal kulit, memisahkan noda eritema vaskular (PIE) dari akumulasi melanin epidermal (PIH atau sun spots akibat radiasi UV).",
+    symptoms: [
+      "Bercak kecokelatan atau kemerahan sisa inflamasi jerawat masa lalu",
+      "Diskolorasi warna kulit tidak merata pada area tonjolan wajah (tulang pipi, dahi)",
+      "Peningkatan intensitas noda saat terpapar sinar matahari langsung",
+    ],
+    recommendations: [
+      "Alpha Arbutin & Tranexamic Acid untuk menghambat enzim tirosinase penyebab flek",
+      "Vitamin C murni (L-Ascorbic Acid) sebagai penangkal radikal bebas dan pencerah",
+      "Sunscreen broad-spectrum SPF 50+ PA++++ wajib digunakan setiap hari",
+    ],
+    img: "/history/4-renaissance.jpg",
+    cardClass: "vision-card-4",
+    badgeColor: "#68758e",
+  },
+  {
+    id: "vgg-wrinkle",
+    outputIndex: "05",
+    title: "Kerutan",
+    sub: "Fine Lines & Structural Aging",
+    shortDesc: "Analisis degradasi serat kolagen dan garis ekspresi mikro dinamis.",
+    fullDesc:
+      "Model VGG mengidentifikasi pola lipatan mikro mikro-alur kulit pada sudut lateral mata (crow's feet), glabella (dahi), dan sulkus nasolabial guna mengukur elastisitas struktural serta penuaan dini.",
+    symptoms: [
+      "Garis halus dinamis yang mulai menetap menjadi garis statis saat wajah rileks",
+      "Berkurangnya daya pantul dan kepadatan jaringan kolagen wajah",
+      "Tekstur kulit tampak lebih tipis dan rentan terhadap kerapuhan lingkungan",
+    ],
+    recommendations: [
+      "Retinol atau Retinoid terenkapsulasi di malam hari untuk merangsang sintesis kolagen baru",
+      "Peptida tembaga (Copper Tripeptide-1) guna mempercepat peremajaan seluler",
+      "Krim malam kaya antioksidan dan asam lemak esensial",
+    ],
+    img: "/history/5-classical.jpg",
+    cardClass: "vision-card-5",
+    badgeColor: "#c53030",
+  },
+];
+
+// ── 3. FITUR UTAMA SISTEM ──
 const FEATURES = [
   {
     title: "Analisis Komprehensif Satu Foto",
@@ -169,107 +197,81 @@ const FEATURES = [
   },
 ];
 
-const FAQS = [
-  {
-    q: "Bagaimana cara kerja deteksi AI pada Laomera?",
-    a: "Laomera memproses foto wajah menggunakan arsitektur deep learning yang dilatih mengenali karakteristik mikroskopis kulit: pori sebum, inflamasi jerawat, tingkat dehidrasi epidermis, deposisi melanin (noda), dan garis halus elastisitas.",
-  },
-  {
-    q: "Apakah foto wajah saya aman dan privasi terjaga?",
-    a: "Keamanan privasi adalah prioritas utama kami. Gambar hanya dianalisis sementara oleh inference engine dan tidak pernah dijual atau dibagikan ke pihak ketiga.",
-  },
-  {
-    q: "Seberapa sering saya harus melakukan scan kulit?",
-    a: "Disarankan melakukan scan berkala 1-2 minggu sekali setelah memulai rutinitas skincare baru untuk memantau perubahan skor kelembapan dan inflamasi pada menu Riwayat.",
-  },
-  {
-    q: "Bisakah saya berkonsultasi mengenai hasil dengan Laomera Asisten?",
-    a: "Tentu! Setelah scan, kamu bisa langsung membuka fitur Laomera Asisten untuk menanyakan arti skor, kandungan skincare yang cocok, dan tips perawatan harian.",
-  },
-];
-
 export default function Home() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState(0);
+  const [selectedVggCard, setSelectedVggCard] = useState(null);
 
   // Animasi scroll: memunculkan card saat scroll ke bawah dan membuang card saat scroll ke atas
   useEffect(() => {
     let ticking = false;
 
-    const handleScroll = () => {
+    function handleScroll() {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const windowHeight = window.innerHeight;
+          const scrollY = window.scrollY || window.pageYOffset;
+          const heroSection = document.getElementById("tentang");
+          const visionSection = document.getElementById("visi");
+          const featureSection = document.getElementById("fitur");
 
-          // 0. Hero section elements (#tentang)
-          const heroEl = document.getElementById("tentang");
-          if (heroEl) {
-            const rect = heroEl.getBoundingClientRect();
-            if (rect.bottom < windowHeight * 0.4) {
-              heroEl.classList.add("scroll-discarded");
+          // Discard Hero Elements
+          if (heroSection) {
+            const heroHeight = heroSection.offsetHeight;
+            if (scrollY > heroHeight * 0.28) {
+              heroSection.classList.add("scroll-discarded");
             } else {
-              heroEl.classList.remove("scroll-discarded");
+              heroSection.classList.remove("scroll-discarded");
             }
           }
 
-          // 1. Vision section cards & texts (#visi)
-          const visionEl = document.getElementById("visi");
-          if (visionEl) {
-            const rect = visionEl.getBoundingClientRect();
-            if (rect.top <= windowHeight * 0.85 && rect.bottom >= windowHeight * 0.15) {
-              visionEl.classList.add("cards-in-view");
-              visionEl.classList.remove("cards-discard-up", "cards-hidden-down");
-            } else if (rect.top > windowHeight * 0.85) {
-              visionEl.classList.remove("cards-in-view", "cards-discard-up");
-              visionEl.classList.add("cards-hidden-down");
-            } else if (rect.bottom < windowHeight * 0.15) {
-              visionEl.classList.remove("cards-in-view", "cards-hidden-down");
-              visionEl.classList.add("cards-discard-up");
+          // Animate Vision Cards In & Out
+          if (visionSection) {
+            const rect = visionSection.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+
+            if (rect.top <= windowHeight * 0.75 && rect.bottom >= windowHeight * 0.25) {
+              visionSection.classList.add("cards-in-view");
+              visionSection.classList.remove("cards-discard-up", "cards-hidden-down");
+            } else if (rect.bottom < windowHeight * 0.25) {
+              visionSection.classList.add("cards-discard-up");
+              visionSection.classList.remove("cards-in-view", "cards-hidden-down");
+            } else {
+              visionSection.classList.add("cards-hidden-down");
+              visionSection.classList.remove("cards-in-view", "cards-discard-up");
             }
           }
 
-          // 2. Section cards lainnya (kondisi, fitur, faq)
-          const sections = ["kondisi", "fitur", "faq"];
-          sections.forEach((id) => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const rect = el.getBoundingClientRect();
-            if (rect.top <= windowHeight * 0.88 && rect.bottom >= windowHeight * 0.12) {
-              el.classList.add("scroll-revealed");
-              el.classList.remove("scroll-discarded", "scroll-hidden-down");
-            } else if (rect.bottom < windowHeight * 0.12) {
-              el.classList.add("scroll-discarded");
-              el.classList.remove("scroll-revealed", "scroll-hidden-down");
-            } else {
-              el.classList.add("scroll-hidden-down");
-              el.classList.remove("scroll-revealed", "scroll-discarded");
+          // Animate Feature Cards In
+          if (featureSection) {
+            const rect = featureSection.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            if (rect.top <= windowHeight * 0.85) {
+              featureSection.classList.add("scroll-revealed");
             }
-          });
+          }
 
           ticking = false;
         });
         ticking = true;
       }
-    };
+    }
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <div className="landing-fullscreen-flow">
-      {/* ── 1. HERO SHOWCASE (EDITORIAL HIGH-FASHION MINIMALIST STAGE) ── */}
+      {/* ── 1. HERO SHOWCASE: LAOMERA GIANT TITLE + ORBITAL STAGE ── */}
       <section id="tentang" className="landing-hero-fullscreen">
         <div className="hero-ambient-glow" aria-hidden="true" />
-        
+
         <div className="hero-editorial-header">
-          <h1 className="hero-editorial-title">
-            The Future of<br />Beauty is Automated
-          </h1>
+          <h1 className="hero-editorial-title">LAOMERA</h1>
         </div>
 
-        {/* ── CINEMATIC 3D ORBITAL STAGE DENGAN ANIMASI ROTASI & FADE GRADASI TRANSPARAN ── */}
+        {/* ── CINEMATIC 3D ORBITAL STAGE: 5 OUTPUT VGG BERPUTAR KONTINU ── */}
         <CinematicOrbitStage nodes={ORBIT_NODES} />
 
         {/* Mobile Satellites: Clean 2x2 grid on smartphones */}
@@ -277,7 +279,9 @@ export default function Home() {
           {ORBIT_NODES.map((node) => (
             <div key={node.id} className="orbit-mobile-card">
               <div className="orbit-mobile-icon-row">
-                <div className="orbit-dock-glyph-mobile">{node.icon}</div>
+                <span className="orbit-vgg-tag-badge" style={{ color: node.color }}>
+                  VGG #{node.outputIndex}
+                </span>
                 <span className="orbit-mobile-tag">{node.title}</span>
               </div>
               <p className="orbit-mobile-desc">{node.subtitle}</p>
@@ -286,18 +290,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 2. OUR VISION SECTION (FLOATING HISTORICAL RITUAL CARDS IN CURVED ARC) ── */}
+      {/* ── 2. SECTION 5 OUTPUT VGG (#visi) DENGAN AURORA WAVES & INTERACTIVE POPUP ── */}
       <section id="visi" className="landing-vision-section">
+        {/* Ethereal Aurora Waves WebGL Shader Canvas: Multi-Ribbon Phase Flowing to Right Corner */}
+        <AuroraWaves speed={0.85} glow={15} theme="dark" />
+
+        {/* Gradasi Lembut Atas & Bawah (Transisi Biru Muda <-> Midnight Navy) */}
+        <div className="vision-top-gradient-bridge" aria-hidden="true" />
+        <div className="vision-bottom-gradient-bridge" aria-hidden="true" />
+
         <div className="content-canvas vision-container">
           <div className="vision-pill-badge">
-            <span>OUR VISION</span>
+            <span>5 PILAR OUTPUT VGG DEEP LEARNING</span>
           </div>
 
-          {/* Arc of 5 Historical Cards */}
+          {/* Arc of 5 VGG Classification Cards */}
           <div className="vision-arc-track">
-            {HISTORICAL_CARDS.map((card) => (
-              <div key={card.id} className={`vision-card ${card.cardClass}`} title={`${card.era}: ${card.title}`}>
-                <img src={card.img} alt={`${card.era} - ${card.title}`} className="vision-card-img" />
+            {VGG_OUTPUT_CARDS.map((card) => (
+              <div
+                key={card.id}
+                className={`vision-card vision-card-clickable ${card.cardClass}`}
+                title={`Klik untuk detail analisis: ${card.title} (${card.sub})`}
+                onClick={() => setSelectedVggCard(card)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelectedVggCard(card);
+                  }
+                }}
+              >
+                <img
+                  src={card.img}
+                  alt={`${card.title} - ${card.sub}`}
+                  className="vision-card-img"
+                />
+                <div className="vision-card-interactive-pill">
+                  <span>{card.title}</span>
+                  <span style={{ color: "var(--sunflower-yellow)" }}>✦ Detail</span>
+                </div>
               </div>
             ))}
           </div>
@@ -318,48 +350,17 @@ export default function Home() {
           </h2>
 
           <p className="vision-statement-sub">
-            Selama berabad-abad, merawat dan memahami kebutuhan kulit selalu bergantung pada coba-coba tanpa kepastian.
-            Laomera mentransformasikan tradisi ini dengan kecerdasan visi komputer deep learning yang objektif, instan, dan presisi.
+            Klik pada salah satu dari 5 kartu di atas untuk membaca evaluasi klinis mendalam, parameter deteksi konvolusi AI, dan panduan bahan aktif terkurasi.
           </p>
         </div>
       </section>
 
-      {/* ── 3. LIMA KONDISI KULIT (UNBOXED OPEN CANVAS) ── */}
-      <section id="kondisi" className="landing-section-unboxed">
-        <div className="content-canvas">
-          <div className="landing-section-head">
-            <span className="badge badge-amber" style={{ marginBottom: "12px" }}>
-              5 PILAR DIAGNOSIS
-            </span>
-            <h2>Kondisi Kulit yang Terdeteksi Presisi</h2>
-            <p>
-              Bukan sekadar perkiraan umum. Setiap indikator dianalisis dalam skala persentase objektif yang menentukan saran bahan aktif dan rutinitas harian.
-            </p>
-          </div>
+      {/* ── 3. KENAPA LAOMERA BERBEDA ── */}
+      <section id="fitur" className="landing-section-unboxed" style={{ position: "relative" }}>
+        {/* Gradasi Lembut Menuju Cinematic Footer (Biru Muda -> Midnight Navy) */}
+        <div className="faq-bottom-gradient-bridge" aria-hidden="true" />
 
-          <div className="conditions-fluid-grid">
-            {CONDITIONS.map((cond) => {
-              const Icon = cond.icon;
-              return (
-                <article key={cond.name} className="condition-fluid-item">
-                  <div className="condition-icon-badge" style={{ color: cond.color }}>
-                    <Icon size={22} aria-hidden="true" />
-                  </div>
-                  <div className="condition-body">
-                    <span className="condition-code-tag">{cond.sub}</span>
-                    <h3 className="condition-title">{cond.name}</h3>
-                    <p className="condition-desc">{cond.desc}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4. KENAPA LAOMERA BERBEDA ── */}
-      <section id="fitur" className="landing-section-unboxed">
-        <div className="content-canvas">
+        <div className="content-canvas" style={{ position: "relative", zIndex: 2 }}>
           <div className="landing-section-head">
             <span className="badge badge-navy" style={{ marginBottom: "12px" }}>
               KEUNGGULAN SISTEM
@@ -385,42 +386,109 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 5. PUSAT BANTUAN & FAQ ── */}
-      <section id="faq" className="landing-section-unboxed">
-        <div className="content-canvas">
-          <div className="landing-section-head">
-            <span className="badge badge-navy" style={{ marginBottom: "12px" }}>
-              PUSAT BANTUAN
-            </span>
-            <h2>Pertanyaan yang Sering Diajukan</h2>
-            <p>Segala hal yang perlu kamu ketahui tentang pemindaian wajah, privasi, dan kecerdasan buatan kami.</p>
-          </div>
+      {/* ── 4. CINEMATIC CURTAIN REVEAL FOOTER ── */}
+      <CinematicFooter />
 
-          <div className="faq-fluid-stack">
-            {FAQS.map((faq, idx) => {
-              const isOpen = openFaq === idx;
-              return (
-                <div key={faq.q} className={`faq-card-item ${isOpen ? "open" : ""}`}>
-                  <button
-                    type="button"
-                    className="faq-question-btn"
-                    onClick={() => setOpenFaq(isOpen ? -1 : idx)}
-                    aria-expanded={isOpen}
-                  >
-                    <span className="faq-q-text">{faq.q}</span>
-                    <ChevronDown size={18} className={`faq-chevron ${isOpen ? "rotate" : ""}`} />
-                  </button>
-                  {isOpen && (
-                    <div className="faq-answer-body">
-                      <p>{faq.a}</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+      {/* ── 5. POPUP MODAL PENJELASAN OUTPUT VGG ── */}
+      {selectedVggCard && (
+        <div
+          className="vgg-modal-backdrop"
+          onClick={() => setSelectedVggCard(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="vgg-modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="vgg-modal-close-btn"
+              onClick={() => setSelectedVggCard(null)}
+              aria-label="Tutup jendela penjelasan"
+            >
+              <X size={20} />
+            </button>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "800",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  padding: "4px 10px",
+                  borderRadius: "8px",
+                  backgroundColor: `${selectedVggCard.badgeColor}25`,
+                  color: selectedVggCard.badgeColor,
+                  border: `1px solid ${selectedVggCard.badgeColor}45`,
+                }}
+              >
+                VGG OUTPUT #{selectedVggCard.outputIndex}
+              </span>
+              <span style={{ fontSize: "12px", color: "#94A3B8", fontWeight: "600" }}>
+                Klasifikasi Deep Learning
+              </span>
+            </div>
+
+            <h3 style={{ fontSize: "24px", fontWeight: "800", color: "#ffffff", margin: "0 0 4px" }}>
+              {selectedVggCard.title}
+            </h3>
+            <p style={{ fontSize: "14px", color: "#acc8ec", fontWeight: "600", margin: "0 0 16px" }}>
+              {selectedVggCard.sub}
+            </p>
+
+            <div className="vgg-modal-media-wrap">
+              <img
+                src={selectedVggCard.img}
+                alt={`${selectedVggCard.title} diagnosis`}
+              />
+            </div>
+
+            <p style={{ fontSize: "14px", lineHeight: "1.65", color: "#E2E8F0", marginBottom: "20px" }}>
+              {selectedVggCard.fullDesc}
+            </p>
+
+            <div style={{ marginBottom: "20px" }}>
+              <div className="vgg-modal-section-title">
+                <AlertCircle size={15} /> Karakteristik & Gejala Visual
+              </div>
+              <ul className="vgg-modal-list">
+                {selectedVggCard.symptoms.map((sym, i) => (
+                  <li key={i}>{sym}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ marginBottom: "16px" }}>
+              <div className="vgg-modal-section-title">
+                <CheckCircle2 size={15} /> Panduan Formulasi & Bahan Aktif
+              </div>
+              <ul className="vgg-modal-list">
+                {selectedVggCard.recommendations.map((rec, i) => (
+                  <li key={i}>{rec}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ textAlign: "right", marginTop: "24px" }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{
+                  borderRadius: "12px",
+                  padding: "10px 22px",
+                  fontSize: "13.5px",
+                  fontWeight: "700",
+                }}
+                onClick={() => setSelectedVggCard(null)}
+              >
+                Tutup Penjelasan
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
 
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </div>

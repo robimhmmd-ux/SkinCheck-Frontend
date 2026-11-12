@@ -1,1 +1,1 @@
-{"dependencies":{"lucide-react":"^1.68.0","next":"^14.2.33","react":"18.3.1","react-dom":"18.3.1"},"name":"laomera-frontend","private":true,"scripts":{"build":"next build","dev":"next dev","start":"next start"},"version":"0.1.0"}
+{"dependencies":{"gsap":"^3.15.1","lucide-react":"^1.68.0","next":"^14.2.33","ogl":"^1.0.11","react":"18.3.1","react-dom":"18.3.1"},"name":"laomera-frontend","private":true,"scripts":{"build":"next build","dev":"next dev","start":"next start"},"version":"0.1.0"}

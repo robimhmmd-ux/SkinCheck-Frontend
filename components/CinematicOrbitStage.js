@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from "react";
 /**
  * Cinematic 3D Orbit Stage
  * Smooth continuous parametric rotation along an elliptical orbit.
- * Nodes seamlessly fade to opacity 0 as they approach the transparent gradient
- * edges of the orbit, and fade back in as they sweep into the luminous front arc.
+ * Never stops on hover (continues rotating smoothly with interactive cursor flare).
+ * Displays 5 compact VGG output cards rotating dynamically around the central avatar.
  */
 export default function CinematicOrbitStage({ nodes }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: 50, y: 50, active: false });
   const animFrameRef = useRef(null);
   const angleRef = useRef(0);
   const [nodePositions, setNodePositions] = useState([]);
@@ -22,25 +23,19 @@ export default function CinematicOrbitStage({ nodes }) {
       const x = Math.cos(theta); // -1 (left) to +1 (right)
       const y = Math.sin(theta); // +1 (front/lower) to -1 (back/upper)
 
-      // Screen percentage positions relative to the 1400x460 orbital stage
+      // Screen percentage positions relative to orbital stage
       const left = 50 + 44.5 * x;
       const top = 50 + 35 * y;
 
-      // Opacity calculation based on orbit gradient transparency:
-      // Front center (y >= 0.45) is fully solid (opacity = 1.0).
-      // Approaching edges (y between 0.45 and 0.06) fades out smoothly to 0.
-      // Back arc and extreme edges (y <= 0.06) are completely invisible (opacity = 0).
+      // Opacity calculation based on orbit gradient transparency
       let opacity = 0;
-      if (y > 0.06) {
-        const t = Math.min(1, Math.max(0, (y - 0.06) / 0.39));
-        // Smooth Hermite interpolation (ease-in-out)
+      if (y > 0.04) {
+        const t = Math.min(1, Math.max(0, (y - 0.04) / 0.40));
         opacity = t * t * (3 - 2 * t);
       }
 
-      // 3D perspective scale: 0.86 at fade boundary to 1.05 at front center
-      const scale = 0.86 + 0.16 * Math.max(0, y);
-
-      // Depth z-index: front arc sits in front of the character photo
+      // 3D perspective scale: 0.88 to 1.08
+      const scale = 0.88 + 0.18 * Math.max(0, y);
       const zIndex = y > 0 ? 5 : 2;
 
       return {
@@ -56,22 +51,20 @@ export default function CinematicOrbitStage({ nodes }) {
   };
 
   useEffect(() => {
-    // Initial static positioning
     setNodePositions(calculatePositions(0));
 
     let lastTime = performance.now();
-    // Rotation speed: ~32 seconds per full revolution (smooth cinematic glide)
-    const SPEED = (2 * Math.PI) / 32000;
+    // Smooth cinematic rotation speed
+    const SPEED = (2 * Math.PI) / 30000;
 
     const tick = (now) => {
       const delta = now - lastTime;
       lastTime = now;
 
-      // Pause or slow down slightly on hover for reading ease
-      if (!isHovered) {
-        angleRef.current = (angleRef.current + SPEED * delta) % (2 * Math.PI);
-        setNodePositions(calculatePositions(angleRef.current));
-      }
+      // NEVER stop rotating when hovered; maintain continuous fluid glide
+      const speedMultiplier = isHovered ? 1.15 : 1.0;
+      angleRef.current = (angleRef.current + SPEED * speedMultiplier * delta) % (2 * Math.PI);
+      setNodePositions(calculatePositions(angleRef.current));
 
       animFrameRef.current = requestAnimationFrame(tick);
     };
@@ -85,16 +78,49 @@ export default function CinematicOrbitStage({ nodes }) {
     };
   }, [isHovered, nodes]);
 
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setCursorPos({ x, y, active: true });
+  };
+
   return (
     <div
       className="hero-stage-canvas"
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setCursorPos((prev) => ({ ...prev, active: false }));
+      }}
+      onMouseMove={handleMouseMove}
       aria-label="Interaktif 3D Orbital Laomera"
     >
       <div className="hero-glow-backplate" aria-hidden="true" />
 
-      {/* SVG Orbital Track (Back Arc & Front Arc with Gradient & Streaming Flow) */}
+      {/* Dynamic Cursor Flare Spotlight when hovering near orbital stage */}
+      {cursorPos.active && (
+        <div
+          className="hero-cursor-orbital-glow"
+          style={{
+            position: "absolute",
+            left: `${cursorPos.x}%`,
+            top: `${cursorPos.y}%`,
+            width: "360px",
+            height: "360px",
+            transform: "translate(-50%, -50%)",
+            background: "radial-gradient(circle, rgba(172, 200, 236, 0.45) 0%, rgba(255, 194, 13, 0.15) 35%, transparent 70%)",
+            borderRadius: "50%",
+            filter: "blur(28px)",
+            pointerEvents: "none",
+            zIndex: 1,
+            transition: "opacity 0.25s ease",
+          }}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* SVG Orbital Track (Back Arc) */}
       <svg
         className="hero-orbital-svg hero-orbital-back"
         viewBox="0 0 1400 460"
@@ -106,16 +132,16 @@ export default function CinematicOrbitStage({ nodes }) {
         <defs>
           <linearGradient id="orbitBackGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#cbd5e1" stopOpacity="0" />
-            <stop offset="30%" stopColor="#cbd5e1" stopOpacity="0.25" />
-            <stop offset="50%" stopColor="#cbd5e1" stopOpacity="0.4" />
-            <stop offset="70%" stopColor="#cbd5e1" stopOpacity="0.25" />
+            <stop offset="30%" stopColor="#cbd5e1" stopOpacity="0.3" />
+            <stop offset="50%" stopColor="#cbd5e1" stopOpacity="0.45" />
+            <stop offset="70%" stopColor="#cbd5e1" stopOpacity="0.3" />
             <stop offset="100%" stopColor="#cbd5e1" stopOpacity="0" />
           </linearGradient>
         </defs>
         <path
           d="M 40 220 A 660 180 0 0 1 1360 220"
           stroke="url(#orbitBackGrad)"
-          strokeWidth="1.2"
+          strokeWidth="1.25"
         />
       </svg>
 
@@ -129,7 +155,7 @@ export default function CinematicOrbitStage({ nodes }) {
         <div className="hero-neck-blur-overlay" aria-hidden="true" />
       </div>
 
-      {/* Front Arc: Crisp in the front, smoothly fading to transparent at the left & right extremities */}
+      {/* Front Arc: Streaming Particle Flow */}
       <svg
         className="hero-orbital-svg hero-orbital-front"
         viewBox="0 0 1400 460"
@@ -141,45 +167,43 @@ export default function CinematicOrbitStage({ nodes }) {
         <defs>
           <linearGradient id="orbitFrontGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#cbd5e1" stopOpacity="0" />
-            <stop offset="12%" stopColor="#cbd5e1" stopOpacity="0.35" />
-            <stop offset="30%" stopColor="#cbd5e1" stopOpacity="0.85" />
-            <stop offset="50%" stopColor="#d9882a" stopOpacity="0.75" />
-            <stop offset="70%" stopColor="#cbd5e1" stopOpacity="0.85" />
-            <stop offset="88%" stopColor="#cbd5e1" stopOpacity="0.35" />
+            <stop offset="12%" stopColor="#cbd5e1" stopOpacity="0.4" />
+            <stop offset="30%" stopColor="#cbd5e1" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#d9882a" stopOpacity="0.85" />
+            <stop offset="70%" stopColor="#cbd5e1" stopOpacity="0.9" />
+            <stop offset="88%" stopColor="#cbd5e1" stopOpacity="0.4" />
             <stop offset="100%" stopColor="#cbd5e1" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="orbitStreamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="rgba(217, 136, 42, 0)" />
-            <stop offset="25%" stopColor="rgba(217, 136, 42, 0.4)" />
-            <stop offset="50%" stopColor="rgba(233, 149, 125, 0.9)" />
-            <stop offset="75%" stopColor="rgba(217, 136, 42, 0.4)" />
+            <stop offset="25%" stopColor="rgba(217, 136, 42, 0.45)" />
+            <stop offset="50%" stopColor="rgba(233, 149, 125, 0.95)" />
+            <stop offset="75%" stopColor="rgba(217, 136, 42, 0.45)" />
             <stop offset="100%" stopColor="rgba(217, 136, 42, 0)" />
           </linearGradient>
         </defs>
 
-        {/* Base Gradient Track */}
         <path
           d="M 1360 220 A 660 180 0 0 1 40 220"
           stroke="url(#orbitFrontGrad)"
-          strokeWidth="1.25"
+          strokeWidth="1.3"
         />
 
-        {/* Animated Rotating Particle Stream along the Front Arc */}
         <path
           className="orbit-stream-flow-line"
           d="M 1360 220 A 660 180 0 0 1 40 220"
           stroke="url(#orbitStreamGrad)"
-          strokeWidth="1.75"
+          strokeWidth="1.8"
           strokeDasharray="14 36"
         />
       </svg>
 
-      {/* Orbiting Tethered Nodes (Desktop & Tablet) */}
+      {/* Orbiting Tethered Cards - 5 Output Klasifikasi VGG */}
       <div className="orbit-docked-nodes-desktop" aria-hidden="true">
         {nodePositions.map((pos) => (
           <div
             key={pos.id}
-            className="orbit-tethered-node orbit-dynamic-node"
+            className="orbit-vgg-compact-node"
             style={{
               left: pos.left,
               top: pos.top,
@@ -189,15 +213,29 @@ export default function CinematicOrbitStage({ nodes }) {
               pointerEvents: pos.opacity > 0.35 ? "auto" : "none",
               visibility: pos.opacity === 0 ? "hidden" : "visible",
               willChange: "transform, opacity, left, top",
-              transition: isHovered ? "transform 0.25s ease, opacity 0.25s ease" : "none",
             }}
           >
-            <div className="orbit-dock-pin">
-              <div className="orbit-dock-glyph">{pos.icon}</div>
-            </div>
-            <div className="orbit-dock-hanging-text">
-              <span className="dock-node-title">{pos.title}</span>
-              <span className="dock-node-subtitle">{pos.subtitle}</span>
+            <div className="orbit-vgg-card-glass">
+              <div className="orbit-vgg-card-top-row">
+                <span
+                  className="orbit-vgg-tag-badge"
+                  style={{
+                    backgroundColor: `${pos.color || "#071236"}18`,
+                    color: pos.color || "#071236",
+                    borderColor: `${pos.color || "#071236"}33`,
+                  }}
+                >
+                  <span
+                    className="orbit-vgg-live-dot"
+                    style={{ backgroundColor: pos.color || "#071236" }}
+                  />
+                  VGG #{pos.outputIndex}
+                </span>
+                <span className="orbit-vgg-conf-pill">{pos.subtitle}</span>
+              </div>
+              <div className="orbit-vgg-card-title-row">
+                <span className="orbit-vgg-title-text">{pos.title}</span>
+              </div>
             </div>
           </div>
         ))}

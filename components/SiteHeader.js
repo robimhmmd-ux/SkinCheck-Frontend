@@ -153,11 +153,7 @@ export default function SiteHeader() {
               </a>
               <a href="#visi" className="nav-pill-item">
                 <Sparkles size={15} aria-hidden="true" />
-                <span>Visi Kami</span>
-              </a>
-              <a href="#kondisi" className="nav-pill-item">
-                <ShieldCheck size={15} aria-hidden="true" />
-                <span>5 Kondisi</span>
+                <span>5 Output AI</span>
               </a>
               <a href="#fitur" className="nav-pill-item">
                 <ShieldCheck size={15} aria-hidden="true" />
@@ -171,10 +167,6 @@ export default function SiteHeader() {
                 <MessageSquareHeart size={15} aria-hidden="true" />
                 <span>Feedback</span>
               </button>
-              <a href="#faq" className="nav-pill-item">
-                <HelpCircle size={15} aria-hidden="true" />
-                <span>Bantuan</span>
-              </a>
             </nav>
           ) : (
             /* ── INNER APP PAGES TASKBAR LINKS ── */
@@ -301,14 +293,14 @@ export default function SiteHeader() {
                       <span className="mobile-nav-label">Tentang Platform</span>
                     </a>
                     <a
-                      href="#kondisi"
+                      href="#visi"
                       className="mobile-nav-item"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <div className="mobile-nav-icon-wrap">
                         <Sparkles size={18} />
                       </div>
-                      <span className="mobile-nav-label">5 Pilar Kondisi Kulit</span>
+                      <span className="mobile-nav-label">5 Output AI (VGG)</span>
                     </a>
                     <a
                       href="#fitur"
@@ -333,16 +325,6 @@ export default function SiteHeader() {
                       </div>
                       <span className="mobile-nav-label">Beri Feedback & Ulasan</span>
                     </button>
-                    <a
-                      href="#faq"
-                      className="mobile-nav-item"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <div className="mobile-nav-icon-wrap">
-                        <HelpCircle size={18} />
-                      </div>
-                      <span className="mobile-nav-label">Pusat Bantuan & FAQ</span>
-                    </a>
                   </nav>
                 ) : (
                   /* Inner App Mobile Links */

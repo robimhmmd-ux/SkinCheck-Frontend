@@ -159,7 +159,7 @@ export default function AppShell({ children }) {
     return (
       <>
         <SiteHeader />
-        <main id="main" className="app-main-viewport">
+        <main id="main" className={`app-main-viewport ${pathname === "/" ? "app-main-landing" : ""}`}>
           <WorkspaceLoadingScreen
             active={isNavigating}
             caption={navCaption}
@@ -168,7 +168,7 @@ export default function AppShell({ children }) {
           />
           {children}
         </main>
-        <SiteFooter />
+        {pathname !== "/" && <SiteFooter />}
       </>
     );
   }
