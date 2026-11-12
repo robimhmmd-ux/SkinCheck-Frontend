@@ -299,13 +299,16 @@ export default function AdminCopilotPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             <div
               style={{
-                background: "rgba(255, 255, 255, 0.35)",
-                backdropFilter: "blur(18px)",
-                WebkitBackdropFilter: "blur(18px)",
-                border: "1px solid rgba(255, 255, 255, 0.5)",
+                /* Disamakan ke resep kartu dashboard (roboy 2026-11-12):
+                   kaca 0.5 + blur 20px saturate 180% + border putih 0.6 +
+                   bayangan navy + shine dalam — dulu 0.35/blur 18px. */
+                background: "rgba(255, 255, 255, 0.5)",
+                backdropFilter: "blur(20px) saturate(180%)",
+                WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                border: "1px solid rgba(255, 255, 255, 0.6)",
                 borderRadius: "20px",
                 padding: "22px",
-                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.6)"
+                boxShadow: "0 8px 32px rgba(7, 18, 54, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.1), inset 0 0 16px 8px rgba(255, 255, 255, 0.8)"
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px", marginBottom: "12px" }}>

@@ -207,8 +207,12 @@ function SettingsContent() {
     }
   }
 
+  // Kotak uji disamakan ke resep kartu dashboard (roboy 2026-11-12): dulu
+  // abu neumorphic (#e0e0e0, radius 32px, bayangan inset) — kini kaca 0.5 +
+  // blur 20px saturate 180% + border putih 0.6 + radius 20px + bayangan
+  // navy + shine dalam, sama seperti kartu lainnya.
   const renderTestBox = (name, label, icon, fn) => (
-    <div style={{ padding: "16px 20px", borderRadius: "32px", background: "#e0e0e0", boxShadow: "inset 4px 4px 9px #bebebe, inset -4px -4px 9px #ffffff", border: "none" }}>
+    <div style={{ padding: "16px 20px", borderRadius: "20px", background: "rgba(255, 255, 255, 0.5)", backdropFilter: "blur(20px) saturate(180%)", WebkitBackdropFilter: "blur(20px) saturate(180%)", boxShadow: "0 8px 32px rgba(7, 18, 54, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.1), inset 0 0 16px 8px rgba(255, 255, 255, 0.8)", border: "1px solid rgba(255, 255, 255, 0.6)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {icon}
