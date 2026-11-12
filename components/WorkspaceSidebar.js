@@ -197,12 +197,16 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
             )}
 
             <div className="side-nav-track">
-              {/* Slider geroak DIHAPUS (roboy 2026-11-12): pil biru di belakang
-                  item aktif bikin item aktif "dikotakin lagi" dan efek
-                  berongganya miring ke bawah — jelek. Penanda aktif kini
-                  hanya lingkaran kuning di ikon + teks kuning tebal.
-                  (CSS .magic-geroak-slider masih ada, display:none, untuk
-                  jaga-jaga kalau mau dikembalikan.) */}
+              {/* Indikator Slider Geroak (Inward Cutout Curved Slider) —
+                  efek berongga DIKEMBALIKAN per roboy 2026-11-12 13:44
+                  ("pertahankan efek rongganya, hilangkan kotak warna biru
+                  aja"). Pilnya kini kaca (bukan biru solid) supaya tidak
+                  jadi "kotak biru"; lekukan birunya yang bikin efek rongga. */}
+              <div
+                className="magic-geroak-slider"
+                aria-hidden="true"
+                style={{ display: hasActiveLink ? "block" : "none" }}
+              />
 
               {/* Daftar Tautan Navigasi */}
               <div className="side-nav-links-list">
