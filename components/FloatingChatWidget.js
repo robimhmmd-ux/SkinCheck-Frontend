@@ -104,6 +104,22 @@ export default function FloatingChatWidget() {
     };
   }, [pathname]);
 
+  // 3b. Hapus percakapan saat logout (roboy 2026-11-12): handler logout
+  // (SiteHeader + sidebar) dispatch event "laomera-chat-clear" setelah
+  // menghapus riwayat di backend. Widget mereset pesan + status load dan
+  // menutup chat, supaya percakapan lama tidak muncul lagi saat login
+  // kembali (widget ini hidup di root layout, jadi state-nya bertahan
+  // melewati navigasi/logout kalau tidak direset).
+  useEffect(() => {
+    function handleClearChat() {
+      setMessages([]);
+      setInitialLoaded(false);
+      setIsOpen(false);
+    }
+    window.addEventListener("laomera-chat-clear", handleClearChat);
+    return () => window.removeEventListener("laomera-chat-clear", handleClearChat);
+  }, []);
+
   // 4. Auto scroll to latest message when open or when message arrives
   useEffect(() => {
     if (isOpen) {

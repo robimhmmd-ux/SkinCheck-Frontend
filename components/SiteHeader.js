@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import LoginModal from "./LoginModal";
 import FeedbackModal from "./FeedbackModal";
-import { getMe, logout, pickUser } from "../lib/api";
+import { getMe, logout, pickUser, clearAssistantHistory } from "../lib/api";
 import { useToast } from "./Toast";
 
 // Navigation links for inner workspace pages (scan, history, etc.)
@@ -41,6 +41,9 @@ export default function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [busy, setBusy] = useState(false);
+  // Apakah status login sudah dipastikan (getMe selesai)? Dipakai tombol
+  // Scan supaya tidak salah membuka login saat sesi sebenarnya masih ada.
+  const [authChecked, setAuthChecked] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const toast = useToast();
@@ -55,6 +58,9 @@ export default function SiteHeader() {
       })
       .catch(() => {
         if (alive) setUser(null);
+      })
+      .finally(() => {
+        if (alive) setAuthChecked(true);
       });
     return () => {
       alive = false;
@@ -78,9 +84,33 @@ export default function SiteHeader() {
     };
   }, [mobileMenuOpen]);
 
+  // Tombol Scan di bar atas landing: kalau belum login, suruh login dulu
+  // (buka modal login) — jangan langsung masuk workspace/dashboard.
+  // Kalau sudah login, lanjut ke /scan seperti biasa.
+  function handleScanClick(e) {
+    if (e) e.preventDefault();
+    if (!authChecked) return; // tunggu status login dipastikan dulu
+    setMobileMenuOpen(false);
+    if (user) {
+      router.push("/scan");
+    } else {
+      setLoginOpen(true);
+    }
+  }
+
   async function onLogout() {
     if (busy) return;
     setBusy(true);
+    // Hapus percakapan chatbot saat logout (roboy 2026-11-12): selagi sesi
+    // masih aktif, hapus riwayat di backend; lalu beri tahu widget lewat
+    // event supaya state lokalnya ikut terhapus. Best-effort: kalau hapus
+    // riwayat gagal, logout tetap jalan.
+    try {
+      await clearAssistantHistory();
+    } catch {}
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("laomera-chat-clear"));
+    }
     try {
       await logout();
       setUser(null);
@@ -173,10 +203,10 @@ export default function SiteHeader() {
 
           {/* Actions: Scan CTA & Auth/Dashboard Button */}
           <div className="nav-action-cluster">
-            <Link href="/scan" className="btn btn-amber btn-sm nav-scan-btn">
+            <button type="button" onClick={handleScanClick} className="btn btn-amber btn-sm nav-scan-btn">
               <Camera size={15} aria-hidden="true" />
               <span>Scan Kulit</span>
-            </Link>
+            </button>
 
             {user ? (
               isLandingPage ? (
@@ -343,16 +373,16 @@ export default function SiteHeader() {
                 )}
 
                 <div className="mobile-drawer-footer">
-                  <Link
-                    href="/scan"
+                  <button
+                    type="button"
                     className="btn btn-amber"
                     style={{ width: "100%", justifyContent: "center" }}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={handleScanClick}
                   >
                     <Camera size={18} />
                     <span>Mulai Scan Kulit</span>
                     <ArrowRight size={16} />
-                  </Link>
+                  </button>
 
                   {user ? (
                     <>

@@ -22,7 +22,7 @@ import {
   Settings,
   ScrollText,
 } from "lucide-react";
-import { getMe, logout, pickUser } from "../lib/api";
+import { getMe, logout, pickUser, clearAssistantHistory } from "../lib/api";
 import { useToast, ConfirmDialog } from "./Toast";
 
 const SIDEBAR_LINKS = [
@@ -93,6 +93,16 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
   async function handleLogout() {
     if (logoutBusy) return;
     setLogoutBusy(true);
+    // Hapus percakapan chatbot saat logout (roboy 2026-11-12): selagi sesi
+    // masih aktif, hapus riwayat di backend; lalu beri tahu widget lewat
+    // event supaya state lokalnya ikut terhapus. Best-effort: kalau hapus
+    // riwayat gagal, logout tetap jalan.
+    try {
+      await clearAssistantHistory();
+    } catch {}
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("laomera-chat-clear"));
+    }
     try {
       await logout();
       toast.success("Anda berhasil logout.");
