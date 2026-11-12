@@ -6255,11 +6255,14 @@ select option {
 
 .admin-card-badge {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 3px 8px;
   border-radius: 6px;
   background: rgba(130, 152, 181, 0.2);
-  color: var(--sunflower-yellow);
+  /* Teks badge navy + ditebelin (roboy 2026-11-12): tadinya kuning
+     (font-weight 600) sehingga tidak terbaca di atas kartu terang.
+     Aturan teks desain.md §1.3. */
+  color: var(--text-main);
   font-family: var(--font-mono, monospace);
   letter-spacing: 0.03em;
 }
@@ -6913,7 +6916,9 @@ select option {
   padding: 3px 8px;
   border-radius: 6px;
   background: rgba(130, 152, 181, 0.25);
-  color: var(--sunflower-yellow);
+  /* Teks badge navy (roboy 2026-11-12): tadinya kuning sehingga tidak
+     terbaca di atas kartu terang. Aturan teks desain.md §1.3. */
+  color: var(--text-main);
   letter-spacing: 0.02em;
 }
 
@@ -6926,7 +6931,10 @@ select option {
   font-family: var(--font-sans);
   font-size: 15px;
   font-weight: 700;
-  color: #ffffff;
+  /* Judul kartu navy (roboy 2026-11-12): tadinya putih (#ffffff)
+     sehingga tidak terbaca di atas kartu kaca terang.
+     Aturan teks desain.md §1.3. */
+  color: var(--text-main);
   letter-spacing: -0.01em;
   margin: 0;
 }
@@ -6934,7 +6942,11 @@ select option {
 .config-selector-desc {
   font-family: var(--font-sans);
   font-size: 12.5px;
-  color: #A0B4CC;
+  /* Teks deskripsi ditebelin + warna navy (roboy 2026-11-12): tadinya
+     #A0B4CC (abu-biru tipis) sehingga hampir tidak terbaca di atas
+     kartu kaca. Aturan teks desain.md §1.3: hanya hitam atau navy. */
+  color: var(--text-main);
+  font-weight: 600;
   line-height: 1.5;
   margin: 0;
 }

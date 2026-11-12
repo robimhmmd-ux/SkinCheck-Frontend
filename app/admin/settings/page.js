@@ -746,7 +746,7 @@ function SettingsContent() {
                     <Lock size={12} color="var(--text-muted)" /> Alamat Email (Permanen)
                   </span>
                   <input
-                    style={{ ...inputStyle, background: "#f8fafc", cursor: "not-allowed", color: "#64748b" }}
+                    style={{ ...inputStyle, background: "#f8fafc", cursor: "not-allowed", color: "var(--text-main)" }}
                     type="email"
                     disabled
                     value={adminEmail || "admin@laomera.com"}

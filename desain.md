@@ -42,6 +42,32 @@ Landing page **dilindungi** — jangan samakan dengan kartu workspace.
 
 ---
 
+### 1.3 Aturan warna teks (WAJIB)
+
+**Teks hanya boleh hitam atau navy.** (Roboy, 2026-11-12.)
+
+- **Hitam** `#000000` (`--text-muted`) atau **navy** `#071236`
+  (`--text-main` / `--brand-navy`) — hanya dua warna ini untuk teks.
+- **DILARANG untuk teks:** kuning (`#FFC20D` / `--sunflower-yellow`),
+  abu-abu (`#64748b`, `#A0B4CC`, `#35425d`, `rgba(130,152,181,…)`,
+  dan abu apa pun), dan putih (`#ffffff`) **di atas permukaan terang**
+  (kartu kaca, base powder blue). Kuning/abu/putih di atas kartu terang
+  tidak terbaca — itulah yang dulu terjadi pada deskripsi dan badge
+  kartu modul Konfigurasi (deskripsi `#A0B4CC`, badge kuning, judul
+  putih) sehingga hampir tidak kelihatan.
+- **Teks harus cukup tebal:** deskripsi / teks isi minimal
+  `font-weight: 600`; judul / badge `700`. Jangan pakai teks tipis
+  (400) untuk deskripsi di atas kartu.
+- **Pengecualian — teks putih HANYA di atas permukaan gelap:** teks
+  putih boleh dipakai kalau latarnya gelap (mis. seksi navy Vision di
+  landing, tombol navy, badge di atas navy) karena di sana hitam/navy
+  justru tidak terbaca. Aturan ini berlaku untuk teks di atas
+  permukaan **terang**; di atas permukaan gelap, putih adalah satu-satunya
+  pilihan yang terbaca.
+- **Kuning hanya untuk ikon / aksen, bukan teks.** Ikon menu aktif
+  boleh kuning (lingkaran kuning + ikon navy), tombol utama boleh
+  kuning dengan teks navy — tapi jangan tulis teks berwarna kuning.
+
 ## 2. Kartu (Card) — Glassmorphism
 
 ### 2.1 Resep kartu (WAJIB untuk semua kartu customer + admin)
