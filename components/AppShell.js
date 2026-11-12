@@ -1,9 +1,7 @@
 // Kerangka aplikasi: satu navigasi yang sama di semua halaman workspace.
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Camera } from "lucide-react";
 import SiteHeader from "./SiteHeader";
 import WorkspaceSidebar from "./WorkspaceSidebar";
 import VerificationModal from "./VerificationModal";
@@ -182,27 +180,19 @@ export default function AppShell({ children }) {
         onToggle={toggleSidebar}
       />
 
+      {/* Pill status melayang — pengganti topbar (dihapus roboy 2026-11-12:
+          "Bar atasnya ilangin aja, tapi jangan ilangin tanggal sama notif").
+          Tanggal + lonceng tetap tampil di kanan-atas, tanpa bar atas.
+          Tombol "Scan Baru" ikut terhapus (Scan tetap ada di sidebar).
+          Lonceng disembunyikan selama modal verifikasi tampil — modal
+          menutupi layar penuh, jadi lonceng di baliknya tidak bisa
+          diklik; sesudah terverifikasi lonceng muncul kembali. */}
+      <div className="dash-floating-status-pill">
+        {!needsVerification && <NotificationBell />}
+        <span className="dash-date-pill">{fmtDateShort(new Date().toISOString())}</span>
+      </div>
+
       <div className="dash-main-canvas-area">
-        <header className="dash-stage-topbar">
-          <div className="dash-topbar-left">
-            {/* Breadcrumb dihapus sesuai permintaan agar topbar bersih & fokus pada taskbar */}
-          </div>
-
-          <div className="dash-topbar-right">
-            {/* Lonceng disembunyikan selama modal verifikasi tampil — modal
-                menutupi layar penuh, jadi lonceng di baliknya tidak bisa
-                diklik; sesudah terverifikasi lonceng muncul kembali. */}
-            {!needsVerification && <NotificationBell />}
-            <span className="dash-date-pill">{fmtDateShort(new Date().toISOString())}</span>
-            {!isAdminPage && (
-              <Link href="/scan" className="btn btn-amber btn-sm">
-                <Camera size={14} />
-                <span>Scan Baru</span>
-              </Link>
-            )}
-          </div>
-        </header>
-
         <main id="main" className="app-main-viewport">
           <WorkspaceLoadingScreen
             active={isNavigating}

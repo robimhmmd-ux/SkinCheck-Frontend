@@ -179,8 +179,10 @@ a:hover {
   /* Napas kiri-kanan untuk SEMUA halaman workspace (customer + admin):
      kartu tidak lagi nempel ke sidebar maupun ke pojok kanan web
      (permintaan roboy 2026-11-12). Halaman yang akarnya telanjang
-     (marketplace, riwayat) paling terasa manfaatnya. */
-  padding: 0 clamp(24px, 3vw, 44px);
+     (marketplace, riwayat) paling terasa manfaatnya. Napas atas 20px
+     ditambahkan saat topbar dihapus (2026-11-12) supaya konten tidak
+     menempel ke tepi atas layar tempat pill status melayang. */
+  padding: 20px clamp(24px, 3vw, 44px) 0;
   overflow-x: hidden;
 }
 
@@ -2831,47 +2833,26 @@ body::-webkit-scrollbar,
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dash-stage-topbar {
-  width: 100%;
+/* Pill status melayang (pengganti topbar yang dihapus roboy 2026-11-12):
+   tanggal + lonceng tetap tampil di kanan-atas tanpa bar atas.
+   Kaca iOS (putih 0.5 + blur 20px saturate 180%) seperti sidebar/kartu.
+   Di dalamnya ada lonceng (tombol navy 38px) + pil tanggal (navy). */
+.dash-floating-status-pill {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 55;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px clamp(20px, 3.2vw, 44px);
-  /* Kaca iOS — bahan SAMA PERSIS dengan sidebar (putih 0.5 + blur 20px +
-     saturate 180%), supaya sidebar & topbar terbaca sebagai satu
-     permukaan kaca yang menyatu, tanpa garis di pertemuannya. Dasar
-     konten kini powder blue lagi (bukan kaca), jadi topbar tidak lagi
-     dobel kaca. Tanpa border & shadow (bayangan hitam yang dulu
-     menggambar garis di bawah topbar sudah dicabut). */
+  gap: 8px;
+  padding: 6px 8px;
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: none;
-  border: none;
-  box-shadow: none;
-  position: sticky;
-  top: 0;
-  z-index: 30;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(7, 18, 54, 0.08);
   box-sizing: border-box;
-}
-
-/* Sudut temu tumpul antara sidebar dan topbar (meniadakan sudut siku-siku & menyatu tanpa garis) */
-.dash-stage-topbar::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 100%;
-  width: 26px;
-  height: 26px;
-  background: radial-gradient(circle at 100% 100%, transparent 26px, rgba(255, 255, 255, 0.45) 26.5px);
-  pointer-events: none;
-  z-index: 35;
-}
-
-.dash-topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
 }
 
 .dash-slide-toggle-btn {
@@ -2915,11 +2896,8 @@ body::-webkit-scrollbar,
   box-shadow: 0 4px 14px rgba(7, 18, 54, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.dash-topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+/* (Aturan .dash-topbar-right dihapus bersama topbar — isinya kini di
+   .dash-floating-status-pill di atas.) */
 
 @media (max-width: 1023px) {
   .dash-side-slide.side-rail-mini {
