@@ -185,7 +185,8 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
                 <span className="user-status-dot-avatar" />
               </div>
               <div className="user-card-meta">
-                <strong className="user-card-name">{user?.name || "Pengguna Laomera"}</strong>
+                {/* Fallback nama tanpa "Laomera" (roboy 2026-11-12). */}
+                <strong className="user-card-name">{user?.name || "Pengguna"}</strong>
                 <div className="user-status-pill">
                   <span className="user-status-dot" />
                   <span>{user?.role === "admin" ? "Administrator Sistem" : user?.email || "Sesi Masuk Aktif"}</span>

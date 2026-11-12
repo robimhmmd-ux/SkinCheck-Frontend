@@ -615,7 +615,9 @@ export default function AdminPage() {
                         <td>
                           <div className="product-cell-main">
                             <span className="product-cell-name">{prod.name}</span>
-                            <span className="product-cell-brand">{prod.brand || "Laomera Formulations"}</span>
+                            {/* Brand tampil hanya kalau ada di DB (roboy 2026-11-12):
+                                fallback "Laomera Formulations" dihapus. */}
+                            {prod.brand && <span className="product-cell-brand">{prod.brand}</span>}
                           </div>
                         </td>
                         <td>
