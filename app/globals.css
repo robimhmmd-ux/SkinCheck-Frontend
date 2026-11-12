@@ -466,6 +466,24 @@ a:hover {
   transition: background var(--transition-fast);
 }
 
+/* Landing page tanpa bar atas (roboy 2026-11-12): header transparan
+   (tanpa latar kaca/bayangan/border) dan absolute — melayang di atas hero
+   lalu ikut ter-scroll, bukan sticky. Jadi tidak ada lagi strip "bar" di
+   atas landing; logo, nav, dan tombol tetap tampil & berfungsi. Hanya
+   berlaku di landing (isLandingPage); halaman login/register tetap
+   memakai bar biasa. */
+.fullscreen-topbar.topbar-landing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border: none;
+}
+
 .topbar-inner-row {
   display: flex;
   align-items: center;
@@ -721,7 +739,11 @@ a:hover {
 
 .hero-ambient-glow {
   position: absolute;
-  top: -80px;
+  /* Sinar di belakang "The Future of..." tadinya terpotong di atas
+     (roboy 2026-11-12): top -80px membuat 80px teratasnya keluar dari
+     hero dan terpotong tepi viewport/topbar. top 0 menaruhnya penuh di
+     dalam hero sehingga sinarnya utuh dengan tepi yang lembut. */
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: min(920px, 100vw);
@@ -1015,7 +1037,14 @@ a:hover {
 /* ── OUR VISION SECTION (FLOATING HISTORICAL CARDS IN CURVED ARC) ── */
 .landing-vision-section {
   position: relative;
-  width: 100%;
+  /* Full-bleed mentok kiri-kanan (roboy 2026-11-12): seksi navy ini tadinya
+     tampak seperti kotak karena terjepit padding samping
+     .app-main-viewport (clamp 24px/3vw/44px). Margin negatif sebesar
+     padding itu + width auto membuat navy melebar sampai tepi viewport,
+     sementara isi (.vision-container, max-width) tetap di tengah. */
+  width: auto;
+  margin-left: calc(-1 * clamp(24px, 3vw, 44px));
+  margin-right: calc(-1 * clamp(24px, 3vw, 44px));
   padding: 84px 0 100px;
   background: var(--base-midnight-navy);
   text-align: center;

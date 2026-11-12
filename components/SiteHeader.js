@@ -129,7 +129,12 @@ export default function SiteHeader() {
 
   return (
     <>
-      <header className="fullscreen-topbar">
+      {/* Di landing page tidak ada bar atas (roboy 2026-11-12): header jadi
+          transparan + absolute (melayang di atas hero lalu ikut ter-scroll,
+          bukan sticky). Logo, nav, tombol Scan/Masuk tetap ada dan
+          berfungsi; hanya latar/bayangan "bar"-nya yang dihilangkan.
+          LoginModal/drawer tetap ter-render di bawah. */}
+      <header className={`fullscreen-topbar${isLandingPage ? " topbar-landing" : ""}`}>
         <div className="content-canvas topbar-inner-row">
           {/* Brand Emblem & Logo */}
           <Link className="brand-emblem-wrap" href="/">
