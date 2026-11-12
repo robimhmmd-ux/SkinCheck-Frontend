@@ -21,21 +21,21 @@ uniform float uSpeed;
 uniform float uGlow;
 uniform float uTheme; // 0 = dark (navy #071236), 1 = light
 
-// Smooth multi-chromatic Aurora Palettes
+// Smooth multi-chromatic Aurora Palettes — refined, subtle
 vec3 paletteA(float t) {
-    // Ethereal cyan to electric violet/magenta
+    // Electric blue to soft indigo/violet — more refined
     return mix(
-        vec3(0.12, 0.42, 0.88), // luminous electric sapphire
-        vec3(0.84, 0.32, 0.94), // vivid aurora magenta
+        vec3(0.10, 0.35, 0.80), // electric sapphire blue
+        vec3(0.60, 0.25, 0.85), // soft deep violet
         0.5 + 0.5 * sin(t)
     );
 }
 
 vec3 paletteB(float t) {
-    // Ethereal cyan-teal to soft amethyst
+    // Deep cyan to soft lavender — ethereal
     return mix(
-        vec3(0.08, 0.72, 0.82), // celestial cyan
-        vec3(0.68, 0.32, 0.96), // deep lavender-violet
+        vec3(0.06, 0.60, 0.78), // deep teal-cyan
+        vec3(0.50, 0.28, 0.80), // gentle amethyst
         0.5 + 0.5 * cos(t)
     );
 }
@@ -46,48 +46,50 @@ void main() {
     float aspect = uResolution.x / uResolution.y;
     uv.x *= aspect;
 
+    // Zoom out the coordinate space: makes the waves and glow finer, sleek, and not overly zoomed in
+    uv *= 2.3;
+
     float t = uTime * uSpeed;
 
-    // --- Wave Ribbon 1 (Left & Center primary flowing ribbon) ---
-    float w1_a = 0.32 * sin(uv.x * 2.2 + t * 0.85);
-    float w1_b = 0.18 * sin(uv.x * 3.8 - t * 0.65 + 1.2);
-    float line1 = w1_a + w1_b + 0.18;
+    // --- Wave Ribbon 1 (Left & Center flowing ribbon - compact amplitude) ---
+    float w1_a = 0.13 * sin(uv.x * 2.4 + t * 0.80);
+    float w1_b = 0.07 * sin(uv.x * 4.2 - t * 0.60 + 1.2);
+    float line1 = w1_a + w1_b + 0.12;
     float dist1 = abs(uv.y - line1);
-    float g1 = exp(-pow(dist1, 2.0) * (uGlow * 1.25));
+    float g1 = exp(-pow(dist1, 2.0) * (uGlow * 2.8));
 
     // --- Wave Ribbon 2 (Active across Center & Right Corner) ---
-    // Crest actively illuminates the right half and right corner (uv.x > 0.4)
-    float w2_a = 0.28 * sin(uv.x * 1.7 - t * 0.75 + 2.7);
-    float w2_b = 0.16 * cos(uv.x * 3.4 + t * 0.55 + 0.8);
-    float line2 = w2_a + w2_b + 0.08;
+    float w2_a = 0.11 * sin(uv.x * 1.8 - t * 0.70 + 2.7);
+    float w2_b = 0.06 * cos(uv.x * 3.8 + t * 0.50 + 0.8);
+    float line2 = w2_a + w2_b + 0.04;
     float dist2 = abs(uv.y - line2);
-    float g2 = exp(-pow(dist2, 2.0) * (uGlow * 1.15));
+    float g2 = exp(-pow(dist2, 2.0) * (uGlow * 2.5));
 
-    // --- Wave Ribbon 3 (Ethereal High-Sweep covering extreme right edge) ---
-    float w3_a = 0.26 * cos(uv.x * 1.9 + t * 0.60 + 4.1);
-    float w3_b = 0.14 * sin(uv.x * 4.6 - t * 0.80 + 2.0);
-    float line3 = w3_a + w3_b + 0.26;
+    // --- Wave Ribbon 3 (Ethereal High-Sweep covering right edge) ---
+    float w3_a = 0.10 * cos(uv.x * 2.0 + t * 0.55 + 4.1);
+    float w3_b = 0.05 * sin(uv.x * 4.6 - t * 0.75 + 2.0);
+    float line3 = w3_a + w3_b + 0.20;
     float dist3 = abs(uv.y - line3);
-    float g3 = exp(-pow(dist3, 2.0) * (uGlow * 1.05));
+    float g3 = exp(-pow(dist3, 2.0) * (uGlow * 2.2));
 
-    // Dynamic wave-derived colors
-    vec3 col1 = paletteA(line1 * 2.4 + uv.x * 0.7 + t * 0.35);
-    vec3 col2 = paletteB(line2 * 2.1 - uv.x * 0.5 + t * 0.25);
-    vec3 col3 = mix(vec3(0.18, 0.62, 0.98), vec3(0.88, 0.38, 0.82), 0.5 + 0.5 * sin(uv.x * 1.6 + t * 0.45));
+    // Dynamic wave-derived colors — slightly more saturated but still controlled
+    vec3 col1 = paletteA(line1 * 2.2 + uv.x * 0.6 + t * 0.30);
+    vec3 col2 = paletteB(line2 * 2.0 - uv.x * 0.45 + t * 0.22);
+    vec3 col3 = mix(vec3(0.14, 0.52, 0.90), vec3(0.72, 0.28, 0.72), 0.5 + 0.5 * sin(uv.x * 1.5 + t * 0.40));
 
-    // Ethereal atmospheric aurora curtain across the entire width
-    float ambientMask = exp(-pow(uv.y - 0.02, 2.0) * 1.6);
-    vec3 ambientAurora = mix(vec3(0.10, 0.28, 0.62), vec3(0.36, 0.16, 0.58), 0.5 + 0.5 * sin(uv.x * 0.75 + t * 0.2)) * ambientMask * 0.38;
+    // Ethereal atmospheric aurora curtain — more subtle ambient
+    float ambientMask = exp(-pow(uv.y - 0.02, 2.0) * 3.6);
+    vec3 ambientAurora = mix(vec3(0.06, 0.18, 0.50), vec3(0.22, 0.10, 0.42), 0.5 + 0.5 * sin(uv.x * 1.0 + t * 0.18)) * ambientMask * 0.18;
 
-    // Combined multi-layered aurora radiance
-    vec3 aurora = col1 * g1 * 1.45 + col2 * g2 * 1.35 + col3 * g3 * 1.15 + ambientAurora;
+    // Combined multi-layered aurora radiance (refined, elegant ribbons)
+    vec3 aurora = col1 * g1 * 1.0 + col2 * g2 * 0.90 + col3 * g3 * 0.78 + ambientAurora;
 
     // Exact Laomera Midnight Navy: #071236 -> rgb(7, 18, 54) -> vec3(0.0275, 0.0706, 0.2118)
     vec3 bgNavy = vec3(0.0275, 0.0706, 0.2118);
     vec3 bg = mix(bgNavy, vec3(1.0), uTheme);
 
     // Smoothstep vertical edge attenuation: softly eases to pure background at the very top and bottom
-    float verticalFade = smoothstep(0.0, 0.20, st.y) * smoothstep(1.0, 0.80, st.y);
+    float verticalFade = smoothstep(0.0, 0.24, st.y) * smoothstep(1.0, 0.76, st.y);
 
     vec3 finalColor = bg + aurora * clamp(verticalFade, 0.0, 1.0);
 

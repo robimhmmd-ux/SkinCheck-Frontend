@@ -113,14 +113,15 @@ const STYLES = `
 
 /* Teks Raksasa Latar Belakang (LAOMERA) */
 .footer-giant-bg-text {
-  font-family: var(--font-display), "Playfair Display", Georgia, serif;
+  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
   font-size: clamp(80px, 22vw, 320px);
   line-height: 0.72;
-  font-weight: 900;
-  letter-spacing: -0.04em;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.03em;
   color: transparent;
-  -webkit-text-stroke: 1.5px rgba(255, 194, 13, 0.2);
-  background: linear-gradient(180deg, rgba(255, 194, 13, 0.32) 0%, rgba(172, 200, 236, 0.08) 55%, transparent 95%);
+  -webkit-text-stroke: 1.2px rgba(255, 194, 13, 0.22);
+  background: linear-gradient(180deg, rgba(255, 194, 13, 0.28) 0%, rgba(172, 200, 236, 0.08) 55%, transparent 95%);
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -261,7 +262,7 @@ export default function CinematicFooter() {
             ease: "power3.out",
             scrollTrigger: {
               trigger: wrapperRef.current,
-              start: "top 45%",
+              start: "top 75%",
               end: "bottom bottom",
               scrub: 1,
             },
@@ -281,37 +282,24 @@ export default function CinematicFooter() {
     <>
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
 
-      {/* 
-        The "Curtain Reveal" Wrapper:
-        Sits in standard flow. Because it has clipPath, its contents
-        are ONLY visible within its bounding box, revealing the fixed
-        cinematic footer underneath as the user scrolls to the bottom.
-      */}
-      <div
+      {/* Footer Menyatu dalam Alur Halaman Normal (Bukan Fixed Curtain Terpisah) */}
+      <footer
         ref={wrapperRef}
+        className="cinematic-footer-wrapper"
         style={{
           position: "relative",
           width: "100%",
-          height: "100vh",
-          clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)",
+          minHeight: "85vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          overflow: "hidden",
+          background: "#071236",
+          zIndex: 1,
+          paddingTop: "60px",
         }}
       >
-        <footer
-          className="cinematic-footer-wrapper"
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            height: "100vh",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            overflow: "hidden",
-            zIndex: 1,
-          }}
-        >
-          {/* Ambient Light */}
+        {/* Ambient Light */}
           <div
             className="footer-aurora animate-footer-breathe"
             style={{
@@ -406,10 +394,10 @@ export default function CinematicFooter() {
               ref={headingRef}
               className="footer-text-glow"
               style={{
-                fontFamily: 'var(--font-display), "Playfair Display", Georgia, serif',
-                fontSize: "clamp(32px, 5.2vw, 68px)",
-                fontWeight: 800,
-                letterSpacing: "-0.025em",
+                fontFamily: 'var(--font-display), "Cormorant Garamond", Georgia, serif',
+                fontSize: "clamp(34px, 5.4vw, 70px)",
+                fontWeight: 600,
+                letterSpacing: "-0.015em",
                 lineHeight: 1.12,
                 marginBottom: "20px",
               }}
@@ -452,7 +440,7 @@ export default function CinematicFooter() {
               >
                 <MagneticButton
                   as={Link}
-                  href="/scan"
+                  href="/register"
                   className="footer-glass-pill footer-glass-pill-primary"
                   style={{
                     padding: "14px 28px",
@@ -464,8 +452,8 @@ export default function CinematicFooter() {
                     textDecoration: "none",
                   }}
                 >
-                  <Camera size={19} aria-hidden="true" />
-                  <span>Mulai Scan Wajah</span>
+                  <Sparkles size={18} aria-hidden="true" />
+                  <span>Daftar Sekarang</span>
                   <ArrowRight size={17} aria-hidden="true" />
                 </MagneticButton>
 
@@ -613,7 +601,6 @@ export default function CinematicFooter() {
             </MagneticButton>
           </div>
         </footer>
-      </div>
     </>
   );
 }

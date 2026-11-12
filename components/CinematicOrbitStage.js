@@ -96,7 +96,12 @@ export default function CinematicOrbitStage({ nodes }) {
       onMouseMove={handleMouseMove}
       aria-label="Interaktif 3D Orbital Laomera"
     >
-      <div className="hero-glow-backplate" aria-hidden="true" />
+      {/* Efek Aurora Ethereal di Tengah Karakter Utama (Paling Atas Landing Page) */}
+      <div className="hero-aurora-centerpiece" aria-hidden="true">
+        <div className="hero-aurora-blob hero-blob-1" />
+        <div className="hero-aurora-blob hero-blob-2" />
+        <div className="hero-aurora-blob hero-blob-3" />
+      </div>
 
       {/* Dynamic Cursor Flare Spotlight when hovering near orbital stage */}
       {cursorPos.active && (

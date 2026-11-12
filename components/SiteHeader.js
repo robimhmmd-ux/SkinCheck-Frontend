@@ -94,7 +94,7 @@ export default function SiteHeader() {
     if (user) {
       router.push("/scan");
     } else {
-      setLoginOpen(true);
+      router.push("/register");
     }
   }
 
@@ -201,8 +201,8 @@ export default function SiteHeader() {
           {/* Actions: Scan CTA & Auth/Dashboard Button */}
           <div className="nav-action-cluster">
             <button type="button" onClick={handleScanClick} className="btn btn-amber btn-sm nav-scan-btn">
-              <Camera size={15} aria-hidden="true" />
-              <span>Scan Kulit</span>
+              <Sparkles size={15} aria-hidden="true" />
+              <span>{user ? "Scan Kulit" : "Daftar Sekarang"}</span>
             </button>
 
             {user ? (
@@ -366,8 +366,8 @@ export default function SiteHeader() {
                     style={{ width: "100%", justifyContent: "center" }}
                     onClick={handleScanClick}
                   >
-                    <Camera size={18} />
-                    <span>Mulai Scan Kulit</span>
+                    <Sparkles size={18} />
+                    <span>{user ? "Mulai Scan Kulit" : "Daftar Sekarang"}</span>
                     <ArrowRight size={16} />
                   </button>
 

@@ -19,6 +19,7 @@ import FeedbackModal from "../components/FeedbackModal";
 import CinematicOrbitStage from "../components/CinematicOrbitStage";
 import CinematicFooter from "../components/CinematicFooter";
 import AuroraWaves from "../components/AuroraWaves";
+import HairAuroraWaves from "../components/HairAuroraWaves";
 
 // ── 1. LIMA OUTPUT KLASIFIKASI VGG UNTUK ORBIT HERO STAGE ──
 const ORBIT_NODES = [
@@ -67,6 +68,7 @@ const VGG_OUTPUT_CARDS = [
     title: "Jerawat",
     sub: "Acne Vulgaris",
     shortDesc: "Deteksi inflamasi papula, pustula, dan komedo pada epidermis wajah.",
+    quickRec: "Salicylic Acid (BHA 1-2%) & Niacinamide (4-5%)",
     fullDesc:
       "Arsitektur deep learning VGG mengekstraksi representasi fitur konvolusional multi-skala untuk membedakan eritema aktif (kemerahan peradangan), komedo terbuka/tertutup, dan kolonisasi Cutibacterium acnes dengan presisi tinggi.",
     symptoms: [
@@ -79,7 +81,7 @@ const VGG_OUTPUT_CARDS = [
       "Niacinamide (4-5%) guna menenangkan inflamasi dan mengontrol sebum",
       "Pembersih gel ber-pH seimbang (5.5) bebas sulfat dan non-komedogenik",
     ],
-    img: "/history/1-indigenous.jpg",
+    img: "/vgg/1-acne.jpg",
     cardClass: "vision-card-1",
     badgeColor: "#e9957d",
   },
@@ -87,8 +89,9 @@ const VGG_OUTPUT_CARDS = [
     id: "vgg-dry",
     outputIndex: "02",
     title: "Kulit Kering",
-    sub: "Dehydration & Barrier Impairment",
+    sub: "Dehydration & Barrier",
     shortDesc: "Tingkat kelembapan epidermis dan tanda kekeringan stratum korneum.",
+    quickRec: "Ceramide NP/AP/EOP & Multi-Hyaluronic Acid",
     fullDesc:
       "Model menganalisis hilangnya pantulan difus cahaya dan pola deskuamasi mikro epidermis. VGG mendeteksi defisiensi Natural Moisturizing Factor (NMF) serta kelemahan sawar pelindung kulit (skin barrier).",
     symptoms: [
@@ -101,7 +104,7 @@ const VGG_OUTPUT_CARDS = [
       "Ceramide NP, AP, EOP untuk mereparasi matriks lipid pelindung",
       "Pelembap beremolien kaya squalane untuk mencegah Transepidermal Water Loss (TEWL)",
     ],
-    img: "/history/2-egyptian.jpg",
+    img: "/vgg/2-dry.jpg",
     cardClass: "vision-card-2",
     badgeColor: "#3a8a6d",
   },
@@ -109,8 +112,9 @@ const VGG_OUTPUT_CARDS = [
     id: "vgg-oily",
     outputIndex: "03",
     title: "Berminyak",
-    sub: "Excess Sebum Production",
+    sub: "Excess Sebum",
     shortDesc: "Kuantifikasi hipersekresi kelenjar sebasea pada area T-Zone dan pipi.",
+    quickRec: "Zinc PCA, Niacinamide & Kaolin Clay Mask",
     fullDesc:
       "Jaringan saraf tiruan mendeteksi specular reflection (kilau pantulan cahaya berlebih) dan dilatasi folikel pori. Sistem mengukur persentase keaktifan kelenjar minyak secara objektif tanpa bias pencahayaan.",
     symptoms: [
@@ -123,7 +127,7 @@ const VGG_OUTPUT_CARDS = [
       "Clay mask (Kaolin/Bentonite) berkala 1-2 kali seminggu untuk detoksifikasi pori",
       "Moisturizer oil-free berbahan dasar air (water-gel) yang cepat meresap",
     ],
-    img: "/history/3-tribal.jpg",
+    img: "/vgg/3-oily.jpg",
     cardClass: "vision-card-3",
     badgeColor: "#d9882a",
   },
@@ -131,8 +135,9 @@ const VGG_OUTPUT_CARDS = [
     id: "vgg-pigment",
     outputIndex: "04",
     title: "Dark Spots",
-    sub: "Hyperpigmentation & Melanin Deposition",
+    sub: "Hyperpigmentation",
     shortDesc: "Pemetaan noda bekas jerawat (PIH/PIE) dan deposisi pigmen melanin.",
+    quickRec: "Alpha Arbutin, Tranexamic Acid & Vitamin C",
     fullDesc:
       "Lapisan konvolusi dalam mendeteksi kontras kromatik pada lapisan basal kulit, memisahkan noda eritema vaskular (PIE) dari akumulasi melanin epidermal (PIH atau sun spots akibat radiasi UV).",
     symptoms: [
@@ -145,7 +150,7 @@ const VGG_OUTPUT_CARDS = [
       "Vitamin C murni (L-Ascorbic Acid) sebagai penangkal radikal bebas dan pencerah",
       "Sunscreen broad-spectrum SPF 50+ PA++++ wajib digunakan setiap hari",
     ],
-    img: "/history/4-renaissance.jpg",
+    img: "/vgg/4-pigment.jpg",
     cardClass: "vision-card-4",
     badgeColor: "#68758e",
   },
@@ -153,8 +158,9 @@ const VGG_OUTPUT_CARDS = [
     id: "vgg-wrinkle",
     outputIndex: "05",
     title: "Kerutan",
-    sub: "Fine Lines & Structural Aging",
+    sub: "Fine Lines & Aging",
     shortDesc: "Analisis degradasi serat kolagen dan garis ekspresi mikro dinamis.",
+    quickRec: "Encapsulated Retinol & Copper Tripeptide-1",
     fullDesc:
       "Model VGG mengidentifikasi pola lipatan mikro mikro-alur kulit pada sudut lateral mata (crow's feet), glabella (dahi), dan sulkus nasolabial guna mengukur elastisitas struktural serta penuaan dini.",
     symptoms: [
@@ -167,7 +173,7 @@ const VGG_OUTPUT_CARDS = [
       "Peptida tembaga (Copper Tripeptide-1) guna mempercepat peremajaan seluler",
       "Krim malam kaya antioksidan dan asam lemak esensial",
     ],
-    img: "/history/5-classical.jpg",
+    img: "/vgg/5-wrinkle.jpg",
     cardClass: "vision-card-5",
     badgeColor: "#c53030",
   },
@@ -199,7 +205,7 @@ const FEATURES = [
 
 export default function Home() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [selectedVggCard, setSelectedVggCard] = useState(null);
+  const [activeCardId, setActiveCardId] = useState(null);
 
   // Animasi scroll: memunculkan card saat scroll ke bawah dan membuang card saat scroll ke atas
   useEffect(() => {
@@ -295,43 +301,75 @@ export default function Home() {
         {/* Ethereal Aurora Waves WebGL Shader Canvas: Multi-Ribbon Phase Flowing to Right Corner */}
         <AuroraWaves speed={0.85} glow={15} theme="dark" />
 
-        {/* Gradasi Lembut Atas & Bawah (Transisi Biru Muda <-> Midnight Navy) */}
+        {/* Gradasi Lembut Atas (Transisi Biru Muda -> Midnight Navy) */}
         <div className="vision-top-gradient-bridge" aria-hidden="true" />
-        <div className="vision-bottom-gradient-bridge" aria-hidden="true" />
 
         <div className="content-canvas vision-container">
           <div className="vision-pill-badge">
             <span>5 PILAR OUTPUT VGG DEEP LEARNING</span>
           </div>
 
-          {/* Arc of 5 VGG Classification Cards */}
+          {/* Arc of 5 VGG Classification Cards - Uiverse Interactive Flip Cards */}
           <div className="vision-arc-track">
-            {VGG_OUTPUT_CARDS.map((card) => (
-              <div
-                key={card.id}
-                className={`vision-card vision-card-clickable ${card.cardClass}`}
-                title={`Klik untuk detail analisis: ${card.title} (${card.sub})`}
-                onClick={() => setSelectedVggCard(card)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setSelectedVggCard(card);
-                  }
-                }}
-              >
-                <img
-                  src={card.img}
-                  alt={`${card.title} - ${card.sub}`}
-                  className="vision-card-img"
-                />
-                <div className="vision-card-interactive-pill">
-                  <span>{card.title}</span>
-                  <span style={{ color: "var(--sunflower-yellow)" }}>✦ Detail</span>
+            {VGG_OUTPUT_CARDS.map((card) => {
+              const isActive = activeCardId === card.id;
+              return (
+                <div
+                  key={card.id}
+                  className={`vision-card vgg-uiverse-card card ${card.cardClass} ${isActive ? "is-active" : ""}`}
+                  title={`${card.title} - ${card.sub}`}
+                  onClick={() => setActiveCardId(isActive ? null : card.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setActiveCardId(isActive ? null : card.id);
+                    }
+                  }}
+                >
+                  {/* Front: Real Photograph */}
+                  <img
+                    src={card.img}
+                    alt={`${card.title} - ${card.sub}`}
+                    className="vision-card-img"
+                  />
+                  <div className="vision-card-interactive-pill">
+                    <span>{card.title}</span>
+                    <span style={{ color: "var(--sunflower-yellow)" }}>✦ Detail</span>
+                  </div>
+
+                  {/* Uiverse Rotating Content Overlay */}
+                  <div className="card__content">
+                    <div className="card__header-tag">
+                      <span
+                        className="card__vgg-pill"
+                        style={{
+                          color: card.badgeColor,
+                          borderColor: `${card.badgeColor}40`,
+                          backgroundColor: `${card.badgeColor}18`,
+                        }}
+                      >
+                        VGG #{card.outputIndex}
+                      </span>
+                      <span className="card__sub-label">{card.sub}</span>
+                    </div>
+
+                    <h4 className="card__title">{card.title}</h4>
+                    <p className="card__description">{card.shortDesc}</p>
+
+                    <div className="card__rec-section">
+                      <span className="card__rec-title">Bahan Aktif Pilihan:</span>
+                      <p className="card__rec-text">{card.quickRec}</p>
+                    </div>
+
+                    <div className="card__hint-tap">
+                      <span>{isActive ? "Ketuk untuk tutup" : "Detail Analisis VGG"}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Center Geometric Glyph Divider */}
@@ -355,14 +393,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 3. KENAPA LAOMERA BERBEDA ── */}
-      <section id="fitur" className="landing-section-unboxed" style={{ position: "relative" }}>
-        {/* Gradasi Lembut Menuju Cinematic Footer (Biru Muda -> Midnight Navy) */}
-        <div className="faq-bottom-gradient-bridge" aria-hidden="true" />
+      {/* ── 3. KENAPA LAOMERA BERBEDA (MIDNIGHT NAVY + AURORA + KARAKTER WANITA) ── */}
+      <section id="fitur" className="landing-section-unboxed feature-aurora-section">
+        {/* Container Efek Aurora Sesuai Template Pengguna (Ambient Aurora) */}
+        <div className="aurora-container" aria-hidden="true">
+          <div className="aurora-light light-1" />
+          <div className="aurora-light light-2" />
+          <div className="aurora-light light-3" />
+        </div>
 
-        <div className="content-canvas" style={{ position: "relative", zIndex: 2 }}>
-          <div className="landing-section-head">
-            <span className="badge badge-navy" style={{ marginBottom: "12px" }}>
+        {/* Karakter Wanita dengan Efek Bioluminescent Navy & Cyan Streams */}
+        <div className="feature-character-backdrop" aria-hidden="true">
+          <img
+            src="/feature-aurora-bg.jpg"
+            alt=""
+            className="feature-character-img"
+          />
+          <div className="feature-character-overlay-gradient" />
+        </div>
+
+        {/* Dynamic Facial Aurora Waves (Bioluminescent Glow di Wajah & Rambut) */}
+        <div className="aurora-face-container" aria-hidden="true">
+          <div className="face-aurora-wave face-wave-2" />
+          <div className="face-aurora-pulse-glow" />
+        </div>
+
+        {/* Gelombang Aurora Mengalir Halus dari Rambut ke Kanan & Menghilang di Ujung */}
+        <HairAuroraWaves />
+
+        {/* Konten Utama di Atas Efek Aurora */}
+        <div className="content-canvas" style={{ position: "relative", zIndex: 10 }}>
+          <div className="landing-section-head feature-section-head-dark">
+            <span className="badge badge-aurora" style={{ marginBottom: "14px" }}>
               KEUNGGULAN SISTEM
             </span>
             <h2>Kenapa Laomera Terasa Berbeda</h2>
@@ -373,7 +435,7 @@ export default function Home() {
             {FEATURES.map((feat) => {
               const Icon = feat.icon;
               return (
-                <div key={feat.title} className="feature-fluid-card">
+                <div key={feat.title} className="feature-fluid-card feature-fluid-card-dark">
                   <div className="feature-icon-bubble">
                     <Icon size={22} aria-hidden="true" />
                   </div>
@@ -388,107 +450,6 @@ export default function Home() {
 
       {/* ── 4. CINEMATIC CURTAIN REVEAL FOOTER ── */}
       <CinematicFooter />
-
-      {/* ── 5. POPUP MODAL PENJELASAN OUTPUT VGG ── */}
-      {selectedVggCard && (
-        <div
-          className="vgg-modal-backdrop"
-          onClick={() => setSelectedVggCard(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="vgg-modal-card"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="vgg-modal-close-btn"
-              onClick={() => setSelectedVggCard(null)}
-              aria-label="Tutup jendela penjelasan"
-            >
-              <X size={20} />
-            </button>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: "800",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  padding: "4px 10px",
-                  borderRadius: "8px",
-                  backgroundColor: `${selectedVggCard.badgeColor}25`,
-                  color: selectedVggCard.badgeColor,
-                  border: `1px solid ${selectedVggCard.badgeColor}45`,
-                }}
-              >
-                VGG OUTPUT #{selectedVggCard.outputIndex}
-              </span>
-              <span style={{ fontSize: "12px", color: "#94A3B8", fontWeight: "600" }}>
-                Klasifikasi Deep Learning
-              </span>
-            </div>
-
-            <h3 style={{ fontSize: "24px", fontWeight: "800", color: "#ffffff", margin: "0 0 4px" }}>
-              {selectedVggCard.title}
-            </h3>
-            <p style={{ fontSize: "14px", color: "#acc8ec", fontWeight: "600", margin: "0 0 16px" }}>
-              {selectedVggCard.sub}
-            </p>
-
-            <div className="vgg-modal-media-wrap">
-              <img
-                src={selectedVggCard.img}
-                alt={`${selectedVggCard.title} diagnosis`}
-              />
-            </div>
-
-            <p style={{ fontSize: "14px", lineHeight: "1.65", color: "#E2E8F0", marginBottom: "20px" }}>
-              {selectedVggCard.fullDesc}
-            </p>
-
-            <div style={{ marginBottom: "20px" }}>
-              <div className="vgg-modal-section-title">
-                <AlertCircle size={15} /> Karakteristik & Gejala Visual
-              </div>
-              <ul className="vgg-modal-list">
-                {selectedVggCard.symptoms.map((sym, i) => (
-                  <li key={i}>{sym}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <div className="vgg-modal-section-title">
-                <CheckCircle2 size={15} /> Panduan Formulasi & Bahan Aktif
-              </div>
-              <ul className="vgg-modal-list">
-                {selectedVggCard.recommendations.map((rec, i) => (
-                  <li key={i}>{rec}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div style={{ textAlign: "right", marginTop: "24px" }}>
-              <button
-                type="button"
-                className="btn btn-primary"
-                style={{
-                  borderRadius: "12px",
-                  padding: "10px 22px",
-                  fontSize: "13.5px",
-                  fontWeight: "700",
-                }}
-                onClick={() => setSelectedVggCard(null)}
-              >
-                Tutup Penjelasan
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </div>
