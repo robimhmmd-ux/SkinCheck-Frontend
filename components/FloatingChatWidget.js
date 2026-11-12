@@ -184,11 +184,27 @@ export default function FloatingChatWidget() {
         "Maaf, asisten belum dapat memproses jawaban saat ini. Coba tanyakan kembali.";
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch (err) {
-      const msg =
-        err.status === 401
-          ? "Sesi login kamu telah berakhir. Silakan masuk kembali untuk melanjutkan obrolan."
-          : "Koneksi terputus. Pastikan backend terhubung dan coba kirim ulang.";
-      setMessages((prev) => [...prev, { role: "assistant", content: msg }]);
+      if (err.status === 403 && err.message) {
+        // Backend menolak (akun belum verifikasi OTP / bukan customer):
+        // tampilkan alasan ASLI dari backend, bukan "Koneksi terputus".
+        // Kalau penolakannya soal OTP, dorong juga lewat notifikasi toast.
+        if (/otp|verifik/i.test(err.message)) {
+          toast.info(
+            "AYO VERIFIKASI KODE OTP dan nikmati keseluruhan akses teknologi yang ada.",
+            "Verifikasi Akun"
+          );
+        }
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: err.message },
+        ]);
+      } else {
+        const msg =
+          err.status === 401
+            ? "Sesi login kamu telah berakhir. Silakan masuk kembali untuk melanjutkan obrolan."
+            : "Koneksi terputus. Pastikan backend terhubung dan coba kirim ulang.";
+        setMessages((prev) => [...prev, { role: "assistant", content: msg }]);
+      }
     } finally {
       setLoading(false);
     }
