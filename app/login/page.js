@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, LogIn, ArrowRight, ShieldCheck } from "lucide-react";
+import { Mail, Lock, LogIn, ArrowRight, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { login, getMe, pickUser } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
 import WorkspaceLoadingScreen from "../../components/WorkspaceLoadingScreen";
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const toast = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -75,16 +76,27 @@ export default function LoginPage() {
               <label className="form-label" htmlFor="login-password">
                 <Lock size={14} /> Kata Sandi
               </label>
-              <input
-                id="login-password"
-                type="password"
-                required
-                className="app-text-input"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-              />
+              <div className="password-field">
+                <input
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  className="app-text-input"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  aria-pressed={showPassword}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <button type="submit" className="btn btn-primary" style={{ width: "100%", marginTop: "12px" }} disabled={busy}>

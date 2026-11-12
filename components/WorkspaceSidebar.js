@@ -197,12 +197,12 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
             )}
 
             <div className="side-nav-track">
-              {/* Indikator Slider Geroak (Inward Cutout Curved Slider) */}
-              <div
-                className="magic-geroak-slider"
-                aria-hidden="true"
-                style={{ display: hasActiveLink ? "block" : "none" }}
-              />
+              {/* Slider geroak DIHAPUS (roboy 2026-11-12): pil biru di belakang
+                  item aktif bikin item aktif "dikotakin lagi" dan efek
+                  berongganya miring ke bawah — jelek. Penanda aktif kini
+                  hanya lingkaran kuning di ikon + teks kuning tebal.
+                  (CSS .magic-geroak-slider masih ada, display:none, untuk
+                  jaga-jaga kalau mau dikembalikan.) */}
 
               {/* Daftar Tautan Navigasi */}
               <div className="side-nav-links-list">

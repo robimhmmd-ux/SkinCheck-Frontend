@@ -176,9 +176,20 @@ a:hover {
   width: 100%;
   min-height: calc(100vh - 68px);
   margin: 0;
-  padding: 0;
+  /* Napas kiri-kanan untuk SEMUA halaman workspace (customer + admin):
+     kartu tidak lagi nempel ke sidebar maupun ke pojok kanan web
+     (permintaan roboy 2026-11-12). Halaman yang akarnya telanjang
+     (marketplace, riwayat) paling terasa manfaatnya. */
+  padding: 0 clamp(24px, 3vw, 44px);
   overflow-x: hidden;
 }
+
+/* Wadah halaman yang sudah membawa padding samping sendiri kehilangan
+   padding sampingnya di sini (viewport yang memberi napas) — supaya tidak
+   dobel. Yang dipertahankan: max-width + margin auto (pusat) dan padding
+   atas/bawah masing-masing. */
+.app-main-viewport .content-canvas { padding-left: 0; padding-right: 0; }
+.app-main-viewport .admin-stage-container { padding-left: 0; padding-right: 0; }
 
 .content-canvas {
   width: 100%;
@@ -2412,14 +2423,15 @@ body::-webkit-scrollbar,
   background: rgba(7, 18, 54, 0.2);
 }
 
+/* Item aktif TANPA kotak: tidak ada latar/border/bayangan — penandanya
+   hanya lingkaran kuning di ikon + teks kuning tebal (lihat di bawah).
+   Permintaan roboy 2026-11-12: "gada kotak nya pas di pilih". */
 .side-nav-link.active {
-  background: rgba(7, 18, 54, 0.24);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1.5px solid rgba(255, 194, 13, 0.55);
-  box-shadow: 0 6px 20px rgba(7, 18, 54, 0.2),
-              0 0 16px rgba(255, 194, 13, 0.25),
-              inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1.5px solid transparent;
+  box-shadow: none;
 }
 
 .dash-side-slide.side-rail-expanded .iso-layer {
@@ -2490,7 +2502,12 @@ body::-webkit-scrollbar,
    ANIMASI BERGULIR: SLIDER GEROAK (INWARD CUTOUT CURVED TAB)
    Menembus ke base background Powder Blue #acc8ec
    ═════════════════════════════════════════════════════════════════ */
+/* Slider geroak (pil biru di belakang item aktif) DIMATIKAN — item aktif
+   tidak boleh punya kotak/pil sama sekali (permintaan roboy 2026-11-12).
+   Komponennya tetap dirender di WorkspaceSidebar.js, hanya disembunyikan
+   di sini supaya mudah dikembalikan kalau roboy berubah pikiran. */
 .magic-geroak-slider {
+  display: none;
   position: absolute;
   top: 0;
   right: 0;
@@ -3984,6 +4001,36 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: #ffffff !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+
+/* ── Password visibility toggle (ikon mata) ── */
+/* Dipakai di login, daftar, modal login, admin users, dan pengaturan admin
+   (kunci API + ganti kata sandi). Input dengan style inline (pengaturan
+   admin) perlu paddingRight: 44px di style-nya sendiri, karena style
+   inline mengalahkan aturan ini. */
+.password-field { position: relative; }
+.password-field input { padding-right: 44px; }
+.password-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.password-toggle:hover { color: #ffffff; background: rgba(255, 255, 255, 0.12); }
+.password-toggle:focus-visible { outline: 2px solid var(--sunflower-yellow); outline-offset: 1px; }
+/* Varian untuk input terang (pengaturan admin, latar #e0e0e0): ikon gelap. */
+.password-toggle--dark { color: rgba(7, 18, 54, 0.55); }
+.password-toggle--dark:hover { color: #071236; background: rgba(7, 18, 54, 0.08); }
 
 select option {
   background: #071236;
@@ -7886,12 +7933,15 @@ select option {
 }
 
 /* Mode Overlay Layar Penuh (Untuk Transisi Navigasi & Auth Modal) */
+/* Latar BUKAN navy lagi — powder blue (warna dasar proyek), supaya loading
+   screen menyatu dengan dashboard dan tidak ada lagi warna navy di sini
+   (permintaan roboy 2026-11-12: hapus navy dari loading screen). */
 .workspace-loading-canvas.loading-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
   min-height: 100vh;
-  background: rgba(7, 18, 54, 0.94);
+  background: rgba(172, 200, 236, 0.94);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
@@ -8132,8 +8182,8 @@ select option {
   font-size: 13.5px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--sunflower-yellow);
-  text-shadow: 0 0 16px rgba(255, 194, 13, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
+  color: #000000;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   margin-top: 14px;
   text-align: center;
@@ -8154,7 +8204,7 @@ select option {
 .auth-loading-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7, 18, 54, 0.94);
+  background: rgba(172, 200, 236, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   z-index: 99999;
@@ -8178,7 +8228,9 @@ select option {
   width: 10em;
   height: 10em;
   display: inline-block;
-  filter: brightness(0) invert(1) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.25));
+  /* Hitam (tanpa invert) — spinner putih tidak terbaca di atas overlay
+     powder blue yang baru; hitam kontras dan tidak ada navy di sini. */
+  filter: brightness(0) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.25));
 }
 
 .spinner:before {

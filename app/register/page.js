@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Mail, Phone, Lock, UserPlus, ArrowRight, CheckCircle2 } from "lucide-react";
+import { User, Mail, Phone, Lock, UserPlus, ArrowRight, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { register, requestFonnteOtp } from "../../lib/api";
 import { ErrorBox } from "../../components/Notice";
 import WorkspaceLoadingScreen from "../../components/WorkspaceLoadingScreen";
@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [error, setError] = useState(null);
   const [otpError, setOtpError] = useState(null);
@@ -136,16 +137,27 @@ export default function RegisterPage() {
                   <label className="form-label" htmlFor="reg-password">
                     <Lock size={14} /> Kata Sandi
                   </label>
-                  <input
-                    id="reg-password"
-                    type="password"
-                    required
-                    className="app-text-input"
-                    placeholder="Minimal 6 karakter"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="new-password"
-                  />
+                  <div className="password-field">
+                    <input
+                      id="reg-password"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      className="app-text-input"
+                      placeholder="Minimal 6 karakter"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                      aria-pressed={showPassword}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
 
                 <button type="submit" className="btn btn-primary" style={{ width: "100%", marginTop: "12px" }} disabled={busy}>

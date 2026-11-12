@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { X, Mail, Lock, LogIn, Sparkles, ArrowRight } from "lucide-react";
+import { X, Mail, Lock, LogIn, Sparkles, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { login, getMe, pickUser } from "../lib/api";
 import { ErrorBox } from "./Notice";
 
@@ -11,6 +11,7 @@ export default function LoginModal({ open, onClose }) {
   const emailRef = useRef(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -97,16 +98,27 @@ export default function LoginModal({ open, onClose }) {
             <label className="form-label" htmlFor="modal-password">
               <Lock size={14} /> Kata Sandi
             </label>
-            <input
-              id="modal-password"
-              type="password"
-              required
-              className="app-text-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
+            <div className="password-field">
+              <input
+                id="modal-password"
+                type={showPassword ? "text" : "password"}
+                required
+                className="app-text-input"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: "100%", marginTop: "8px" }} disabled={busy}>

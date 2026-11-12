@@ -12,7 +12,9 @@ import {
   Calendar,
   X,
   RefreshCw,
-  UserX
+  UserX,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import {
   getAdminUsers,
@@ -40,6 +42,7 @@ export default function AdminUsersPage() {
   const [denied, setDenied] = useState(false);
   const [error, setError] = useState(null);
   const [form, setForm] = useState(null); // null | {id?, name, email, password, status}
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [pendingDeactivate, setPendingDeactivate] = useState(null);
   const toast = useToast();
@@ -182,14 +185,25 @@ export default function AdminUsersPage() {
 
             <div className="admin-field-group">
               <label className="admin-field-label">Kata Sandi</label>
-              <input
-                className="admin-input-styled"
-                placeholder={form.id ? "Kosongkan jika tidak ingin mengubah sandi" : "Minimal 6 karakter"}
-                type="password"
-                required={!form.id}
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-              />
+              <div className="password-field">
+                <input
+                  className="admin-input-styled"
+                  placeholder={form.id ? "Kosongkan jika tidak ingin mengubah sandi" : "Minimal 6 karakter"}
+                  type={showPassword ? "text" : "password"}
+                  required={!form.id}
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  aria-pressed={showPassword}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             {form.id && (

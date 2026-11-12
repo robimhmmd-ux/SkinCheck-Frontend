@@ -20,7 +20,9 @@ import {
   Sparkles,
   Sliders,
   Send,
-  Database
+  Database,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import {
   getAdminSettings,
@@ -70,6 +72,9 @@ function SettingsContent() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  // Visibilitas tiap kolom rahasia (kunci API + ganti kata sandi admin).
+  const [showSecrets, setShowSecrets] = useState({});
+  const toggleSecret = (key) => setShowSecrets((prev) => ({ ...prev, [key]: !prev[key] }));
   const [savingProfile, setSavingProfile] = useState(false);
 
   // Testing hub states
@@ -470,13 +475,24 @@ function SettingsContent() {
                       </span>
                     )}
                   </span>
-                  <input
-                    style={inputStyle}
-                    type="password"
+                  <div className="password-field">
+<input
+                    style={{ ...inputStyle, paddingRight: "44px" }}
+                    type={showSecrets["GEMINI_API_KEY"] ? "text" : "password"}
                     placeholder="••••••••••••••••••••••••••••••••"
                     value={values.GEMINI_API_KEY ?? ""}
                     onChange={(e) => setValues((p) => ({ ...p, GEMINI_API_KEY: e.target.value }))}
                   />
+                    <button
+                      type="button"
+                      className="password-toggle password-toggle--dark"
+                      onClick={() => toggleSecret("GEMINI_API_KEY")}
+                      aria-label={showSecrets["GEMINI_API_KEY"] ? "Sembunyikan" : "Tampilkan"}
+                      aria-pressed={!!showSecrets["GEMINI_API_KEY"]}
+                    >
+                      {showSecrets["GEMINI_API_KEY"] ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </label>
               </div>
 
@@ -574,13 +590,24 @@ function SettingsContent() {
                       <span style={{ color: "#059669", fontWeight: 400, marginLeft: "6px" }}>• Tersimpan</span>
                     )}
                   </span>
-                  <input
-                    style={inputStyle}
-                    type="password"
+                  <div className="password-field">
+<input
+                    style={{ ...inputStyle, paddingRight: "44px" }}
+                    type={showSecrets["FONNTE_TOKEN"] ? "text" : "password"}
                     placeholder="••••••••••••••••••••"
                     value={values.FONNTE_TOKEN ?? ""}
                     onChange={(e) => setValues((p) => ({ ...p, FONNTE_TOKEN: e.target.value }))}
                   />
+                    <button
+                      type="button"
+                      className="password-toggle password-toggle--dark"
+                      onClick={() => toggleSecret("FONNTE_TOKEN")}
+                      aria-label={showSecrets["FONNTE_TOKEN"] ? "Sembunyikan" : "Tampilkan"}
+                      aria-pressed={!!showSecrets["FONNTE_TOKEN"]}
+                    >
+                      {showSecrets["FONNTE_TOKEN"] ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                   <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Token akun Fonnte untuk broadcast WhatsApp</span>
                 </label>
               </div>
@@ -615,13 +642,24 @@ function SettingsContent() {
                       <span style={{ color: "#059669", fontWeight: 400, marginLeft: "6px" }}>• Tersimpan</span>
                     )}
                   </span>
-                  <input
-                    style={inputStyle}
-                    type="password"
+                  <div className="password-field">
+<input
+                    style={{ ...inputStyle, paddingRight: "44px" }}
+                    type={showSecrets["MAIL_PASSWORD"] ? "text" : "password"}
                     placeholder="••••••••••••"
                     value={values.MAIL_PASSWORD ?? ""}
                     onChange={(e) => setValues((p) => ({ ...p, MAIL_PASSWORD: e.target.value }))}
                   />
+                    <button
+                      type="button"
+                      className="password-toggle password-toggle--dark"
+                      onClick={() => toggleSecret("MAIL_PASSWORD")}
+                      aria-label={showSecrets["MAIL_PASSWORD"] ? "Sembunyikan" : "Tampilkan"}
+                      aria-pressed={!!showSecrets["MAIL_PASSWORD"]}
+                    >
+                      {showSecrets["MAIL_PASSWORD"] ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </label>
 
                 <label style={{ display: "grid", gap: "6px" }}>
@@ -734,40 +772,73 @@ function SettingsContent() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
               <label style={{ display: "grid", gap: "6px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>Kata Sandi Lama</span>
-                <input
-                  style={inputStyle}
-                  type="password"
+                <div className="password-field">
+<input
+                  style={{ ...inputStyle, paddingRight: "44px" }}
+                  type={showSecrets["oldPassword"] ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="••••••••••••"
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
                 />
+                  <button
+                    type="button"
+                    className="password-toggle password-toggle--dark"
+                    onClick={() => toggleSecret("oldPassword")}
+                    aria-label={showSecrets["oldPassword"] ? "Sembunyikan" : "Tampilkan"}
+                    aria-pressed={!!showSecrets["oldPassword"]}
+                  >
+                    {showSecrets["oldPassword"] ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Diperlukan untuk otorisasi perubahan kata sandi</span>
               </label>
 
               <label style={{ display: "grid", gap: "6px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>Kata Sandi Baru</span>
-                <input
-                  style={inputStyle}
-                  type="password"
+                <div className="password-field">
+<input
+                  style={{ ...inputStyle, paddingRight: "44px" }}
+                  type={showSecrets["newPassword"] ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="••••••••••••"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
+                  <button
+                    type="button"
+                    className="password-toggle password-toggle--dark"
+                    onClick={() => toggleSecret("newPassword")}
+                    aria-label={showSecrets["newPassword"] ? "Sembunyikan" : "Tampilkan"}
+                    aria-pressed={!!showSecrets["newPassword"]}
+                  >
+                    {showSecrets["newPassword"] ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Minimal 8 karakter disarankan</span>
               </label>
 
               <label style={{ display: "grid", gap: "6px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>Konfirmasi Kata Sandi Baru</span>
-                <input
-                  style={inputStyle}
-                  type="password"
+                <div className="password-field">
+<input
+                  style={{ ...inputStyle, paddingRight: "44px" }}
+                  type={showSecrets["confirmPassword"] ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="••••••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
+                  <button
+                    type="button"
+                    className="password-toggle password-toggle--dark"
+                    onClick={() => toggleSecret("confirmPassword")}
+                    aria-label={showSecrets["confirmPassword"] ? "Sembunyikan" : "Tampilkan"}
+                    aria-pressed={!!showSecrets["confirmPassword"]}
+                  >
+                    {showSecrets["confirmPassword"] ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Ulangi kata sandi baru secara identik</span>
               </label>
             </div>
