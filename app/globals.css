@@ -2111,6 +2111,14 @@ a:hover {
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-right: none;
   border: none;
+  /* Bahu "r" (roboy 2026-11-11 23:33, diminta lagi 2026-11-12 14:01):
+     sudut kanan-atas sidebar melengkung 14px — sisi kanan sidebar naik
+     lurus ke atas, lalu di ujungnya membelok halus ke kanan dan menyatu
+     ke tepi bawah topbar, seperti bahu huruf "r". Radius 14px (dulu 28px
+     terlalu lebar, potongannya kelihatan seperti celah yang misahin panel).
+     Radius ini sempat hilang saat upgrade kaca iOS; dikembalikan di sini.
+     Hanya sidebar yang diubah (bukan topbar/konten) sesuai permintaan. */
+  border-top-right-radius: 14px;
   /* Bayangan dicabut: shadow hitam 0 8px 32px ini yang menggambar garis
      gelap di sepanjang tepi kanan sidebar sampai ke topbar — padahal
      border-nya sudah dicabut. Tanpa shadow, kaca sidebar dan kaca topbar
