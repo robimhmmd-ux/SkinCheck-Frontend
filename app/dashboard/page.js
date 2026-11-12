@@ -316,9 +316,9 @@ export default function DashboardPage() {
 
               <div className="dash-meters-stack">
                 <ScoreMeterRow label="Jerawat & Inflamasi (Acne)" value={analysis?.acne_score} />
-                <ScoreMeterRow label="Dehidrasi & Kulit Kering (Dryness)" value={analysis?.dryness_score} />
-                <ScoreMeterRow label="Produksi Minyak & Sebum (Oiliness)" value={analysis?.oiliness_score} />
-                <ScoreMeterRow label="Noda Gelap & Pigmen (Dark Spots)" value={analysis?.darkspots_score} />
+                <ScoreMeterRow label="Dehidrasi & Kulit Kering (Dryness)" value={analysis?.dry_skin_score} />
+                <ScoreMeterRow label="Produksi Minyak & Sebum (Oiliness)" value={analysis?.oily_skin_score} />
+                <ScoreMeterRow label="Noda Gelap & Pigmen (Dark Spots)" value={analysis?.dark_spots_score} />
                 <ScoreMeterRow label="Garis Halus & Kerutan (Wrinkles)" value={analysis?.wrinkles_score} />
               </div>
             </section>
