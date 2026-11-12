@@ -2481,7 +2481,9 @@ body::-webkit-scrollbar,
 }
 
 .side-nav-link.active .side-nav-text {
-  color: var(--sunflower-yellow);
+  /* Navy (bukan kuning) — sesuai foto referensi roboy 2026-11-12 14:26:
+     teks menu aktif navy tebal di atas pil base; kuning hanya di ikon. */
+  color: var(--text-main);
   font-weight: 700;
   letter-spacing: 0.01em;
 }
@@ -2511,21 +2513,21 @@ body::-webkit-scrollbar,
    Menembus ke base background Powder Blue #acc8ec
    ═════════════════════════════════════════════════════════════════ */
 /* Slider geroak (efek berongga di belakang item aktif) — per roboy
-   2026-11-12 13:55: pilnya TRANSPARAN (kotak putih dari versi kaca
-   dihapus), jadi yang tampil di menu aktif adalah warna base web
-   (powder blue) lewat lekukan ::before/::after yang tetap biru base —
-   itulah yang bikin efek rongga (cekung di tepi kanan). Tidak ada lagi
-   kotak putih maupun kotak biru di belakang item aktif.
-   Alignment: langkah geser 54px (pitch tautan sebenarnya 54px di
-   expanded maupun mini rail) + top 1px, supaya lekukan pas di tautan
-   aktif (dulu 52px bikin meleset 2px per item = "menceng ke bawah"). */
+   2026-11-12 14:26 (foto referensi): pilnya kembali WARNA BASE
+   (powder blue #acc8ec, sama persis dengan konten di kanan) — jadi menu
+   aktif tampil sebagai "lubang" yang nunjukin warna base, dengan
+   lekukan ::before/::after (biru base) sebagai cekungan rongga di tepi
+   kanan. Bukan kotak putih/kaca, bukan kotak biru yang miring: pil ini
+   SUDAH lurus (langkah geser 54px = pitch tautan sebenarnya, selisih
+   0px), jadi tampil sebagai kapsul base yang rapi, bukan kotak.
+   Teks menu aktif ikut jadi NAVY (bukan kuning) sesuai foto. */
 .magic-geroak-slider {
   position: absolute;
   top: 1px;
   right: 0;
   left: 10px;
   height: 52px;
-  background: transparent;
+  background: var(--bg-app);
   border-top-left-radius: 26px;
   border-bottom-left-radius: 26px;
   border-top-right-radius: 0;
