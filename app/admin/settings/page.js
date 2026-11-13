@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Cpu,
@@ -22,7 +22,10 @@ import {
   Send,
   Database,
   Eye,
-  EyeOff
+  EyeOff,
+  Plus,
+  X,
+  KeyRound
 } from "lucide-react";
 import {
   getAdminSettings,
@@ -31,6 +34,7 @@ import {
   updateAdminProfile,
   testAdminDb,
   testAdminAi,
+  detectAiProvider,
   testAdminEmail,
   testAdminWa,
   pickObject
@@ -53,6 +57,16 @@ const inputStyle = {
   transition: "all 0.18s ease"
 };
 
+// Provider AI yang dikenal — satu sumber kebenaran untuk bilah pilih
+// model, modal tambah key, dan label uji. Tiap provider punya tepat satu
+// kunci rahasia + satu nama model (+ base URL, kecuali Gemini).
+const AI_PROVIDERS = [
+  { id: "gemini", label: "Gemini", detail: "Google AI Studio", keyField: "GEMINI_API_KEY", modelField: "AI_MODEL", defaultModel: "gemini-1.5-flash", baseUrlField: null, defaultBaseUrl: "" },
+  { id: "nvidia", label: "NVIDIA", detail: "OpenAI-compatible", keyField: "NVIDIA_API_KEY", modelField: "AI_MODEL_NVIDIA", defaultModel: "meta/llama-3.1-8b-instruct", baseUrlField: "AI_NVIDIA_BASE_URL", defaultBaseUrl: "https://integrate.api.nvidia.com/v1" },
+  { id: "groq", label: "Groq", detail: "GroqCloud", keyField: "GROQ_API_KEY", modelField: "AI_MODEL_GROQ", defaultModel: "llama-3.3-70b-versatile", baseUrlField: "AI_GROQ_BASE_URL", defaultBaseUrl: "https://api.groq.com/openai/v1" },
+  { id: "deepseek", label: "DeepSeek", detail: "DeepSeek Platform", keyField: "DEEPSEEK_API_KEY", modelField: "AI_MODEL_DEEPSEEK", defaultModel: "deepseek-chat", baseUrlField: "AI_DEEPSEEK_BASE_URL", defaultBaseUrl: "https://api.deepseek.com/v1" },
+];
+
 function SettingsContent() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") || "ai";
@@ -64,6 +78,21 @@ function SettingsContent() {
   const [denied, setDenied] = useState(false);
   const [error, setError] = useState(null);
   const [savingSettings, setSavingSettings] = useState(false);
+
+  // Bilah pilih model: provider yang sedang diganti (PATCH + auto-test).
+  const [switchingProvider, setSwitchingProvider] = useState(false);
+
+  // Modal "Tambahkan API key model AI".
+  const [keyModalOpen, setKeyModalOpen] = useState(false);
+  const [modalKey, setModalKey] = useState("");
+  const [modalShowKey, setModalShowKey] = useState(false);
+  const [detecting, setDetecting] = useState(false);
+  const [detectResult, setDetectResult] = useState(null); // { provider, models } | { provider: null }
+  const [detectError, setDetectError] = useState(null);
+  const [selectedModalModel, setSelectedModalModel] = useState("");
+  const [savingKey, setSavingKey] = useState(false);
+  const detectTimer = useRef(null);
+  const detectSeq = useRef(0);
 
   // Admin Profile states (for "admin" tab)
   const [adminProfile, setAdminProfile] = useState(null);
@@ -83,10 +112,11 @@ function SettingsContent() {
 
   const toast = useToast();
 
-  // Provider AI aktif (AI_PROVIDER): "gemini" (bawaan) atau "nvidia".
-  // Menentukan field kunci + model + label uji yang tampil di tab AI.
+  // Provider AI aktif (AI_PROVIDER) + konfigurasinya. Bilah pilih model
+  // hanya menampilkan provider yang SUDAH TERDAFTAR (kunci tersimpan).
   const provider = values.AI_PROVIDER || "gemini";
-  const isNvidia = provider === "nvidia";
+  const providerCfg = AI_PROVIDERS.find((p) => p.id === provider) || AI_PROVIDERS[0];
+  const isProviderRegistered = (p) => Boolean(meta[p.keyField]?.configured);
 
   async function loadAllData() {
     setLoading(true);
@@ -164,6 +194,103 @@ function SettingsContent() {
       toast.error(err.message || "Gagal menyimpan konfigurasi.");
     } finally {
       setSavingSettings(false);
+    }
+  }
+
+  // ── Bilah pilih model ──
+  // Pilih provider lain yang sudah terdaftar: simpan AI_PROVIDER dulu
+  // (supaya test-ai memakai provider baru), lalu uji respon otomatis.
+  async function handleSelectProvider(p) {
+    if (p.id === provider || switchingProvider || !isProviderRegistered(p)) return;
+    setSwitchingProvider(true);
+    try {
+      await updateAdminSettings({ AI_PROVIDER: p.id });
+      setValues((prev) => ({ ...prev, AI_PROVIDER: p.id }));
+      toast.success(`Model aktif diganti ke ${p.label} (${values[p.modelField] || p.defaultModel}).`);
+      await runTest("ai", testAdminAi);
+    } catch (err) {
+      toast.error(err.message || "Gagal mengganti model aktif.");
+    } finally {
+      setSwitchingProvider(false);
+    }
+  }
+
+  // ── Modal tambah API key: auto-deteksi provider dari kunci ──
+  async function runDetect(key) {
+    const trimmed = (key || "").trim();
+    if (!trimmed) {
+      setDetecting(false);
+      setDetectResult(null);
+      setDetectError(null);
+      return;
+    }
+    const seq = detectSeq.current;
+    setDetecting(true);
+    setDetectResult(null);
+    setDetectError(null);
+    setSelectedModalModel("");
+    try {
+      const obj = pickObject(await detectAiProvider(trimmed));
+      if (seq !== detectSeq.current) return; // sudah ada deteksi yang lebih baru
+      if (obj && obj.provider) {
+        const models = Array.isArray(obj.models) ? obj.models : [];
+        setDetectResult({ provider: obj.provider, models });
+        setSelectedModalModel(models[0] || "");
+      } else {
+        setDetectResult({ provider: null, models: [] });
+        setDetectError(obj?.error || "Kunci tidak cocok dengan provider AI yang dikenal.");
+      }
+    } catch (e) {
+      if (seq !== detectSeq.current) return;
+      setDetectError(e.message || "Gagal mendeteksi provider dari kunci ini.");
+    } finally {
+      if (seq === detectSeq.current) setDetecting(false);
+    }
+  }
+
+  function scheduleDetect(key) {
+    if (detectTimer.current) clearTimeout(detectTimer.current);
+    detectSeq.current += 1; // batalkan deteksi yang masih berjalan
+    setDetectResult(null);
+    setDetectError(null);
+    setSelectedModalModel("");
+    const trimmed = (key || "").trim();
+    if (!trimmed) {
+      setDetecting(false);
+      return;
+    }
+    setDetecting(true);
+    detectTimer.current = setTimeout(() => runDetect(key), 700);
+  }
+
+  function closeKeyModal() {
+    if (detectTimer.current) clearTimeout(detectTimer.current);
+    detectSeq.current += 1;
+    setKeyModalOpen(false);
+    setModalKey("");
+    setModalShowKey(false);
+    setDetecting(false);
+    setDetectResult(null);
+    setDetectError(null);
+    setSelectedModalModel("");
+    setSavingKey(false);
+  }
+
+  // Simpan kunci + model hasil deteksi. TIDAK mengubah AI_PROVIDER:
+  // provider aktif hanya berubah bila admin memilihnya di bilah pilih model.
+  async function handleSaveModalKey() {
+    const cfg = AI_PROVIDERS.find((p) => p.id === detectResult?.provider);
+    if (!cfg || !selectedModalModel || !modalKey.trim()) return;
+    setSavingKey(true);
+    try {
+      await updateAdminSettings({ [cfg.keyField]: modalKey.trim(), [cfg.modelField]: selectedModalModel });
+      toast.success(`API key ${cfg.label} tersimpan — model ${selectedModalModel} kini terdaftar.`);
+      closeKeyModal();
+      await loadAllData();
+    } catch (err) {
+      toast.error(err.message || "Gagal menyimpan API key.");
+    } finally {
+      setSavingKey(false);
     }
   }
 
@@ -299,7 +426,7 @@ function SettingsContent() {
           </div>
           <h3 className="config-selector-title">Konfigurasi Model AI</h3>
           <p className="config-selector-desc">
-            Parameter model LLM, batas token, suhu kreativitas, ambang inferensi VGG, dan mode simulasi.
+            Parameter model LLM, batas token, suhu kreativitas, dan mode simulasi.
           </p>
         </button>
 
@@ -339,7 +466,7 @@ function SettingsContent() {
           </div>
           <h3 className="config-selector-title">Konfigurasi Akun Admin</h3>
           <p className="config-selector-desc">
-            Profil identitas administrator, nama akun, level akses root sistem, dan pembaruan kata sandi.
+            Profil identitas administrator, nama akun, level akses root sistem, pembaruan kata sandi, serta ambang inferensi & kuota operasional.
           </p>
         </button>
       </div>
@@ -361,39 +488,67 @@ function SettingsContent() {
                 Parameter berikut mengendalikan model bahasa yang digunakan oleh <strong>Laomera Asisten</strong> untuk membaca hasil diagnosis dan memberikan edukasi bahan aktif.
               </p>
 
+              {/* Bilah pilih model: hanya provider yang sudah terdaftar bisa dipilih. */}
               <div style={{ marginBottom: "18px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)", display: "block", marginBottom: "8px" }}>AI_PROVIDER (Penyedia Model AI)</span>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                  <button
-                    type="button"
-                    onClick={() => setValues((p) => ({ ...p, AI_PROVIDER: "gemini" }))}
-                    style={{ padding: "10px 20px", borderRadius: "28px", border: "1px solid rgba(0, 0, 0, 0.04)", cursor: "pointer", fontSize: "13.5px", fontWeight: 600, background: !isNvidia ? "var(--sunflower-yellow)" : "#e0e0e0", color: "#071236" }}
-                  >
-                    Gemini (Google AI Studio)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setValues((p) => ({ ...p, AI_PROVIDER: "nvidia" }))}
-                    style={{ padding: "10px 20px", borderRadius: "28px", border: "1px solid rgba(0, 0, 0, 0.04)", cursor: "pointer", fontSize: "13.5px", fontWeight: 600, background: isNvidia ? "var(--sunflower-yellow)" : "#e0e0e0", color: "#071236" }}
-                  >
-                    NVIDIA (OpenAI-compatible)
-                  </button>
+                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)", display: "block", marginBottom: "8px" }}>Model AI Aktif — pilih model yang sudah terdaftar</span>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px" }}>
+                  {AI_PROVIDERS.map((p) => {
+                    const registered = isProviderRegistered(p);
+                    const active = provider === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        aria-pressed={active}
+                        disabled={!registered || switchingProvider}
+                        onClick={() => handleSelectProvider(p)}
+                        style={{ textAlign: "left", padding: "12px 16px", borderRadius: "16px", border: active ? "2px solid var(--sunflower-yellow)" : "1px solid rgba(0, 0, 0, 0.08)", cursor: !registered ? "not-allowed" : "pointer", background: active ? "var(--sunflower-yellow)" : registered ? "#e0e0e0" : "#f1f5f9", color: "#071236", opacity: !registered ? 0.65 : 1, display: "grid", gap: "2px" }}
+                      >
+                        <span style={{ fontSize: "13.5px", fontWeight: 700 }}>{p.label} ({p.detail}){active ? " • Aktif" : ""}</span>
+                        <span style={{ fontSize: "12px", color: "rgba(7, 18, 54, 0.7)", wordBreak: "break-all" }}>{registered ? (values[p.modelField] || p.defaultModel) : "Belum ada API key"}</span>
+                      </button>
+                    );
+                  })}
                 </div>
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Chatbot memakai provider yang dipilih. Perubahan langsung berlaku setelah disimpan — tanpa restart.</span>
+                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Memilih model lain langsung menyimpan provider aktif dan menguji responnya otomatis. Provider tanpa API key tidak bisa dipilih — tambahkan dulu lewat tombol di bawah.</span>
+              </div>
+
+              <div style={{ marginBottom: "18px" }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setKeyModalOpen(true)}
+                >
+                  <Plus size={15} /> <span>Tambahkan API key model AI</span>
+                </button>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
                 <label style={{ display: "grid", gap: "6px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>{isNvidia ? "AI_MODEL_NVIDIA (Nama Model NVIDIA)" : "AI_MODEL (Nama Model LLM)"}</span>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>{providerCfg.modelField} (Nama Model {providerCfg.label})</span>
                   <input
                     style={inputStyle}
                     type="text"
-                    placeholder={isNvidia ? "meta/llama-3.1-8b-instruct" : "gemini-1.5-flash"}
-                    value={isNvidia ? (values.AI_MODEL_NVIDIA ?? "") : (values.AI_MODEL ?? "")}
-                    onChange={(e) => setValues((p) => ({ ...p, [isNvidia ? "AI_MODEL_NVIDIA" : "AI_MODEL"]: e.target.value }))}
+                    placeholder={providerCfg.defaultModel}
+                    value={values[providerCfg.modelField] ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, [providerCfg.modelField]: e.target.value }))}
                   />
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>{isNvidia ? "Default: meta/llama-3.1-8b-instruct" : "Default: gemini-1.5-flash"}</span>
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Default: {providerCfg.defaultModel}</span>
                 </label>
+
+                {providerCfg.baseUrlField && (
+                  <label style={{ display: "grid", gap: "6px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>{providerCfg.baseUrlField} (Endpoint {providerCfg.label})</span>
+                    <input
+                      style={inputStyle}
+                      type="text"
+                      placeholder={providerCfg.defaultBaseUrl}
+                      value={values[providerCfg.baseUrlField] ?? ""}
+                      onChange={(e) => setValues((p) => ({ ...p, [providerCfg.baseUrlField]: e.target.value }))}
+                    />
+                    <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kosongkan untuk memakai endpoint bawaan {providerCfg.label}.</span>
+                  </label>
+                )}
 
                 <label style={{ display: "grid", gap: "6px" }}>
                   <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_MAX_TOKENS (Batas Token)</span>
@@ -432,138 +587,13 @@ function SettingsContent() {
                   <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Gunakan 1 jika kuota API habis</span>
                 </label>
               </div>
-            </div>
-
-            {/* Card 2: Ambang Batas Inferensi & Kuota Operasional */}
-            <div className="standalone-config-card card-delay-2">
-              <div className="folder-section-head">
-                <div className="admin-card-title">
-                  <Sliders size={18} color="var(--brand-amber)" />
-                  <span>Ambang Batas Inferensi & Kuota Operasional</span>
-                </div>
-                <span className="admin-card-badge">VGG & LIMITS</span>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
-                <label style={{ display: "grid", gap: "6px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>VGG_THRESHOLD (%)</span>
-                  <input
-                    style={inputStyle}
-                    type="text"
-                    placeholder="40"
-                    value={values.VGG_THRESHOLD ?? ""}
-                    onChange={(e) => setValues((p) => ({ ...p, VGG_THRESHOLD: e.target.value }))}
-                  />
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Ambang minimal klasifikasi kondisi wajah</span>
-                </label>
-
-                <label style={{ display: "grid", gap: "6px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>SCAN_DAILY_QUOTA (Batas Scan Harian)</span>
-                  <input
-                    style={inputStyle}
-                    type="text"
-                    placeholder="5"
-                    value={values.SCAN_DAILY_QUOTA ?? ""}
-                    onChange={(e) => setValues((p) => ({ ...p, SCAN_DAILY_QUOTA: e.target.value }))}
-                  />
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kosongkan untuk tanpa batas</span>
-                </label>
-
-                <label style={{ display: "grid", gap: "6px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>MAINTENANCE_MODE</span>
-                  <select
-                    style={inputStyle}
-                    value={values.MAINTENANCE_MODE ?? "off"}
-                    onChange={(e) => setValues((p) => ({ ...p, MAINTENANCE_MODE: e.target.value }))}
-                  >
-                    <option value="off">off — Sistem Beroperasi Normal</option>
-                    <option value="on">on — Mode Pemeliharaan (Blokir Scan Customer)</option>
-                  </select>
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Admin tetap bisa melakukan scan</span>
-                </label>
-              </div>
-
-              {isNvidia ? (
-                <div style={{ marginTop: "18px" }}>
-                  <label style={{ display: "grid", gap: "6px" }}>
-                    <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
-                      NVIDIA_API_KEY (NVIDIA API Key)
-                      {meta.NVIDIA_API_KEY?.configured && (
-                        <span style={{ color: "#059669", fontWeight: 400, marginLeft: "8px" }}>
-                          • Kunci tersimpan di backend (Kosongkan jika tidak ingin mengubah)
-                        </span>
-                      )}
-                    </span>
-                    <div className="password-field">
-                      <input
-                        style={{ ...inputStyle, paddingRight: "44px" }}
-                        type={showSecrets["NVIDIA_API_KEY"] ? "text" : "password"}
-                        placeholder="••••••••••••••••••••••••••••••••"
-                        value={values.NVIDIA_API_KEY ?? ""}
-                        onChange={(e) => setValues((p) => ({ ...p, NVIDIA_API_KEY: e.target.value }))}
-                      />
-                      <button
-                        type="button"
-                        className="password-toggle password-toggle--dark"
-                        onClick={() => toggleSecret("NVIDIA_API_KEY")}
-                        aria-label={showSecrets["NVIDIA_API_KEY"] ? "Sembunyikan" : "Tampilkan"}
-                        aria-pressed={!!showSecrets["NVIDIA_API_KEY"]}
-                      >
-                        {showSecrets["NVIDIA_API_KEY"] ? <EyeOff size={18} /> : <Eye size={18} />}
-                      </button>
-                    </div>
-                  </label>
-                  <label style={{ display: "grid", gap: "6px", marginTop: "16px" }}>
-                    <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_NVIDIA_BASE_URL (Endpoint NVIDIA)</span>
-                    <input
-                      style={inputStyle}
-                      type="text"
-                      placeholder="https://integrate.api.nvidia.com/v1"
-                      value={values.AI_NVIDIA_BASE_URL ?? ""}
-                      onChange={(e) => setValues((p) => ({ ...p, AI_NVIDIA_BASE_URL: e.target.value }))}
-                    />
-                    <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kosongkan untuk memakai endpoint bawaan NVIDIA.</span>
-                  </label>
-                </div>
-              ) : (
-              <div style={{ marginTop: "18px" }}>
-                <label style={{ display: "grid", gap: "6px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
-                    GEMINI_API_KEY (Google AI Studio Key)
-                    {meta.GEMINI_API_KEY?.configured && (
-                      <span style={{ color: "#059669", fontWeight: 400, marginLeft: "8px" }}>
-                        • Kunci tersimpan di backend (Kosongkan jika tidak ingin mengubah)
-                      </span>
-                    )}
-                  </span>
-                  <div className="password-field">
-<input
-                    style={{ ...inputStyle, paddingRight: "44px" }}
-                    type={showSecrets["GEMINI_API_KEY"] ? "text" : "password"}
-                    placeholder="••••••••••••••••••••••••••••••••"
-                    value={values.GEMINI_API_KEY ?? ""}
-                    onChange={(e) => setValues((p) => ({ ...p, GEMINI_API_KEY: e.target.value }))}
-                  />
-                    <button
-                      type="button"
-                      className="password-toggle password-toggle--dark"
-                      onClick={() => toggleSecret("GEMINI_API_KEY")}
-                      aria-label={showSecrets["GEMINI_API_KEY"] ? "Sembunyikan" : "Tampilkan"}
-                      aria-pressed={!!showSecrets["GEMINI_API_KEY"]}
-                    >
-                      {showSecrets["GEMINI_API_KEY"] ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </label>
-              </div>
-              )}
 
               <div style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
                 <button
                   type="button"
                   className="btn btn-primary"
                   disabled={savingSettings}
-                  onClick={() => handleSaveSettings(["AI_PROVIDER", "AI_MODEL", "AI_MODEL_NVIDIA", "AI_NVIDIA_BASE_URL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "VGG_THRESHOLD", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE", "GEMINI_API_KEY", "NVIDIA_API_KEY"])}
+                  onClick={() => handleSaveSettings(["AI_PROVIDER", "AI_MODEL", "AI_MODEL_NVIDIA", "AI_MODEL_GROQ", "AI_MODEL_DEEPSEEK", "AI_NVIDIA_BASE_URL", "AI_GROQ_BASE_URL", "AI_DEEPSEEK_BASE_URL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "GEMINI_API_KEY", "NVIDIA_API_KEY", "GROQ_API_KEY", "DEEPSEEK_API_KEY"])}
                 >
                   <Save size={15} />
                   <span>{savingSettings ? "Menyimpan Konfigurasi AI…" : "Simpan Konfigurasi AI"}</span>
@@ -582,7 +612,7 @@ function SettingsContent() {
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
-                {renderTestBox("ai", isNvidia ? "Uji Respon NVIDIA AI" : "Uji Respon Gemini AI", <Cpu size={16} color="var(--brand-amber)" />, testAdminAi)}
+                {renderTestBox("ai", `Uji Respon ${providerCfg.label} AI`, <Cpu size={16} color="var(--brand-amber)" />, testAdminAi)}
                 {renderTestBox("db", "Uji Koneksi Database TiDB", <Database size={16} color="#2563eb" />, testAdminDb)}
               </div>
             </div>
@@ -916,9 +946,166 @@ function SettingsContent() {
               </button>
             </div>
           </form>
+
+            {/* Card 3: Ambang Batas Inferensi & Kuota Operasional (pindahan dari tab AI) */}
+            <div className="standalone-config-card card-delay-3">
+              <div className="folder-section-head">
+                <div className="admin-card-title">
+                  <Sliders size={18} color="var(--brand-amber)" />
+                  <span>Ambang Batas Inferensi & Kuota Operasional</span>
+                </div>
+                <span className="admin-card-badge">VGG & LIMITS</span>
+              </div>
+
+              <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "18px" }}>
+                Batas operasional sistem: ambang klasifikasi VGG, kuota scan harian, dan mode pemeliharaan. Ini bukan pengaturan chatbot — karena itu dipindah ke tab ini.
+              </p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>VGG_THRESHOLD (%)</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    placeholder="40"
+                    value={values.VGG_THRESHOLD ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, VGG_THRESHOLD: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Ambang minimal klasifikasi kondisi wajah</span>
+                </label>
+
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>SCAN_DAILY_QUOTA (Batas Scan Harian)</span>
+                  <input
+                    style={inputStyle}
+                    type="text"
+                    placeholder="5"
+                    value={values.SCAN_DAILY_QUOTA ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, SCAN_DAILY_QUOTA: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kosongkan untuk tanpa batas</span>
+                </label>
+
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>MAINTENANCE_MODE</span>
+                  <select
+                    style={inputStyle}
+                    value={values.MAINTENANCE_MODE ?? "off"}
+                    onChange={(e) => setValues((p) => ({ ...p, MAINTENANCE_MODE: e.target.value }))}
+                  >
+                    <option value="off">off — Sistem Beroperasi Normal</option>
+                    <option value="on">on — Mode Pemeliharaan (Blokir Scan Customer)</option>
+                  </select>
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Admin tetap bisa melakukan scan</span>
+                </label>
+              </div>
+
+              <div style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={savingSettings}
+                  onClick={() => handleSaveSettings(["VGG_THRESHOLD", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE"])}
+                >
+                  <Save size={15} />
+                  <span>{savingSettings ? "Menyimpan Ambang & Kuota…" : "Simpan Ambang Batas & Kuota"}</span>
+                </button>
+              </div>
+            </div>
         </>
       )}
     </div>
+
+      {/* ── Modal tambah API key model AI ── */}
+      {keyModalOpen && (
+        <div className="feedback-modal-backdrop" onClick={closeKeyModal} role="dialog" aria-modal="true" aria-label="Tambahkan API key model AI">
+          <div className="feedback-modal-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="feedback-modal-header">
+              <div className="feedback-header-title-wrap">
+                <div className="feedback-icon-badge" aria-hidden="true">
+                  <KeyRound size={20} />
+                </div>
+                <div>
+                  <h3 className="feedback-title">Tambahkan API Key Model AI</h3>
+                  <p className="feedback-subtitle">Tempel kunci — provider & daftar model terdeteksi otomatis.</p>
+                </div>
+              </div>
+              <button type="button" className="feedback-close-btn" onClick={closeKeyModal} aria-label="Tutup">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="feedback-modal-body">
+              <div className="feedback-field-group">
+                <label className="feedback-label" htmlFor="modal-api-key">API Key</label>
+                <div className="password-field">
+                  <input
+                    id="modal-api-key"
+                    style={{ ...inputStyle, paddingRight: "44px" }}
+                    type={modalShowKey ? "text" : "password"}
+                    placeholder="Tempel API key di sini"
+                    autoComplete="off"
+                    value={modalKey}
+                    onChange={(e) => { setModalKey(e.target.value); scheduleDetect(e.target.value); }}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle password-toggle--dark"
+                    onClick={() => setModalShowKey((v) => !v)}
+                    aria-label={modalShowKey ? "Sembunyikan" : "Tampilkan"}
+                    aria-pressed={modalShowKey}
+                  >
+                    {modalShowKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kunci hanya dipakai untuk mendeteksi provider, lalu disimpan di backend. Kunci tidak pernah ditampilkan kembali.</span>
+              </div>
+
+              {detecting && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "var(--brand-navy)" }}>
+                  <RefreshCw size={15} className="animate-spin" /> Mendeteksi provider dari API key…
+                </div>
+              )}
+
+              {detectError && (
+                <div style={{ padding: "10px 12px", borderRadius: "8px", background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", fontSize: "12.5px", color: "#dc2626" }}>
+                  <strong>Deteksi gagal:</strong> {detectError}
+                </div>
+              )}
+
+              {detectResult?.provider && (
+                <div className="feedback-field-group">
+                  <span className="feedback-label">
+                    Provider terdeteksi: {AI_PROVIDERS.find((p) => p.id === detectResult.provider)?.label || detectResult.provider}
+                  </span>
+                  {detectResult.models.length === 0 ? (
+                    <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>Tidak ada model yang tersedia untuk provider ini.</span>
+                  ) : (
+                    <div style={{ display: "grid", gap: "8px" }} role="radiogroup" aria-label="Pilih model">
+                      {detectResult.models.map((m) => (
+                        <label key={m} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", borderRadius: "12px", border: selectedModalModel === m ? "2px solid var(--sunflower-yellow)" : "1px solid rgba(0, 0, 0, 0.08)", background: selectedModalModel === m ? "rgba(255, 194, 13, 0.15)" : "#f8fafc", cursor: "pointer", fontSize: "13px", fontWeight: selectedModalModel === m ? 600 : 400, color: "var(--brand-navy)" }}>
+                          <input type="radio" name="modal-model" value={m} checked={selectedModalModel === m} onChange={() => setSelectedModalModel(m)} />
+                          <span style={{ wordBreak: "break-all" }}>{m}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Menyimpan hanya menambahkan kunci + model ini. Provider aktif tidak berubah.</span>
+                </div>
+              )}
+            </div>
+
+            <div className="feedback-modal-body" style={{ paddingTop: 0 }}>
+              <div className="feedback-modal-foot" style={{ paddingTop: 0 }}>
+                <button type="button" className="btn btn-secondary btn-sm" onClick={closeKeyModal}>Batal</button>
+                <button type="button" className="btn btn-primary btn-sm" disabled={!detectResult?.provider || !selectedModalModel || savingKey} onClick={handleSaveModalKey}>
+                  {savingKey ? "Menyimpan…" : "Simpan API Key"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
   </div>
   );
 }
