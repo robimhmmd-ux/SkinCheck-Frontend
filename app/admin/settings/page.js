@@ -83,6 +83,11 @@ function SettingsContent() {
 
   const toast = useToast();
 
+  // Provider AI aktif (AI_PROVIDER): "gemini" (bawaan) atau "nvidia".
+  // Menentukan field kunci + model + label uji yang tampil di tab AI.
+  const provider = values.AI_PROVIDER || "gemini";
+  const isNvidia = provider === "nvidia";
+
   async function loadAllData() {
     setLoading(true);
     setError(null);
@@ -356,17 +361,38 @@ function SettingsContent() {
                 Parameter berikut mengendalikan model bahasa yang digunakan oleh <strong>Laomera Asisten</strong> untuk membaca hasil diagnosis dan memberikan edukasi bahan aktif.
               </p>
 
+              <div style={{ marginBottom: "18px" }}>
+                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)", display: "block", marginBottom: "8px" }}>AI_PROVIDER (Penyedia Model AI)</span>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => setValues((p) => ({ ...p, AI_PROVIDER: "gemini" }))}
+                    style={{ padding: "10px 20px", borderRadius: "28px", border: "1px solid rgba(0, 0, 0, 0.04)", cursor: "pointer", fontSize: "13.5px", fontWeight: 600, background: !isNvidia ? "var(--sunflower-yellow)" : "#e0e0e0", color: "#071236" }}
+                  >
+                    Gemini (Google AI Studio)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setValues((p) => ({ ...p, AI_PROVIDER: "nvidia" }))}
+                    style={{ padding: "10px 20px", borderRadius: "28px", border: "1px solid rgba(0, 0, 0, 0.04)", cursor: "pointer", fontSize: "13.5px", fontWeight: 600, background: isNvidia ? "var(--sunflower-yellow)" : "#e0e0e0", color: "#071236" }}
+                  >
+                    NVIDIA (OpenAI-compatible)
+                  </button>
+                </div>
+                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Chatbot memakai provider yang dipilih. Perubahan langsung berlaku setelah disimpan — tanpa restart.</span>
+              </div>
+
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
                 <label style={{ display: "grid", gap: "6px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_MODEL (Nama Model LLM)</span>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>{isNvidia ? "AI_MODEL_NVIDIA (Nama Model NVIDIA)" : "AI_MODEL (Nama Model LLM)"}</span>
                   <input
                     style={inputStyle}
                     type="text"
-                    placeholder="gemini-1.5-flash"
-                    value={values.AI_MODEL ?? ""}
-                    onChange={(e) => setValues((p) => ({ ...p, AI_MODEL: e.target.value }))}
+                    placeholder={isNvidia ? "meta/llama-3.1-8b-instruct" : "gemini-1.5-flash"}
+                    value={isNvidia ? (values.AI_MODEL_NVIDIA ?? "") : (values.AI_MODEL ?? "")}
+                    onChange={(e) => setValues((p) => ({ ...p, [isNvidia ? "AI_MODEL_NVIDIA" : "AI_MODEL"]: e.target.value }))}
                   />
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Default: gemini-1.5-flash</span>
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>{isNvidia ? "Default: meta/llama-3.1-8b-instruct" : "Default: gemini-1.5-flash"}</span>
                 </label>
 
                 <label style={{ display: "grid", gap: "6px" }}>
@@ -404,6 +430,45 @@ function SettingsContent() {
                     <option value="1">1 — Mode Simulasi (Fallback Mock)</option>
                   </select>
                   <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Gunakan 1 jika kuota API habis</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Card: Aturan Jawaban AI (System Prompt) */}
+            <div className="standalone-config-card card-delay-2">
+              <div className="folder-section-head">
+                <div className="admin-card-title">
+                  <Sparkles size={18} color="var(--brand-amber)" />
+                  <span>Aturan Jawaban AI</span>
+                </div>
+                <span className="admin-card-badge">SYSTEM PROMPT</span>
+              </div>
+
+              <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "18px" }}>
+                Aturan ini dibaca chatbot setiap kali menjawab — untuk customer dan admin. Kosongkan salah satu kolom untuk memakai aturan bawaan.
+              </p>
+
+              <div style={{ display: "grid", gap: "16px" }}>
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>Aturan jawaban untuk Customer</span>
+                  <textarea
+                    style={{ ...inputStyle, borderRadius: "16px", minHeight: "140px", resize: "vertical", lineHeight: "1.6", fontFamily: "inherit" }}
+                    placeholder="Kosongkan untuk memakai aturan bawaan."
+                    value={values.AI_SYSTEM_PROMPT_CUSTOMER ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, AI_SYSTEM_PROMPT_CUSTOMER: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Disimpan sebagai AI_SYSTEM_PROMPT_CUSTOMER.</span>
+                </label>
+
+                <label style={{ display: "grid", gap: "6px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>Aturan jawaban untuk Admin</span>
+                  <textarea
+                    style={{ ...inputStyle, borderRadius: "16px", minHeight: "140px", resize: "vertical", lineHeight: "1.6", fontFamily: "inherit" }}
+                    placeholder="Kosongkan untuk memakai aturan bawaan."
+                    value={values.AI_SYSTEM_PROMPT_ADMIN ?? ""}
+                    onChange={(e) => setValues((p) => ({ ...p, AI_SYSTEM_PROMPT_ADMIN: e.target.value }))}
+                  />
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Disimpan sebagai AI_SYSTEM_PROMPT_ADMIN.</span>
                 </label>
               </div>
             </div>
@@ -457,6 +522,49 @@ function SettingsContent() {
                 </label>
               </div>
 
+              {isNvidia ? (
+                <div style={{ marginTop: "18px" }}>
+                  <label style={{ display: "grid", gap: "6px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
+                      NVIDIA_API_KEY (NVIDIA API Key)
+                      {meta.NVIDIA_API_KEY?.configured && (
+                        <span style={{ color: "#059669", fontWeight: 400, marginLeft: "8px" }}>
+                          • Kunci tersimpan di backend (Kosongkan jika tidak ingin mengubah)
+                        </span>
+                      )}
+                    </span>
+                    <div className="password-field">
+                      <input
+                        style={{ ...inputStyle, paddingRight: "44px" }}
+                        type={showSecrets["NVIDIA_API_KEY"] ? "text" : "password"}
+                        placeholder="••••••••••••••••••••••••••••••••"
+                        value={values.NVIDIA_API_KEY ?? ""}
+                        onChange={(e) => setValues((p) => ({ ...p, NVIDIA_API_KEY: e.target.value }))}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle password-toggle--dark"
+                        onClick={() => toggleSecret("NVIDIA_API_KEY")}
+                        aria-label={showSecrets["NVIDIA_API_KEY"] ? "Sembunyikan" : "Tampilkan"}
+                        aria-pressed={!!showSecrets["NVIDIA_API_KEY"]}
+                      >
+                        {showSecrets["NVIDIA_API_KEY"] ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </label>
+                  <label style={{ display: "grid", gap: "6px", marginTop: "16px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>AI_NVIDIA_BASE_URL (Endpoint NVIDIA)</span>
+                    <input
+                      style={inputStyle}
+                      type="text"
+                      placeholder="https://integrate.api.nvidia.com/v1"
+                      value={values.AI_NVIDIA_BASE_URL ?? ""}
+                      onChange={(e) => setValues((p) => ({ ...p, AI_NVIDIA_BASE_URL: e.target.value }))}
+                    />
+                    <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kosongkan untuk memakai endpoint bawaan NVIDIA.</span>
+                  </label>
+                </div>
+              ) : (
               <div style={{ marginTop: "18px" }}>
                 <label style={{ display: "grid", gap: "6px" }}>
                   <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>
@@ -487,13 +595,14 @@ function SettingsContent() {
                   </div>
                 </label>
               </div>
+              )}
 
               <div style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
                 <button
                   type="button"
                   className="btn btn-primary"
                   disabled={savingSettings}
-                  onClick={() => handleSaveSettings(["AI_MODEL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "VGG_THRESHOLD", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE", "GEMINI_API_KEY"])}
+                  onClick={() => handleSaveSettings(["AI_PROVIDER", "AI_MODEL", "AI_MODEL_NVIDIA", "AI_NVIDIA_BASE_URL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "VGG_THRESHOLD", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE", "GEMINI_API_KEY", "NVIDIA_API_KEY", "AI_SYSTEM_PROMPT_CUSTOMER", "AI_SYSTEM_PROMPT_ADMIN"])}
                 >
                   <Save size={15} />
                   <span>{savingSettings ? "Menyimpan Konfigurasi AI…" : "Simpan Konfigurasi AI"}</span>
@@ -512,7 +621,7 @@ function SettingsContent() {
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
-                {renderTestBox("ai", "Uji Respon Gemini AI", <Cpu size={16} color="var(--brand-amber)" />, testAdminAi)}
+                {renderTestBox("ai", isNvidia ? "Uji Respon NVIDIA AI" : "Uji Respon Gemini AI", <Cpu size={16} color="var(--brand-amber)" />, testAdminAi)}
                 {renderTestBox("db", "Uji Koneksi Database TiDB", <Database size={16} color="#2563eb" />, testAdminDb)}
               </div>
             </div>
