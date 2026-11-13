@@ -109,10 +109,13 @@ function ScoreMeterRow({ label, value }) {
   const finite = value != null && Number.isFinite(Number(value));
   const pct = finite ? Math.max(0, Math.min(100, Number(value))) : 0;
 
+  // Skala keparahan (bukan skor kesehatan): makin tinggi persentasenya =
+  // makin kuat kondisi itu terdeteksi = makin perlu perhatian.
+  // Hijau = ringan (<40%), kuning = sedang (40-70%), merah = perlu perhatian (>=70%).
   let barGradient = "linear-gradient(90deg, #d9882a 0%, #e8a149 100%)";
-  if (pct >= 70) {
+  if (pct < 40) {
     barGradient = "linear-gradient(90deg, #2a6a52 0%, #3a8a6d 100%)";
-  } else if (pct < 40) {
+  } else if (pct >= 70) {
     barGradient = "linear-gradient(90deg, #c53030 0%, #e9957d 100%)";
   }
 
@@ -307,7 +310,7 @@ export default function DashboardPage() {
               <div className="panel-header-row">
                 <div>
                   <h2 className="panel-title">Tingkat 5 Kondisi Wajah</h2>
-                  <p className="panel-subtitle">Tingkat persentase kondisi kulit hasil deteksi neural terkini.</p>
+                  <p className="panel-subtitle">Semakin tinggi persentasenya, semakin kuat kondisi tersebut terdeteksi pada wajahmu.</p>
                 </div>
                 <Link href="/history" className="panel-link">
                   Lihat Riwayat &amp; Diagnosis <ChevronRight size={14} />
@@ -320,6 +323,12 @@ export default function DashboardPage() {
                 <ScoreMeterRow label="Produksi Minyak & Sebum (Oiliness)" value={analysis?.oily_skin_score} />
                 <ScoreMeterRow label="Noda Gelap & Pigmen (Dark Spots)" value={analysis?.dark_spots_score} />
                 <ScoreMeterRow label="Garis Halus & Kerutan (Wrinkles)" value={analysis?.wrinkles_score} />
+              </div>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 16px", marginTop: "14px", fontSize: "11.5px", color: "rgba(7, 18, 54, 0.72)", fontWeight: 600 }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><i style={{ width: 10, height: 10, borderRadius: "50%", background: "#2a6a52", display: "inline-block" }} /> Ringan (&lt;40%)</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><i style={{ width: 10, height: 10, borderRadius: "50%", background: "#d9882a", display: "inline-block" }} /> Sedang (40–70%)</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}><i style={{ width: 10, height: 10, borderRadius: "50%", background: "#c53030", display: "inline-block" }} /> Perlu perhatian (≥70%)</span>
               </div>
             </section>
 
