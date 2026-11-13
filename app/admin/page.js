@@ -498,7 +498,7 @@ export default function AdminPage() {
                       <li key={a.id} style={{ border: "1px solid var(--border-subtle)", borderRadius: "10px", padding: "10px 12px" }}>
                         <div style={{ fontWeight: 700, fontSize: "13.5px" }}>{a.name}</div>
                         <div className="muted" style={{ fontSize: "12.5px" }}>{a.email}{a.phone ? ` • ${a.phone}` : ""}</div>
-                        <div style={{ fontSize: "12.5px", marginTop: "4px", color: "#b45309" }}>
+                        <div style={{ fontSize: "12.5px", marginTop: "4px", color: "#92400e" }}>
                           {a.status === "awaiting_biodata"
                             ? "OTP terverifikasi, biodata belum lengkap"
                             : "Mendaftar tapi belum verifikasi OTP"}

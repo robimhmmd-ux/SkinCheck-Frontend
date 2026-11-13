@@ -13,7 +13,7 @@
   --ink-300: #93a0b5;
   --ink-100: #e2e7ef;
 
-  --amber-700: #d99b00;
+  --amber-700: #92400e;
   --amber-600: #e5a700;
   --amber-500: #FFC20D;
   --amber-400: #ffd043;
@@ -35,7 +35,7 @@
   --sand-400: #cfc5b0;
 
    --white: #ffffff;
-  --crimson-500: #c53030;
+  --crimson-500: #991b1b;
   --crimson-100: #feecec;
 
   /* ── 2. Semantic Design Tokens: Base #acc8ec, Midnight Navy & Frosted Glass ── */
@@ -399,14 +399,14 @@ a:hover {
   background: rgba(130, 152, 181, 0.18);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  color: #ffffff;
+  color: #071236;
   border-color: rgba(130, 152, 181, 0.4);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 .btn-secondary:hover {
   background: rgba(130, 152, 181, 0.28);
   border-color: var(--sunflower-yellow);
-  color: var(--sunflower-yellow);
+  color: #071236;
   transform: translateY(-1.5px);
   box-shadow: 0 6px 20px rgba(255, 194, 13, 0.25);
 }
@@ -420,6 +420,12 @@ a:hover {
   background: rgba(130, 152, 181, 0.2);
   color: var(--sunflower-yellow);
 }
+
+/* btn-ghost di workspace terang: teks putih hanya benar di permukaan
+   gelap (header landing). Di dalam workspace (powder blue + kaca putih),
+   tombol ghost jadi navy — berlaku juga untuk hover. */
+.dash-workspace-layout .btn-ghost { color: #071236; }
+.dash-workspace-layout .btn-ghost:hover { color: #071236; }
 
 .btn-sm {
   min-height: 36px;
@@ -449,9 +455,9 @@ a:hover {
   border-radius: var(--radius-pill);
 }
 
-.badge-success { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
-.badge-warning { background: rgba(255, 194, 13, 0.18); color: var(--sunflower-yellow); border: 1px solid rgba(255, 194, 13, 0.4); }
-.badge-danger  { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); }
+.badge-success { background: rgba(16, 185, 129, 0.18); color: #064e3b; border: 1px solid rgba(16, 185, 129, 0.35); }
+.badge-warning { background: rgba(255, 194, 13, 0.18); color: var(--amber-700); border: 1px solid rgba(255, 194, 13, 0.4); }
+.badge-danger  { background: rgba(239, 68, 68, 0.18); color: #991b1b; border: 1px solid rgba(239, 68, 68, 0.35); }
 .badge-navy    { 
   background: linear-gradient(145deg, rgba(7, 18, 54, 0.10) 0%, rgba(7, 18, 54, 0.04) 100%); 
   color: rgba(7, 18, 54, 0.80); 
@@ -462,7 +468,7 @@ a:hover {
   font-weight: 700;
   letter-spacing: 0.08em;
 }
-.badge-amber   { background: rgba(255, 194, 13, 0.18); color: var(--sunflower-yellow); border: 1px solid rgba(255, 194, 13, 0.45); }
+.badge-amber   { background: rgba(255, 194, 13, 0.18); color: var(--amber-700); border: 1px solid rgba(255, 194, 13, 0.45); }
 
 /* ═════════════════════════════════════════════════════════════════
    TOP NAVIGATION BAR (Fullscreen Edge-to-Edge Header)
@@ -5339,12 +5345,12 @@ select option {
 
 .output-accordion-title {
   font-size: 16px;
-  color: #ffffff;
+  color: #071236;
 }
 
 .output-accordion-subtitle {
   font-size: 13px;
-  color: #A0B4CC;
+  color: rgba(7, 18, 54, 0.72);
 }
 
 .output-header-chevron {
@@ -5395,12 +5401,12 @@ select option {
   font-family: var(--font-serif);
   font-size: 32px;
   font-weight: 700;
-  color: var(--sunflower-yellow);
+  color: #071236;
 }
 
 .audit-stat-lbl {
   font-size: 12.5px;
-  color: #A0B4CC;
+  color: rgba(7, 18, 54, 0.8);
 }
 
 .empty-ledger-box {
@@ -5884,7 +5890,7 @@ select option {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #A0B4CC;
+  color: #071236;
   font-weight: 600;
 }
 
@@ -6743,7 +6749,7 @@ select option {
   align-items: center;
   padding: 5px 12px;
   border-radius: var(--radius-full);
-  background: rgba(7, 18, 54, 0.45);
+  background: #071236;
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #ffffff;
   font-size: 11.5px;
@@ -7012,7 +7018,7 @@ select option {
   font-size: 13px;
   font-weight: 600;
   font-family: var(--font-sans);
-  color: #E2E8F0;
+  color: #071236;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -7021,7 +7027,7 @@ select option {
 }
 
 .admin-tab-btn:hover {
-  color: #ffffff;
+  color: #071236;
   background: rgba(130, 152, 181, 0.28);
 }
 
@@ -7039,7 +7045,7 @@ select option {
   padding: 2px 7px;
   border-radius: 9999px;
   background: rgba(130, 152, 181, 0.25);
-  color: #ffffff;
+  color: #071236;
   font-family: var(--font-sans);
   font-feature-settings: "tnum" 1;
 }
@@ -7137,7 +7143,7 @@ select option {
   flex-shrink: 0;
   background: rgba(255, 194, 13, 0.18);
   border: 1px solid rgba(255, 194, 13, 0.35);
-  color: var(--sunflower-yellow);
+  color: #071236;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
@@ -7166,8 +7172,8 @@ select option {
   text-overflow: ellipsis;
 }
 
-.admin-kpi-foot.text-success { color: #10b981; font-weight: 600; }
-.admin-kpi-foot.text-amber { color: var(--sunflower-yellow); font-weight: 600; }
+.admin-kpi-foot.text-success { color: #064e3b; font-weight: 600; }
+.admin-kpi-foot.text-amber { color: var(--amber-700); font-weight: 600; }
 
 /* ── Bento Grid 2 Columns ── */
 .admin-bento-grid {
@@ -7270,7 +7276,7 @@ select option {
 
 .admin-meter-name {
   font-weight: 500;
-  color: #E2E8F0;
+  color: #071236;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -7285,7 +7291,7 @@ select option {
 .admin-meter-pct {
   font-family: var(--font-mono, monospace);
   font-weight: 600;
-  color: var(--sunflower-yellow);
+  color: var(--amber-700);
   font-size: 12.5px;
 }
 
@@ -7341,12 +7347,12 @@ select option {
 .node-label {
   font-size: 11px;
   font-weight: 600;
-  color: #ffffff;
+  color: #071236;
 }
 
 .node-sub {
   font-size: 10px;
-  color: #A0B4CC;
+  color: rgba(7, 18, 54, 0.72);
 }
 
 .pipeline-arrow {
@@ -7375,7 +7381,7 @@ select option {
 }
 
 .spec-key {
-  color: #A0B4CC;
+  color: rgba(7, 18, 54, 0.8);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -7384,7 +7390,7 @@ select option {
 .spec-val {
   font-family: var(--font-mono, monospace);
   font-weight: 600;
-  color: var(--sunflower-yellow);
+  color: #071236;
   background: rgba(130, 152, 181, 0.2);
   padding: 2px 7px;
   border-radius: 6px;
@@ -7447,7 +7453,7 @@ select option {
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #A0B4CC;
+  color: rgba(7, 18, 54, 0.6);
   pointer-events: none;
 }
 
@@ -7465,13 +7471,13 @@ select option {
   font-weight: 500;
   border: 1px solid rgba(130, 152, 181, 0.32);
   background: rgba(130, 152, 181, 0.18);
-  color: #A0B4CC;
+  color: #071236;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .admin-filter-chip:hover {
-  color: #ffffff;
+  color: #071236;
   border-color: rgba(255, 194, 13, 0.5);
 }
 
@@ -7543,7 +7549,7 @@ select option {
 
 .product-cell-brand {
   font-size: 11.5px;
-  color: #A0B4CC;
+  color: rgba(7, 18, 54, 0.8);
 }
 
 .category-badge {
@@ -7555,7 +7561,7 @@ select option {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   background: rgba(130, 152, 181, 0.25);
-  color: var(--sunflower-yellow);
+  color: #071236;
 }
 
 .status-badge-active {
@@ -7567,7 +7573,7 @@ select option {
   font-size: 11px;
   font-weight: 600;
   background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  color: #064e3b;
 }
 
 .concern-tag {
@@ -7576,7 +7582,7 @@ select option {
   border-radius: 4px;
   background: rgba(130, 152, 181, 0.2);
   font-size: 11px;
-  color: #E2E8F0;
+  color: #071236;
   margin-right: 4px;
   margin-bottom: 2px;
 }
@@ -8015,22 +8021,22 @@ select option {
 
 .admin-stat-icon-wrap.stat-amber {
   background: rgba(255, 194, 13, 0.2);
-  color: var(--sunflower-yellow);
+  color: #92400e;
 }
 
 .admin-stat-icon-wrap.stat-blue {
   background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
+  color: #1d4ed8;
 }
 
 .admin-stat-icon-wrap.stat-emerald {
   background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
+  color: #064e3b;
 }
 
 .admin-stat-icon-wrap.stat-purple {
   background: rgba(139, 92, 246, 0.2);
-  color: #a78bfa;
+  color: #6d28d9;
 }
 
 .admin-stat-info {
@@ -8299,7 +8305,7 @@ select option {
 
 .status-pill.status-active {
   background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  color: #064e3b;
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 .status-pill.status-active .status-dot {
@@ -8308,7 +8314,7 @@ select option {
 
 .status-pill.status-inactive {
   background: rgba(130, 152, 181, 0.15);
-  color: #A0B4CC;
+  color: #071236;
   border: 1px solid rgba(130, 152, 181, 0.3);
 }
 .status-pill.status-inactive .status-dot {
@@ -8317,7 +8323,7 @@ select option {
 
 .status-pill.status-pending {
   background: rgba(255, 194, 13, 0.15);
-  color: var(--sunflower-yellow);
+  color: var(--amber-700);
   border: 1px solid rgba(255, 194, 13, 0.35);
 }
 .status-pill.status-pending .status-dot {
@@ -8326,7 +8332,7 @@ select option {
 
 .status-pill.status-failed {
   background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  color: #991b1b;
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 .status-pill.status-failed .status-dot {
@@ -8335,7 +8341,7 @@ select option {
 
 .status-pill.status-suspended {
   background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  color: #991b1b;
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 .status-pill.status-suspended .status-dot {
@@ -8357,17 +8363,17 @@ select option {
 
 .score-pill.score-healthy {
   background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  color: #064e3b;
 }
 
 .score-pill.score-moderate {
   background: rgba(255, 194, 13, 0.18);
-  color: var(--sunflower-yellow);
+  color: var(--amber-700);
 }
 
 .score-pill.score-high {
   background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  color: #991b1b;
 }
 
 /* ── Pagination Bar ── */
@@ -8384,7 +8390,7 @@ select option {
 
 .admin-pagination-summary {
   font-size: 13px;
-  color: #A0B4CC;
+  color: rgba(7, 18, 54, 0.72);
   font-weight: 500;
 }
 
@@ -8403,7 +8409,7 @@ select option {
   border: 1px solid rgba(130, 152, 181, 0.35);
   background: rgba(130, 152, 181, 0.2);
   backdrop-filter: blur(8px);
-  color: #ffffff;
+  color: #071236;
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;

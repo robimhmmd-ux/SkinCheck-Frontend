@@ -117,8 +117,8 @@ export default function AdminScansPage() {
           boxShadow: "0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.6)"
         }}
       >
-        <Info size={16} color="#ffffff" style={{ flexShrink: 0 }} />
-        <span style={{ fontSize: "13px", color: "#ffffff" }}>
+        <Info size={16} color="#071236" style={{ flexShrink: 0 }} />
+        <span style={{ fontSize: "13px", color: "#071236" }}>
           <strong>Integritas Medis:</strong> Berkas foto wajah dilindungi privasi data kesehatan. Backend menyajikan metadata, bobot 5 model VGG, dan skor kesehatan kulit secara murni.
         </span>
       </div>

@@ -60,7 +60,7 @@ export default function AdminLogsPage() {
 
     if (lower.includes("login") || lower.includes("masuk")) {
       bg = "rgba(5, 150, 105, 0.08)";
-      color = "#059669";
+      color = "#064e3b";
     } else if (lower.includes("logout") || lower.includes("keluar")) {
       bg = "rgba(100, 116, 139, 0.08)";
       color = "#64748B";
