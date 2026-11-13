@@ -432,18 +432,6 @@ function SettingsContent() {
                 </label>
 
                 <label style={{ display: "grid", gap: "6px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>YOLO_CONFIDENCE</span>
-                  <input
-                    style={inputStyle}
-                    type="text"
-                    placeholder="0.25"
-                    value={values.YOLO_CONFIDENCE ?? values.YOLO_THRESHOLD ?? ""}
-                    onChange={(e) => setValues((p) => ({ ...p, YOLO_CONFIDENCE: e.target.value }))}
-                  />
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Confidence score untuk modul deteksi objek</span>
-                </label>
-
-                <label style={{ display: "grid", gap: "6px" }}>
                   <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>SCAN_DAILY_QUOTA (Batas Scan Harian)</span>
                   <input
                     style={inputStyle}
@@ -505,7 +493,7 @@ function SettingsContent() {
                   type="button"
                   className="btn btn-primary"
                   disabled={savingSettings}
-                  onClick={() => handleSaveSettings(["AI_MODEL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "VGG_THRESHOLD", "YOLO_CONFIDENCE", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE", "GEMINI_API_KEY"])}
+                  onClick={() => handleSaveSettings(["AI_MODEL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "VGG_THRESHOLD", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE", "GEMINI_API_KEY"])}
                 >
                   <Save size={15} />
                   <span>{savingSettings ? "Menyimpan Konfigurasi AI…" : "Simpan Konfigurasi AI"}</span>
