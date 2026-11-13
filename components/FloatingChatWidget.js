@@ -24,6 +24,47 @@ import { useToast } from "./Toast";
 import { renderChatInline } from "./ChatText";
 import { fmtTime } from "../lib/scores";
 
+// Rapikan jawaban bot: baris "• ..." dikelompokkan jadi <ul> asli, baris yang
+// seluruhnya **tebal** jadi judul seksi, baris kosong dilewati (jarak diatur
+// CSS). Pesan user tidak diformat ulang — tampil apa adanya.
+function renderBotMessage(content, msgIdx) {
+  const lines = String(content ?? "").split("\n");
+  const nodes = [];
+  let list = [];
+  const flushList = () => {
+    if (list.length === 0) return;
+    const items = list;
+    list = [];
+    nodes.push(
+      <ul key={`ul-${nodes.length}`} className="chat-list">
+        {items.map((item, i) => (
+          <li key={i}>{renderChatInline(item, `m${msgIdx}-li-${nodes.length}-${i}`)}</li>
+        ))}
+      </ul>
+    );
+  };
+  lines.forEach((rawLine, lIdx) => {
+    const line = rawLine.trim();
+    if (!line) {
+      flushList();
+      return;
+    }
+    if (line.startsWith("•")) {
+      list.push(line.replace(/^•\s*/, ""));
+      return;
+    }
+    flushList();
+    const isTitle = /^\*\*[^*]+\*\*$/.test(line);
+    nodes.push(
+      <p key={`p-${lIdx}`} className={isTitle ? "chat-line-title" : undefined}>
+        {renderChatInline(line, `m${msgIdx}-${lIdx}`)}
+      </p>
+    );
+  });
+  flushList();
+  return nodes;
+}
+
 const QUICK_INQUIRIES = [
   "🌟 Rutin Skincare Pagi & Malam",
   "💧 Atasi Kulit Kering & Dehidrasi",
@@ -339,11 +380,13 @@ export default function FloatingChatWidget() {
                     {m.time && <span className="floating-msg-time">{m.time}</span>}
                   </div>
                   <div className="floating-msg-text">
-                    {m.content.split("\n").map((line, lIdx) => (
-                      <p key={lIdx} style={{ margin: "0 0 4px" }}>
-                        {isBot ? renderChatInline(line, `m${idx}-${lIdx}`) : line}
-                      </p>
-                    ))}
+                    {isBot
+                      ? renderBotMessage(m.content, idx)
+                      : m.content.split("\n").map((line, lIdx) => (
+                          <p key={lIdx} style={{ margin: "0 0 4px" }}>
+                            {line}
+                          </p>
+                        ))}
                   </div>
                 </div>
               </div>
