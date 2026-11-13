@@ -434,45 +434,6 @@ function SettingsContent() {
               </div>
             </div>
 
-            {/* Card: Aturan Jawaban AI (System Prompt) */}
-            <div className="standalone-config-card card-delay-2">
-              <div className="folder-section-head">
-                <div className="admin-card-title">
-                  <Sparkles size={18} color="var(--brand-amber)" />
-                  <span>Aturan Jawaban AI</span>
-                </div>
-                <span className="admin-card-badge">SYSTEM PROMPT</span>
-              </div>
-
-              <p className="muted" style={{ fontSize: "13px", lineHeight: "1.6", marginBottom: "18px" }}>
-                Aturan ini dibaca chatbot setiap kali menjawab — untuk customer dan admin. Kosongkan salah satu kolom untuk memakai aturan bawaan.
-              </p>
-
-              <div style={{ display: "grid", gap: "16px" }}>
-                <label style={{ display: "grid", gap: "6px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>Aturan jawaban untuk Customer</span>
-                  <textarea
-                    style={{ ...inputStyle, borderRadius: "16px", minHeight: "140px", resize: "vertical", lineHeight: "1.6", fontFamily: "inherit" }}
-                    placeholder="Kosongkan untuk memakai aturan bawaan."
-                    value={values.AI_SYSTEM_PROMPT_CUSTOMER ?? ""}
-                    onChange={(e) => setValues((p) => ({ ...p, AI_SYSTEM_PROMPT_CUSTOMER: e.target.value }))}
-                  />
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Disimpan sebagai AI_SYSTEM_PROMPT_CUSTOMER.</span>
-                </label>
-
-                <label style={{ display: "grid", gap: "6px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)" }}>Aturan jawaban untuk Admin</span>
-                  <textarea
-                    style={{ ...inputStyle, borderRadius: "16px", minHeight: "140px", resize: "vertical", lineHeight: "1.6", fontFamily: "inherit" }}
-                    placeholder="Kosongkan untuk memakai aturan bawaan."
-                    value={values.AI_SYSTEM_PROMPT_ADMIN ?? ""}
-                    onChange={(e) => setValues((p) => ({ ...p, AI_SYSTEM_PROMPT_ADMIN: e.target.value }))}
-                  />
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Disimpan sebagai AI_SYSTEM_PROMPT_ADMIN.</span>
-                </label>
-              </div>
-            </div>
-
             {/* Card 2: Ambang Batas Inferensi & Kuota Operasional */}
             <div className="standalone-config-card card-delay-2">
               <div className="folder-section-head">
@@ -602,7 +563,7 @@ function SettingsContent() {
                   type="button"
                   className="btn btn-primary"
                   disabled={savingSettings}
-                  onClick={() => handleSaveSettings(["AI_PROVIDER", "AI_MODEL", "AI_MODEL_NVIDIA", "AI_NVIDIA_BASE_URL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "VGG_THRESHOLD", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE", "GEMINI_API_KEY", "NVIDIA_API_KEY", "AI_SYSTEM_PROMPT_CUSTOMER", "AI_SYSTEM_PROMPT_ADMIN"])}
+                  onClick={() => handleSaveSettings(["AI_PROVIDER", "AI_MODEL", "AI_MODEL_NVIDIA", "AI_NVIDIA_BASE_URL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "VGG_THRESHOLD", "SCAN_DAILY_QUOTA", "MAINTENANCE_MODE", "GEMINI_API_KEY", "NVIDIA_API_KEY"])}
                 >
                   <Save size={15} />
                   <span>{savingSettings ? "Menyimpan Konfigurasi AI…" : "Simpan Konfigurasi AI"}</span>
