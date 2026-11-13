@@ -8,10 +8,8 @@ import {
   Camera,
   History,
   ShoppingBag,
-  Bot,
   User,
   LogOut,
-  Home as HomeIcon,
   Sparkles,
   ShieldAlert,
   Users,
@@ -30,7 +28,6 @@ const SIDEBAR_LINKS = [
   { href: "/scan", label: "Scan Kulit", icon: Camera },
   { href: "/history", label: "Riwayat & Diagnosis", icon: History },
   { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
-  { href: "/assistant", label: "Laomera Asisten", icon: Bot },
   { href: "/profile", label: "Profil Akun", icon: User },
 ];
 
@@ -129,17 +126,9 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
     }
 
     // Picu loading screen skeleton + spinner di canvas saat navigasi ke halaman baru
-    if (typeof window !== "undefined" && href !== pathname && href !== "/assistant") {
+    if (typeof window !== "undefined" && href !== pathname) {
       const itemLabel = typeof idx === "number" ? links[idx]?.label : undefined;
       window.dispatchEvent(new CustomEvent("laomera-nav-start", { detail: { href, label: itemLabel } }));
-    }
-
-    if (href === "/assistant") {
-      e.preventDefault();
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("open-laomera-chat"));
-        window.dispatchEvent(new CustomEvent("open-skincheck-chat"));
-      }
     }
 
     try {
@@ -165,13 +154,17 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
               title={collapsed ? "Buka Navigasi Penuh (Klik L)" : "Ciutkan Navigasi ke Icon Rail (Klik L)"}
               aria-label={collapsed ? "Buka Navigasi Penuh" : "Ciutkan Navigasi"}
             >
-              <div className="brand-emblem-icon" aria-hidden="true">
-                L
-              </div>
+              <img
+                src="/laomera-logo.png"
+                alt=""
+                aria-hidden="true"
+                className="brand-emblem-img"
+                width={38}
+                height={38}
+              />
               {!collapsed && (
                 <div className="brand-title-wrap">
                   <span className="brand-title-text">Laomera</span>
-                  <span className="brand-sub-badge">SYSTEM</span>
                 </div>
               )}
             </button>
@@ -192,6 +185,24 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
                   <span>{user?.role === "admin" ? "Administrator Sistem" : user?.email || "Sesi Masuk Aktif"}</span>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Kartu peringatan verifikasi (roboy 2026-11-13): akun yang belum
+              verifikasi melihat kenapa tautan di bawah ini meredup/terkunci —
+              menu baru terbuka setelah verifikasi OTP WhatsApp + biodata
+              selesai. Penjelasan lengkapnya ada di modal verifikasi. */}
+          {!collapsed && isUnverified && (
+            <div className="side-slide-verify-card" role="alert">
+              <div className="verify-card-head">
+                <ShieldAlert size={14} />
+                <span>Akun belum terverifikasi</span>
+              </div>
+              <p>
+                Menu di bawah ini masih terkunci karena akunmu belum verifikasi.
+                Selesaikan verifikasi nomor WhatsApp dan biodata di pop-up yang
+                muncul supaya semua fitur terbuka.
+              </p>
             </div>
           )}
 
@@ -273,21 +284,6 @@ export default function WorkspaceSidebar({ collapsed = false, onToggle, onClose 
 
           {/* Footer Controls */}
           <div className="side-slide-footer">
-            <Link
-              href="/"
-              className="side-slide-foot-link iso-pro"
-              title={collapsed ? undefined : "Ke Beranda"}
-            >
-              <span className="iso-layer iso-layer-1" aria-hidden="true" />
-              <span className="iso-layer iso-layer-2" aria-hidden="true" />
-              <span className="iso-layer iso-layer-3" aria-hidden="true" />
-
-              <span className="side-nav-icon-wrap" aria-hidden="true">
-                <HomeIcon size={17} />
-              </span>
-              {!collapsed && <span>Ke Beranda</span>}
-              {collapsed && <div className="text side-nav-tooltip">Ke Beranda</div>}
-            </Link>
             <button
               type="button"
               className="side-slide-logout-btn iso-pro"

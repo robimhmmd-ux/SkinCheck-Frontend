@@ -15,7 +15,7 @@ import {
   Sparkles,
   CheckCircle2
 } from "lucide-react";
-import { getMe, logout, pickUser, updateMyProfile } from "../../lib/api";
+import { getMe, logout, pickUser, updateMyProfile, clearAssistantHistory } from "../../lib/api";
 import { ErrorBox, Loading } from "../../components/Notice";
 import { useToast, ConfirmDialog } from "../../components/Toast";
 
@@ -85,14 +85,21 @@ export default function ProfilePage() {
   }
 
   async function onLogout() {
-    try { 
-      await logout(); 
-      toast.success("Anda berhasil logout."); 
-      setUser(null); 
-      router.push("/"); 
+    try {
+      // Hapus percakapan chatbot saat logout (roboy 2026-11-13): sama seperti
+      // sidebar/header — riwayat di backend ikut terhapus (server juga
+      // menghapusnya di endpoint logout) dan widget direset lewat event.
+      try { await clearAssistantHistory(); } catch {}
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("laomera-chat-clear"));
+      }
+      await logout();
+      toast.success("Anda berhasil logout.");
+      setUser(null);
+      router.push("/");
       router.refresh();
-    } catch (e) { 
-      setError(e); 
+    } catch (e) {
+      setError(e);
     }
   }
 

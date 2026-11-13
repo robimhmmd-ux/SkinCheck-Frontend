@@ -70,21 +70,13 @@ export default function FloatingChatWidget() {
     };
   }, [pathname]);
 
-  // 2. Strict Requirement: When navigating to Account Settings / Profile, automatically CLOSE the chat!
-  // "dan ga kan ke close saat kita pindah pindah ke fitur lainya, kecuali saat kita pindah di setting akun"
-  useEffect(() => {
-    if (pathname && (pathname.startsWith("/profile") || pathname.startsWith("/settings"))) {
-      setIsOpen(false);
-    }
-  }, [pathname]);
+  // 2. (Dulu: chat otomatis TUTUP saat pindah ke /profile atau /settings.
+  // 2026-11-13 roboy membalikkan: Laomera Asisten harus ada di SEMUA
+  // halaman, pojok kanan bawah — jadi penutup otomatis itu dihapus.)
 
   // 3. Listen to external events (e.g., clicking "Konsultasi AI" or "Asisten AI" anywhere in app)
   useEffect(() => {
     function handleOpenChat() {
-      // Don't open if on profile/settings
-      if (pathname && (pathname.startsWith("/profile") || pathname.startsWith("/settings"))) {
-        return;
-      }
       setIsOpen(true);
     }
     window.addEventListener("open-laomera-chat", handleOpenChat);
@@ -93,7 +85,7 @@ export default function FloatingChatWidget() {
     // Also check URL parameter ?openChat=1
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("openChat") === "1" && !pathname.startsWith("/profile")) {
+      if (params.get("openChat") === "1") {
         setIsOpen(true);
       }
     }
@@ -249,12 +241,12 @@ export default function FloatingChatWidget() {
 
   // Determine visibility:
   // Visible if user is logged in (or on workspace routes like /dashboard, /scan, /output, /history, /marketplace).
-  // Strictly hidden when on /profile (Account Settings) as requested!
-  const isProfilePage = pathname && (pathname.startsWith("/profile") || pathname.startsWith("/settings"));
+  // Sejak 2026-11-13: widget tampil di SEMUA halaman saat login, termasuk
+  // /profile dan /settings — tidak ada lagi pengecualian rute.
   const isAuthPage = pathname && (pathname.startsWith("/login") || pathname.startsWith("/register") || pathname.startsWith("/verify-otp"));
   const isWorkspace = pathname && (pathname.startsWith("/dashboard") || pathname.startsWith("/scan") || pathname.startsWith("/output") || pathname.startsWith("/history") || pathname.startsWith("/marketplace"));
-  
-  const shouldRender = !isProfilePage && !isAuthPage && (Boolean(user) || isWorkspace);
+
+  const shouldRender = !isAuthPage && (Boolean(user) || isWorkspace);
   const isAdmin = user?.role === "admin";
   const quickInquiries = isAdmin ? ADMIN_QUICK_INQUIRIES : QUICK_INQUIRIES;
 
