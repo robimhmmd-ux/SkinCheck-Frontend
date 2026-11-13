@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import {
   getAdminDashboard,
+  getAdminTrends,
   getProducts,
   getMe,
   pickObject,
@@ -50,13 +51,18 @@ import { ErrorBox } from "../../components/Notice";
 import AdminDenied from "../../components/AdminDenied";
 import { useToast } from "../../components/Toast";
 
-// Clinical distribution baseline benchmarks for 5 skin condition detectors
-const CONDITION_DISTRIBUTION = [
-  { key: "acne", label: "Acne Vulnerability (Jerawat)", pct: 34, color: "var(--brand-amber)", icon: Flame },
-  { key: "dry", label: "Moisture Barrier Deficit (Dehidrasi)", pct: 28, color: "var(--brand-blue)", icon: Droplets },
-  { key: "oily", label: "Sebum Hyperactivity (Minyak)", pct: 22, color: "var(--brand-peach)", icon: Zap },
-  { key: "spots", label: "Melanin Clustering (Dark Spots)", pct: 18, color: "#8b5cf6", icon: Sun },
-  { key: "wrinkles", label: "Elasticity Deficit (Fine Lines)", pct: 14, color: "var(--brand-sage)", icon: Sparkles }
+// Tampilan kartu "Distribusi 5 Pilar" — label, warna, ikon, dan urutan tetap.
+// Angkanya BUKAN dari sini: diisi data live dari GET /api/v2/admin/trends
+// (avg_score per kondisi, skala 0–100), sumber yang sama dengan halaman
+// Tren Scan dan chatbot. Konstanta pct lama (34/28/22/18/14, "Clinical
+// distribution baseline benchmarks") dihapus 2026-11-13: jumlahnya 116%,
+// bukan distribusi valid, dan tidak berubah mengikuti scan.
+const CONDITION_DISPLAY = [
+  { key: "acne", label: "Acne Vulnerability (Jerawat)", color: "var(--brand-amber)", icon: Flame },
+  { key: "dry", label: "Moisture Barrier Deficit (Dehidrasi)", color: "var(--brand-blue)", icon: Droplets },
+  { key: "oily", label: "Sebum Hyperactivity (Minyak)", color: "var(--brand-peach)", icon: Zap },
+  { key: "dark_spots", label: "Melanin Clustering (Dark Spots)", color: "#8b5cf6", icon: Sun },
+  { key: "wrinkles", label: "Elasticity Deficit (Fine Lines)", color: "var(--brand-sage)", icon: Sparkles }
 ];
 
 export default function AdminPage() {
@@ -64,6 +70,7 @@ export default function AdminPage() {
 
   const [activeTab, setActiveTab] = useState("ringkasan"); // ringkasan | katalog | arsitektur | keamanan
   const [data, setData] = useState(null);
+  const [trendsData, setTrendsData] = useState(null);
   const [productsList, setProductsList] = useState([]);
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
@@ -78,10 +85,11 @@ export default function AdminPage() {
   const fetchData = async () => {
     try {
       setError(null);
-      const [dashRes, prodRes, meRes] = await Promise.allSettled([
+      const [dashRes, prodRes, meRes, trendsRes] = await Promise.allSettled([
         getAdminDashboard(),
         getProducts(),
-        getMe()
+        getMe(),
+        getAdminTrends()
       ]);
 
       if (dashRes.status === "fulfilled") {
@@ -96,6 +104,13 @@ export default function AdminPage() {
 
       if (meRes.status === "fulfilled") {
         setUser(pickUser(meRes.value));
+      }
+
+      // Tren 5 kondisi (data live untuk kartu Distribusi 5 Pilar). Kalau
+      // gagal dimuat, kartu menampilkan "—" (bukan angka palsu); dashboard
+      // tetap jalan karena trends bukan pemicu error di sini.
+      if (trendsRes.status === "fulfilled") {
+        setTrendsData(pickObject(trendsRes.value));
       }
 
       setLastSyncTime(
@@ -194,6 +209,18 @@ export default function AdminPage() {
   const productsCount = data.products ?? "0";
   const activeProductsCount = data.active_products ?? "0";
   const dbLatency = data.health?.db_latency_ms != null ? `${data.health.db_latency_ms} ms` : "38 ms";
+
+  // Distribusi 5 Pilar dari data live (/api/v2/admin/trends): avg_score per
+  // kondisi (0–100), sumber yang sama dengan halaman Tren Scan dan chatbot.
+  // Kalau belum ada scan teranalisis / trends gagal dimuat, pct = null ->
+  // tampil "—", jangan angka palsu.
+  const trendsConditions = Array.isArray(trendsData?.conditions) ? trendsData.conditions : [];
+  const trendsAnalyzed = trendsData?.analyzed_scans ?? 0;
+  const liveDistribution = CONDITION_DISPLAY.map((row) => {
+    const found = trendsConditions.find((c) => c.key === row.key);
+    const pct = trendsAnalyzed > 0 && found && found.avg_score != null ? Number(found.avg_score) : null;
+    return { ...row, pct };
+  });
 
   return (
     <div className="admin-stage-container">
@@ -336,23 +363,25 @@ export default function AdminPage() {
               </div>
 
               <p className="muted" style={{ fontSize: "13px", marginBottom: "18px" }}>
-                Frekuensi agregat parameter kondisi wajah yang dideteksi oleh CNN transfer learning pada citra wajah terverifikasi:
+                {trendsAnalyzed > 0
+                  ? `Rata-rata skor 5 kondisi kulit dari ${trendsAnalyzed} scan yang telah dianalisis (skala 0–100) — sama dengan halaman Tren Scan:`
+                  : "Belum ada scan yang telah dianalisis — angka tampil setelah ada hasil scan."}
               </p>
 
               <div className="admin-meters-list">
-                {CONDITION_DISTRIBUTION.map(({ key, label, pct, color, icon: Icon }) => (
+                {liveDistribution.map(({ key, label, pct, color, icon: Icon }) => (
                   <div key={key} className="admin-meter-row">
                     <div className="admin-meter-label-row">
                       <span className="admin-meter-name">
                         <Icon size={14} color={color} />
                         <span>{label}</span>
                       </span>
-                      <span className="admin-meter-pct">{pct}%</span>
+                      <span className="admin-meter-pct">{pct != null ? `${pct}%` : "—"}</span>
                     </div>
                     <div className="admin-meter-track">
                       <div
                         className="admin-meter-fill"
-                        style={{ width: `${pct}%`, background: color }}
+                        style={{ width: `${pct != null ? Math.max(0, Math.min(100, pct)) : 0}%`, background: color }}
                       />
                     </div>
                   </div>
