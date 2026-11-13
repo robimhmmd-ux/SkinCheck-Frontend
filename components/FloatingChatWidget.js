@@ -39,6 +39,7 @@ const ADMIN_QUICK_INQUIRIES = [
   "🔍 Scan terbaru dari siapa?",
   "📦 Produk apa saja di katalog?",
   "📈 Tren masalah kulit pengguna?",
+  "💬 Customer sering nanya apa?",
   "🕒 Aktivitas terakhir di website?",
 ];
 
