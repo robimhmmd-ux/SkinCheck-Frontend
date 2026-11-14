@@ -90,6 +90,7 @@ function SettingsContent() {
   const [detectResult, setDetectResult] = useState(null); // { provider, models } | { provider: null }
   const [detectError, setDetectError] = useState(null);
   const [selectedModalModel, setSelectedModalModel] = useState("");
+  const [modelFilter, setModelFilter] = useState(""); // pencarian di daftar model modal
   const [savingKey, setSavingKey] = useState(false);
   const detectTimer = useRef(null);
   const detectSeq = useRef(0);
@@ -235,7 +236,12 @@ function SettingsContent() {
       if (obj && obj.provider) {
         const models = Array.isArray(obj.models) ? obj.models : [];
         setDetectResult({ provider: obj.provider, models });
-        setSelectedModalModel(models[0] || "");
+        // Pra-pilih model yang sedang terkonfigurasi untuk provider ini
+        // bila ada di daftar; kalau tidak, baru model pertama.
+        const cfg = AI_PROVIDERS.find((p) => p.id === obj.provider);
+        const configured = cfg ? (values[cfg.modelField] || "") : "";
+        setSelectedModalModel(models.includes(configured) ? configured : (models[0] || ""));
+        setModelFilter("");
       } else {
         setDetectResult({ provider: null, models: [] });
         setDetectError(obj?.error || "Kunci tidak cocok dengan provider AI yang dikenal.");
@@ -254,6 +260,7 @@ function SettingsContent() {
     setDetectResult(null);
     setDetectError(null);
     setSelectedModalModel("");
+    setModelFilter("");
     const trimmed = (key || "").trim();
     if (!trimmed) {
       setDetecting(false);
@@ -273,6 +280,7 @@ function SettingsContent() {
     setDetectResult(null);
     setDetectError(null);
     setSelectedModalModel("");
+    setModelFilter("");
     setSavingKey(false);
   }
 
@@ -395,6 +403,11 @@ function SettingsContent() {
       </div>
     );
   }
+
+  // Daftar model di modal, disaring kotak pencarian (tidak case-sensitive).
+  const filteredModalModels = (detectResult?.models || []).filter((m) =>
+    m.toLowerCase().includes(modelFilter.trim().toLowerCase())
+  );
 
   return (
     <div className="admin-stage-container">
@@ -1081,14 +1094,29 @@ function SettingsContent() {
                   {detectResult.models.length === 0 ? (
                     <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>Tidak ada model yang tersedia untuk provider ini.</span>
                   ) : (
-                    <div style={{ display: "grid", gap: "8px" }} role="radiogroup" aria-label="Pilih model">
-                      {detectResult.models.map((m) => (
-                        <label key={m} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", borderRadius: "12px", border: selectedModalModel === m ? "2px solid var(--sunflower-yellow)" : "1px solid rgba(0, 0, 0, 0.08)", background: selectedModalModel === m ? "rgba(255, 194, 13, 0.15)" : "#f8fafc", cursor: "pointer", fontSize: "13px", fontWeight: selectedModalModel === m ? 600 : 400, color: "var(--brand-navy)" }}>
-                          <input type="radio" name="modal-model" value={m} checked={selectedModalModel === m} onChange={() => setSelectedModalModel(m)} />
-                          <span style={{ wordBreak: "break-all" }}>{m}</span>
-                        </label>
-                      ))}
-                    </div>
+                    <>
+                      <input
+                        type="text"
+                        style={inputStyle}
+                        placeholder="Cari model… (mis. llama)"
+                        aria-label="Cari model"
+                        value={modelFilter}
+                        onChange={(e) => setModelFilter(e.target.value)}
+                      />
+                      {filteredModalModels.length === 0 ? (
+                        <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>Tidak ada model yang cocok dengan “{modelFilter}”.</span>
+                      ) : (
+                        <div style={{ display: "grid", gap: "8px", maxHeight: "280px", overflowY: "auto", paddingRight: "4px" }} role="radiogroup" aria-label="Pilih model">
+                          {filteredModalModels.map((m) => (
+                            <label key={m} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", borderRadius: "12px", border: selectedModalModel === m ? "2px solid var(--sunflower-yellow)" : "1px solid rgba(0, 0, 0, 0.08)", background: selectedModalModel === m ? "rgba(255, 194, 13, 0.15)" : "#f8fafc", cursor: "pointer", fontSize: "13px", fontWeight: selectedModalModel === m ? 600 : 400, color: "var(--brand-navy)" }}>
+                              <input type="radio" name="modal-model" value={m} checked={selectedModalModel === m} onChange={() => setSelectedModalModel(m)} />
+                              <span style={{ wordBreak: "break-all" }}>{m}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                      <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Menampilkan {filteredModalModels.length} dari {detectResult.models.length} model.</span>
+                    </>
                   )}
                   <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Menyimpan hanya menambahkan kunci + model ini. Provider aktif tidak berubah.</span>
                 </div>
