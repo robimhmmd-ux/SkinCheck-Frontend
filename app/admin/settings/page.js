@@ -62,7 +62,6 @@ const inputStyle = {
 // kunci rahasia + satu nama model (+ base URL, kecuali Gemini).
 const AI_PROVIDERS = [
   { id: "gemini", label: "Gemini", detail: "Google AI Studio", keyField: "GEMINI_API_KEY", modelField: "AI_MODEL", defaultModel: "gemini-1.5-flash", baseUrlField: null, defaultBaseUrl: "" },
-  { id: "nvidia", label: "NVIDIA", detail: "OpenAI-compatible", keyField: "NVIDIA_API_KEY", modelField: "AI_MODEL_NVIDIA", defaultModel: "meta/llama-3.1-8b-instruct", baseUrlField: "AI_NVIDIA_BASE_URL", defaultBaseUrl: "https://integrate.api.nvidia.com/v1" },
   { id: "groq", label: "Groq", detail: "GroqCloud", keyField: "GROQ_API_KEY", modelField: "AI_MODEL_GROQ", defaultModel: "llama-3.3-70b-versatile", baseUrlField: "AI_GROQ_BASE_URL", defaultBaseUrl: "https://api.groq.com/openai/v1" },
 ];
 
@@ -131,7 +130,7 @@ function SettingsContent() {
     try {
       const raw = meta.AI_VERIFIED_PROVIDERS?.value ?? values.AI_VERIFIED_PROVIDERS ?? "[]";
       const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
-      return Array.isArray(parsed) ? parsed.filter((p) => ["gemini", "nvidia", "groq"].includes(p)) : [];
+      return Array.isArray(parsed) ? parsed.filter((p) => ["gemini", "groq"].includes(p)) : [];
     } catch {
       return [];
     }
@@ -714,7 +713,7 @@ function SettingsContent() {
                   type="button"
                   className="btn btn-primary"
                   disabled={savingSettings}
-                  onClick={() => handleSaveSettings(["AI_PROVIDER", "AI_MODEL", "AI_MODEL_NVIDIA", "AI_MODEL_GROQ", "AI_NVIDIA_BASE_URL", "AI_GROQ_BASE_URL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "GEMINI_API_KEY", "NVIDIA_API_KEY", "GROQ_API_KEY"])}
+                  onClick={() => handleSaveSettings(["AI_PROVIDER", "AI_MODEL", "AI_MODEL_GROQ", "AI_GROQ_BASE_URL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "GEMINI_API_KEY", "GROQ_API_KEY"])}
                 >
                   <Save size={15} />
                   <span>{savingSettings ? "Menyimpan Konfigurasi AI…" : "Simpan Konfigurasi AI"}</span>
