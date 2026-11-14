@@ -32,7 +32,7 @@ import { getMe, getDashboard, getHistory, getProducts, logout, pickUser, pickObj
 import { ErrorBox } from "../../components/Notice";
 import WorkspaceLoadingScreen from "../../components/WorkspaceLoadingScreen";
 import { useToast } from "../../components/Toast";
-import { SCORE_KEYS, averageScores, latestAnalyzedScan, fmtScore, fmtDate, pickAnalysis } from "../../lib/scores";
+import { SCORE_KEYS, averageScores, fmtScore, fmtDate, pickAnalysis } from "../../lib/scores";
 
 const STATUS_LABEL = {
   completed: "Selesai",
@@ -187,19 +187,22 @@ export default function DashboardPage() {
   }, []);
 
   const scans = history.length ? history : pickArray(dashboard && (dashboard.recent_scans || dashboard.scans));
-  const latest = latestAnalyzedScan(scans);
-  const analysis = latest ? pickAnalysis(latest) : null;
-  const overallScore = analysis?.overall_score;
+  // Dashboard menampilkan RATA-RATA semua scan yang teranalisis, bukan
+  // scan terakhir — satu scan bisa outlier; fokus perawatan ditentukan
+  // dari rerata (2026-11-14, keputusan pemilik produk). Helper yang
+  // sama dipakai halaman Riwayat untuk "Rata-rata dari N scan".
+  const avg = averageScores(scans);
+  const overallScore = avg?.overall_score;
 
   const totalScans = scans.length;
   const analyzedCount = scans.filter((s) => s.status === "completed").length;
   const pendingCount = scans.filter((s) => s.status === "processing" || s.status === "pending").length;
 
   let topFinding = null;
-  if (analysis) {
+  if (avg) {
     for (const [key, label] of SCORE_KEYS) {
       if (key === "overall_score") continue;
-      const v = Number(analysis[key]);
+      const v = Number(avg[key]);
       if (Number.isFinite(v) && (topFinding === null || v > topFinding.value)) {
         topFinding = { label, value: v };
       }
@@ -220,15 +223,15 @@ export default function DashboardPage() {
               <div className="dash-hero-content">
                 <div className="badge badge-amber" style={{ width: "fit-content", marginBottom: "8px" }}>
                   <Sparkles size={13} aria-hidden="true" />
-                  <span>RINGKASAN DIAGNOSIS TERKINI</span>
+                  <span>RATA-RATA KONDISI KULIT</span>
                 </div>
 
                 <h1 className="dash-hero-title">
                   {user ? `Halo, ${user.name || user.email}` : "Dashboard Kesehatan Kulit"}
                 </h1>
                 <p className="dash-hero-sub">
-                  {latest
-                    ? `Hasil pemindaian terakhir tercatat pada ${fmtDate(latest.created_at || latest.created)}. Sistem AI memantau regenerasi kulitmu secara berkala.`
+                  {avg
+                    ? `Rata-rata dari ${avg.count} scan teranalisis. Sistem AI memantau regenerasi kulitmu secara berkala.`
                     : "Mulai perjalanan kesehatan kulitmu dengan melakukan pemindaian pertama. Analisis AI akan mengevaluasi 5 pilar kesehatan wajah secara objektif."}
                 </p>
 
@@ -295,9 +298,9 @@ export default function DashboardPage() {
 
               <div className="dash-kpi-pillar">
                 <span className="kpi-label">FOKUS PERAWATAN UTAMA</span>
-                <strong className="kpi-value">{topFinding ? topFinding.label : "Normal"}</strong>
+                <strong className="kpi-value">{topFinding ? topFinding.label : "—"}</strong>
                 <span className="kpi-subtext">
-                  {topFinding ? `Skor keterpaparan ${topFinding.value}%` : "Kondisi wajah stabil"}
+                  {topFinding ? `Skor rata-rata ${topFinding.value}%` : "Belum ada data analisis"}
                 </span>
               </div>
             </div>
@@ -310,7 +313,7 @@ export default function DashboardPage() {
               <div className="panel-header-row">
                 <div>
                   <h2 className="panel-title">Tingkat 5 Kondisi Wajah</h2>
-                  <p className="panel-subtitle">Semakin tinggi persentasenya, semakin kuat kondisi tersebut terdeteksi pada wajahmu.</p>
+                  <p className="panel-subtitle">{avg ? `Rata-rata dari ${avg.count} scan teranalisis. ` : ""}Semakin tinggi persentasenya, semakin kuat kondisi tersebut terdeteksi pada wajahmu.</p>
                 </div>
                 <Link href="/history" className="panel-link">
                   Lihat Riwayat &amp; Diagnosis <ChevronRight size={14} />
@@ -318,11 +321,11 @@ export default function DashboardPage() {
               </div>
 
               <div className="dash-meters-stack">
-                <ScoreMeterRow label="Jerawat & Inflamasi (Acne)" value={analysis?.acne_score} />
-                <ScoreMeterRow label="Dehidrasi & Kulit Kering (Dryness)" value={analysis?.dry_skin_score} />
-                <ScoreMeterRow label="Produksi Minyak & Sebum (Oiliness)" value={analysis?.oily_skin_score} />
-                <ScoreMeterRow label="Noda Gelap & Pigmen (Dark Spots)" value={analysis?.dark_spots_score} />
-                <ScoreMeterRow label="Garis Halus & Kerutan (Wrinkles)" value={analysis?.wrinkles_score} />
+                <ScoreMeterRow label="Jerawat & Inflamasi (Acne)" value={avg?.acne_score} />
+                <ScoreMeterRow label="Dehidrasi & Kulit Kering (Dryness)" value={avg?.dry_skin_score} />
+                <ScoreMeterRow label="Produksi Minyak & Sebum (Oiliness)" value={avg?.oily_skin_score} />
+                <ScoreMeterRow label="Noda Gelap & Pigmen (Dark Spots)" value={avg?.dark_spots_score} />
+                <ScoreMeterRow label="Garis Halus & Kerutan (Wrinkles)" value={avg?.wrinkles_score} />
               </div>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 16px", marginTop: "14px", fontSize: "11.5px", color: "rgba(7, 18, 54, 0.72)", fontWeight: 600 }}>
