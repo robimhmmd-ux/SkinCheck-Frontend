@@ -64,7 +64,6 @@ const AI_PROVIDERS = [
   { id: "gemini", label: "Gemini", detail: "Google AI Studio", keyField: "GEMINI_API_KEY", modelField: "AI_MODEL", defaultModel: "gemini-1.5-flash", baseUrlField: null, defaultBaseUrl: "" },
   { id: "nvidia", label: "NVIDIA", detail: "OpenAI-compatible", keyField: "NVIDIA_API_KEY", modelField: "AI_MODEL_NVIDIA", defaultModel: "meta/llama-3.1-8b-instruct", baseUrlField: "AI_NVIDIA_BASE_URL", defaultBaseUrl: "https://integrate.api.nvidia.com/v1" },
   { id: "groq", label: "Groq", detail: "GroqCloud", keyField: "GROQ_API_KEY", modelField: "AI_MODEL_GROQ", defaultModel: "llama-3.3-70b-versatile", baseUrlField: "AI_GROQ_BASE_URL", defaultBaseUrl: "https://api.groq.com/openai/v1" },
-  { id: "deepseek", label: "DeepSeek", detail: "DeepSeek Platform", keyField: "DEEPSEEK_API_KEY", modelField: "AI_MODEL_DEEPSEEK", defaultModel: "deepseek-chat", baseUrlField: "AI_DEEPSEEK_BASE_URL", defaultBaseUrl: "https://api.deepseek.com/v1" },
 ];
 
 function SettingsContent() {
@@ -115,7 +114,10 @@ function SettingsContent() {
 
   // Provider AI aktif (AI_PROVIDER) + konfigurasinya. Bilah pilih model
   // hanya menampilkan provider yang SUDAH TERDAFTAR (kunci tersimpan).
-  const provider = values.AI_PROVIDER || "gemini";
+  // Nilai tersimpan yang tidak dikenal (mis. "deepseek" lama, sebelum
+  // provider itu dihapus 2026-11-14) jatuh ke Gemini — bilah tidak
+  // pernah tampil tanpa yang aktif.
+  const provider = AI_PROVIDERS.some((p) => p.id === values.AI_PROVIDER) ? values.AI_PROVIDER : "gemini";
   const providerCfg = AI_PROVIDERS.find((p) => p.id === provider) || AI_PROVIDERS[0];
   const isProviderRegistered = (p) => Boolean(meta[p.keyField]?.configured);
 
@@ -186,6 +188,13 @@ function SettingsContent() {
         keysToSave.forEach((k) => {
           if (values[k] !== undefined) payload[k] = values[k];
         });
+      }
+      // Nilai AI_PROVIDER tersimpan yang sudah tidak dikenal (mis.
+      // "deepseek" lama) dinormalkan ke provider aktif (Gemini) supaya
+      // simpan tidak 400 di backend — bilah sudah menampilkan Gemini
+      // sebagai aktif untuk nilai seperti itu.
+      if (payload.AI_PROVIDER !== undefined && !AI_PROVIDERS.some((p) => p.id === payload.AI_PROVIDER)) {
+        payload = { ...payload, AI_PROVIDER: provider };
       }
       const res = await updateAdminSettings(payload);
       const obj = pickObject(res);
@@ -606,7 +615,7 @@ function SettingsContent() {
                   type="button"
                   className="btn btn-primary"
                   disabled={savingSettings}
-                  onClick={() => handleSaveSettings(["AI_PROVIDER", "AI_MODEL", "AI_MODEL_NVIDIA", "AI_MODEL_GROQ", "AI_MODEL_DEEPSEEK", "AI_NVIDIA_BASE_URL", "AI_GROQ_BASE_URL", "AI_DEEPSEEK_BASE_URL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "GEMINI_API_KEY", "NVIDIA_API_KEY", "GROQ_API_KEY", "DEEPSEEK_API_KEY"])}
+                  onClick={() => handleSaveSettings(["AI_PROVIDER", "AI_MODEL", "AI_MODEL_NVIDIA", "AI_MODEL_GROQ", "AI_NVIDIA_BASE_URL", "AI_GROQ_BASE_URL", "AI_MAX_TOKENS", "AI_TEMPERATURE", "AI_SIMULATION_MODE", "GEMINI_API_KEY", "NVIDIA_API_KEY", "GROQ_API_KEY"])}
                 >
                   <Save size={15} />
                   <span>{savingSettings ? "Menyimpan Konfigurasi AI…" : "Simpan Konfigurasi AI"}</span>
