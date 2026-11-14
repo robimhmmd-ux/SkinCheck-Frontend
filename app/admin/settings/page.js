@@ -120,6 +120,26 @@ function SettingsContent() {
   const provider = AI_PROVIDERS.some((p) => p.id === values.AI_PROVIDER) ? values.AI_PROVIDER : "gemini";
   const providerCfg = AI_PROVIDERS.find((p) => p.id === provider) || AI_PROVIDERS[0];
   const isProviderRegistered = (p) => Boolean(meta[p.keyField]?.configured);
+  // Daftar provider TERVERIFIKASI (2026-11-14): kunci tersimpan DAN tes
+  // terakhir lolos — dari setting JSON AI_VERIFIED_PROVIDERS (backend
+  // menulisnya dari hasil test-ai). Hanya provider terverifikasi yang
+  // tampil sebagai tombol pilih di bilah; terdaftar-belum-teruji tampil
+  // baris redup + tombol "Uji"; belum terdaftar tidak tampil sama sekali.
+  // Semua provider mulai belum-terverifikasi (tidak ada catatan tes
+  // sebelumnya) — admin menguji tiap provider sekali lewat "Uji" / modal.
+  const verifiedProviders = (() => {
+    try {
+      const raw = meta.AI_VERIFIED_PROVIDERS?.value ?? values.AI_VERIFIED_PROVIDERS ?? "[]";
+      const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+      return Array.isArray(parsed) ? parsed.filter((p) => ["gemini", "nvidia", "groq"].includes(p)) : [];
+    } catch {
+      return [];
+    }
+  })();
+  const isProviderVerified = (p) => verifiedProviders.includes(p.id);
+  // Preview kunci dari backend (4 awal + "..." + 4 akhir) — kunci lengkap
+  // tidak pernah dikirim ke frontend, jadi tidak bisa ditampilkan penuh.
+  const keyPreview = (p) => meta[p.keyField]?.preview || "";
 
   async function loadAllData() {
     setLoading(true);
@@ -167,6 +187,26 @@ function SettingsContent() {
     }
   }
 
+  // Muat ulang settings tanpa kedipan loading (2026-11-14): dipakai
+  // setelah uji/simpan agar bilah provider + preview kunci langsung
+  // mutakhir. Kegagalan refresh bukan kegagalan aksi utama.
+  async function refreshSettings() {
+    try {
+      const obj = pickObject(await getAdminSettings());
+      const list = obj.settings || [];
+      const v = {};
+      const m = {};
+      for (const s of list) {
+        v[s.key] = s.masked ? "" : (s.value ?? "");
+        m[s.key] = s;
+      }
+      setValues(v);
+      setMeta(m);
+    } catch (e) {
+      console.warn("Gagal memuat ulang pengaturan:", e);
+    }
+  }
+
   useEffect(() => {
     loadAllData();
   }, []);
@@ -211,17 +251,40 @@ function SettingsContent() {
   // Pilih provider lain yang sudah terdaftar: simpan AI_PROVIDER dulu
   // (supaya test-ai memakai provider baru), lalu uji respon otomatis.
   async function handleSelectProvider(p) {
-    if (p.id === provider || switchingProvider || !isProviderRegistered(p)) return;
+    if (p.id === provider || switchingProvider || !isProviderVerified(p)) return;
     setSwitchingProvider(true);
     try {
       await updateAdminSettings({ AI_PROVIDER: p.id });
       setValues((prev) => ({ ...prev, AI_PROVIDER: p.id }));
       toast.success(`Model aktif diganti ke ${p.label} (${values[p.modelField] || p.defaultModel}).`);
-      await runTest("ai", testAdminAi);
+      await runTest("ai", () => testAdminAi(p.id));
+      await refreshSettings();
     } catch (err) {
       toast.error(err.message || "Gagal mengganti model aktif.");
     } finally {
       setSwitchingProvider(false);
+    }
+  }
+
+  // Uji satu provider dari baris "Belum teruji" (2026-11-14): test-ai
+  // untuk provider itu; bila lolos, bilah langsung menampilkan tombolnya.
+  async function handleTestProvider(p) {
+    if (testing === `ai-${p.id}`) return;
+    setTesting(`ai-${p.id}`);
+    try {
+      const res = pickObject(await testAdminAi(p.id));
+      setTests((prev) => ({ ...prev, ai: res }));
+      if (res.ok) {
+        toast.success(`${p.label} terverifikasi — tombol ${p.label} kini tersedia di bilah model aktif.`);
+      } else {
+        toast.error(res.detail || `Pengujian ${p.label} gagal.`);
+      }
+    } catch (err) {
+      setTests((prev) => ({ ...prev, ai: { ok: false, detail: err.message || "Gagal menguji." } }));
+      toast.error(err.message || `Gagal menguji ${p.label}.`);
+    } finally {
+      setTesting(null);
+      await refreshSettings();
     }
   }
 
@@ -295,15 +358,23 @@ function SettingsContent() {
 
   // Simpan kunci + model hasil deteksi. TIDAK mengubah AI_PROVIDER:
   // provider aktif hanya berubah bila admin memilihnya di bilah pilih model.
+  // Setelah simpan, kunci langsung DIUJI otomatis (2026-11-14): tombol
+  // provider hanya muncul bila kunci berhasil ditambahkan DAN diuji.
   async function handleSaveModalKey() {
     const cfg = AI_PROVIDERS.find((p) => p.id === detectResult?.provider);
     if (!cfg || !selectedModalModel || !modalKey.trim()) return;
     setSavingKey(true);
     try {
       await updateAdminSettings({ [cfg.keyField]: modalKey.trim(), [cfg.modelField]: selectedModalModel });
-      toast.success(`API key ${cfg.label} tersimpan — model ${selectedModalModel} kini terdaftar.`);
       closeKeyModal();
-      await loadAllData();
+      const res = pickObject(await testAdminAi(cfg.id));
+      setTests((prev) => ({ ...prev, ai: res }));
+      if (res.ok) {
+        toast.success(`API key ${cfg.label} tersimpan dan terverifikasi — model ${selectedModalModel} kini bisa dipilih.`);
+      } else {
+        toast.error(`Kunci ${cfg.label} tersimpan, tapi pengujian gagal: ${res.detail || "cek kunci, nama model, dan koneksi."} Tombol ${cfg.label} belum muncul — coba lagi lewat tombol "Uji".`);
+      }
+      await refreshSettings();
     } catch (err) {
       toast.error(err.message || "Gagal menyimpan API key.");
     } finally {
@@ -353,6 +424,9 @@ function SettingsContent() {
       setTests((prev) => ({ ...prev, [name]: { ok: false, detail: err.message || "Gagal menguji." } }));
     } finally {
       setTesting(null);
+      // Uji AI mengubah status terverifikasi (2026-11-14) — muat ulang
+      // settings agar bilah provider langsung mencerminkan hasilnya.
+      if (name === "ai") await refreshSettings();
     }
   }
 
@@ -510,29 +584,54 @@ function SettingsContent() {
                 Parameter berikut mengendalikan model bahasa yang digunakan oleh <strong>Laomera Asisten</strong> untuk membaca hasil diagnosis dan memberikan edukasi bahan aktif.
               </p>
 
-              {/* Bilah pilih model: hanya provider yang sudah terdaftar bisa dipilih. */}
+              {/* Bilah pilih model (2026-11-14): hanya provider TERVERIFIKASI
+                  (kunci tersimpan + tes terakhir lolos) yang tampil sebagai
+                  tombol pilih. Terdaftar-belum-teruji tampil baris redup +
+                  tombol "Uji"; belum terdaftar tidak tampil sama sekali. */}
               <div style={{ marginBottom: "18px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)", display: "block", marginBottom: "8px" }}>Model AI Aktif — pilih model yang sudah terdaftar</span>
+                <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--brand-navy)", display: "block", marginBottom: "8px" }}>Model AI Aktif — pilih model yang sudah terverifikasi</span>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px" }}>
                   {AI_PROVIDERS.map((p) => {
                     const registered = isProviderRegistered(p);
+                    const verified = isProviderVerified(p);
                     const active = provider === p.id;
+                    const preview = keyPreview(p);
+                    if (!registered) return null; // belum terdaftar: tidak tampil sama sekali
+                    if (!verified) {
+                      // Terdaftar tapi belum teruji: baris redup + tombol "Uji".
+                      return (
+                        <div key={p.id} style={{ textAlign: "left", padding: "12px 16px", borderRadius: "16px", border: "1px solid rgba(0, 0, 0, 0.08)", background: "#f1f5f9", color: "#071236", opacity: 0.65, display: "grid", gap: "6px" }}>
+                          <span style={{ fontSize: "13.5px", fontWeight: 700 }}>{p.label} ({p.detail})</span>
+                          <span style={{ fontSize: "12px", color: "rgba(7, 18, 54, 0.7)", wordBreak: "break-all" }}>{values[p.modelField] || p.defaultModel}</span>
+                          <span style={{ fontSize: "12px", color: "rgba(7, 18, 54, 0.7)", wordBreak: "break-all" }}>Kunci: {preview || "—"} • Belum teruji</span>
+                          <span>
+                            <button type="button" className="btn btn-secondary btn-sm" disabled={testing === `ai-${p.id}`} onClick={() => handleTestProvider(p)}>
+                              {testing === `ai-${p.id}` ? "Menguji…" : "Uji"}
+                            </button>
+                          </span>
+                        </div>
+                      );
+                    }
                     return (
                       <button
                         key={p.id}
                         type="button"
                         aria-pressed={active}
-                        disabled={!registered || switchingProvider}
+                        disabled={switchingProvider}
                         onClick={() => handleSelectProvider(p)}
-                        style={{ textAlign: "left", padding: "12px 16px", borderRadius: "16px", border: active ? "2px solid var(--sunflower-yellow)" : "1px solid rgba(0, 0, 0, 0.08)", cursor: !registered ? "not-allowed" : "pointer", background: active ? "var(--sunflower-yellow)" : registered ? "#e0e0e0" : "#f1f5f9", color: "#071236", opacity: !registered ? 0.65 : 1, display: "grid", gap: "2px" }}
+                        style={{ textAlign: "left", padding: "12px 16px", borderRadius: "16px", border: active ? "2px solid var(--sunflower-yellow)" : "1px solid rgba(0, 0, 0, 0.08)", cursor: "pointer", background: active ? "var(--sunflower-yellow)" : "#e0e0e0", color: "#071236", display: "grid", gap: "2px" }}
                       >
-                        <span style={{ fontSize: "13.5px", fontWeight: 700 }}>{p.label} ({p.detail}){active ? " • Aktif" : ""}</span>
-                        <span style={{ fontSize: "12px", color: "rgba(7, 18, 54, 0.7)", wordBreak: "break-all" }}>{registered ? (values[p.modelField] || p.defaultModel) : "Belum ada API key"}</span>
+                        <span style={{ fontSize: "13.5px", fontWeight: 700 }}>{p.label} ({p.detail}){active ? " • Dipakai saat ini" : ""}</span>
+                        <span style={{ fontSize: "12px", color: "rgba(7, 18, 54, 0.7)", wordBreak: "break-all" }}>{values[p.modelField] || p.defaultModel}</span>
+                        <span style={{ fontSize: "12px", color: "rgba(7, 18, 54, 0.7)", wordBreak: "break-all" }}>Kunci: {preview || "—"} • Terpasang</span>
                       </button>
                     );
                   })}
                 </div>
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Memilih model lain langsung menyimpan provider aktif dan menguji responnya otomatis. Provider tanpa API key tidak bisa dipilih — tambahkan dulu lewat tombol di bawah.</span>
+                {!AI_PROVIDERS.some((p) => isProviderRegistered(p)) && (
+                  <p style={{ fontSize: "12.5px", color: "var(--text-muted)", margin: "8px 0 0" }}>Belum ada provider AI yang terdaftar. Tambahkan API key lewat tombol di bawah.</p>
+                )}
+                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Hanya provider yang kuncinya tersimpan DAN tes terakhirnya lolos yang bisa dipilih. Provider terdaftar yang belum teruji tampil redup — tekan “Uji” untuk mengaktifkannya. Menyimpan kunci baru langsung menguji otomatis. Mengganti kunci/model menghapus status terverifikasi (harus uji ulang).</span>
               </div>
 
               <div style={{ marginBottom: "18px" }}>
@@ -1080,7 +1179,7 @@ function SettingsContent() {
                     {modalShowKey ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kunci hanya dipakai untuk mendeteksi provider, lalu disimpan di backend. Kunci tidak pernah ditampilkan kembali.</span>
+                <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Kunci hanya dipakai untuk mendeteksi provider, lalu disimpan di backend. Kunci lengkap tidak pernah ditampilkan kembali — di bilah provider hanya tampil potongan kunci (4 karakter awal + … + 4 akhir).</span>
               </div>
 
               {detecting && (
@@ -1127,7 +1226,7 @@ function SettingsContent() {
                       <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Menampilkan {filteredModalModels.length} dari {detectResult.models.length} model.</span>
                     </>
                   )}
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Menyimpan hanya menambahkan kunci + model ini. Provider aktif tidak berubah.</span>
+                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>Menyimpan hanya menambahkan kunci + model ini, lalu langsung menguji otomatis — tombol provider muncul bila pengujian lolos. Provider aktif tidak berubah.</span>
                 </div>
               )}
             </div>
